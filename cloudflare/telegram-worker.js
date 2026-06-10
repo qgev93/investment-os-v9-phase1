@@ -880,7 +880,7 @@ async function judgeTriageWithDeepSeek(env, originalText) {
 
 async function judgeTriageWithClaude(env, originalText) {
   if (!env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY가 없음");
-  const model = env.AI_MODEL_JUDGE || "claude-haiku-4-5-20251001";
+  const model = env.AI_MODEL_JUDGE || "claude-sonnet-4-6";
   const prompt = `${triageJudgePrompt(originalText)}\n\nJSON 한 줄만 답하라.`;
   const estimatedInput = estimateTokens(prompt);
   const estimatedOutput = 320;
@@ -916,7 +916,7 @@ async function judgeTriageWithClaude(env, originalText) {
   await recordAiCost(env, {
     provider: "anthropic",
     model,
-    reason: `triage:auto_score:anthropic:haiku45:${judged.grade}:${judged.decision}`,
+    reason: `triage:auto_score:anthropic:${model}:${judged.grade}:${judged.decision}`,
     inputTokens,
     outputTokens,
     estimatedKrw: actualKrw,
