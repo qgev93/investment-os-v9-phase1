@@ -37,5 +37,5 @@ node scripts/export-local-store-to-d1-sql.mjs automation/xapi-data/local-store.j
 npx wrangler d1 execute investment-os-v9-phase1 --remote --file automation/xapi-data/d1-import.sql
 ```
 
-Then it calls the deployed Worker `/telegram/auto-triage` endpoint once so the
-triage bot can prepare the next review card.
+Then it calls the deployed Worker `/telegram/auto-triage` endpoint with a
+10-unit scan limit so the triage bot can prepare the next review card.

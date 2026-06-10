@@ -115,7 +115,7 @@ jobs:
           curl -fsS -X POST "$WORKER_AUTO_TRIAGE_URL" \
             -H "content-type: application/json" \
             -H "x-admin-token: $WORKER_ADMIN_TOKEN" \
-            --data '{"limit":1}'
+            --data '{"limit":10}'
 
       - name: Upload X API working data backup
         if: always()

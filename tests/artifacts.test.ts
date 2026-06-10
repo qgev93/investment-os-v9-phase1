@@ -172,8 +172,8 @@ describe("Phase 1 implementation artifacts", () => {
     expect(worker).not.toContain("ops:help");
     expect(worker).toContain("sendOldestPendingApproval");
     expect(worker).toContain("AUTO_TRIAGE_SCAN_LIMIT");
-    expect(wrangler).toContain('AUTO_TRIAGE_BATCH_LIMIT = "1"');
-    expect(wrangler).toContain('AUTO_TRIAGE_SCAN_LIMIT = "3"');
+    expect(wrangler).toContain('AUTO_TRIAGE_BATCH_LIMIT = "10"');
+    expect(wrangler).toContain('AUTO_TRIAGE_SCAN_LIMIT = "10"');
   });
 
   it("does not block Telegram button callbacks while DeepSeek triage runs", () => {
@@ -283,6 +283,7 @@ describe("Phase 1 implementation artifacts", () => {
     expect(workflow).toContain("wrangler d1 execute investment-os-v9-phase1 --remote");
     expect(workflow).toContain("/telegram/auto-triage");
     expect(workflow).toContain("x-admin-token: $WORKER_ADMIN_TOKEN");
+    expect(workflow).toContain('--data \'{"limit":10}\'');
     expect(collect).toContain('os.environ.get("GETXAPI_KEY")');
     expect(enrich).toContain('os.environ.get("GETXAPI_KEY")');
     expect(fixNotFound).toContain('os.environ.get("GETXAPI_KEY")');
@@ -290,6 +291,24 @@ describe("Phase 1 implementation artifacts", () => {
     expect(gitignore).toContain("automation/xapi-data/");
     expect(docs).toContain("GETXAPI_KEY");
     expect(docs).toContain("GitHub Secrets");
+  });
+
+  it("uses Claude for first-pass triage with DeepSeek fallback", () => {
+    const worker = read("cloudflare/telegram-worker.js");
+    const wrangler = read("wrangler.toml");
+    const readme = read("README.md");
+
+    expect(worker).toContain("judgeTriageWithClaude");
+    expect(worker).toContain("fallbackFrom: \"anthropic\"");
+    expect(worker).toContain("judgeTriageWithDeepSeek");
+    expect(wrangler).toContain('AI_PROVIDER_PRIMARY = "deepseek"');
+    expect(wrangler).toContain('AI_MODEL_PRIMARY = "deepseek-v4-flash"');
+    expect(wrangler).toContain('AI_PROVIDER_JUDGE = "anthropic"');
+    expect(wrangler).toContain('AI_MODEL_JUDGE = "claude-haiku-4-5-20251001"');
+    expect(wrangler).toContain('AUTO_TRIAGE_BATCH_LIMIT = "10"');
+    expect(wrangler).toContain('AUTO_TRIAGE_SCAN_LIMIT = "10"');
+    expect(readme).toContain("Claude Haiku 4.5");
+    expect(readme).toContain("DeepSeek fallback");
   });
 
   it("protects public Worker operations with an admin token", () => {

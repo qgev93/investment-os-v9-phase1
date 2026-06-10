@@ -250,7 +250,7 @@ First cloud run:
 
 After the first run, the daily schedule restores cached progress, collects new X
 data, rebuilds context trees, imports to Cloudflare D1, and calls
-`/telegram/auto-triage` once.
+`/telegram/auto-triage` with a 10-unit scan limit.
 
 Set secrets in Cloudflare, not in git:
 
@@ -291,13 +291,13 @@ AI_MODE=needed_only
 AI_PROVIDER_PRIMARY=deepseek
 AI_MODEL_PRIMARY=deepseek-v4-flash
 AI_PROVIDER_JUDGE=anthropic
-AI_MODEL_JUDGE=claude-sonnet-4-6
+AI_MODEL_JUDGE=claude-haiku-4-5-20251001
 AI_JUDGE_MODE=important_only
 AI_DAILY_LIMIT_KRW=3000
 AI_MONTHLY_LIMIT_KRW=30000
 ```
 
-DeepSeek V4 Flash is the default low-cost model for the 체화 봇. Claude Sonnet 4.6 is reserved for important judgement. X API collection and 체화구분 remain free/local unless paid providers are explicitly enabled later.
+DeepSeek V4 Flash is the default low-cost model for the 체화 봇. Claude Haiku 4.5 is the first-pass scorer for 체화구분, with DeepSeek fallback if Claude fails. X API collection still runs through the configured X API workflow.
 
 ## Implemented Phase 1 gates
 
