@@ -1,0 +1,47 @@
+{
+  "experts": ["@min_anko38", "@LNCV34", "@Alisvolatprop12"],
+  "posts": [
+    {
+      "post_id": "min-001",
+      "expert_handle": "@min_anko38",
+      "text": "현금흐름이 먼저고 가격은 그 다음이다.",
+      "created_at": "2026-01-01T09:00:00.000Z",
+      "trust_layer": "canonical",
+      "is_rt_only": false,
+      "structural_basis": ["original_post"]
+    },
+    {
+      "post_id": "min-rt-001",
+      "expert_handle": "@min_anko38",
+      "text": "",
+      "created_at": "2026-01-01T10:00:00.000Z",
+      "trust_layer": "gray",
+      "is_rt_only": true,
+      "retweeted_post_id": "external-001",
+      "structural_basis": ["repost_or_retweet"]
+    },
+    {
+      "post_id": "lncv-001",
+      "expert_handle": "@LNCV34",
+      "text": "좋은 뉴스보다 포지션이 어떻게 쌓였는지가 더 중요하다.",
+      "created_at": "2026-01-02T09:00:00.000Z",
+      "trust_layer": "pending",
+      "is_rt_only": false,
+      "structural_basis": ["original_post"],
+      "source_stimulus": {
+        "status": "unavailable",
+        "availability_reason": "provider_missing_source"
+      }
+    },
+    {
+      "post_id": "alis-001",
+      "expert_handle": "@Alisvolatprop12",
+      "text": "반복되는 변동성 압축은 같은 말이 아니라 타이밍의 변화다.",
+      "created_at": "2026-01-03T09:00:00.000Z",
+      "trust_layer": "canonical",
+      "is_rt_only": false,
+      "structural_basis": ["original_post"],
+      "pattern_signature": "volatility compression timing"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "name": "Investment OS Phase1 Daily Ingestion",
+  "nodes": [
+    {
+      "name": "Daily Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "days", "triggerAtHour": 7 }]
+        }
+      }
+    },
+    {
+      "name": "Local Daily Import",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:4319/ingest/daily",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"source\":\"fixtures\"}"
+      }
+    },
+    {
+      "name": "PAID Apify Discovery Disabled",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "disabled": true,
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Daily Schedule": {
+      "main": [[{ "node": "Local Daily Import", "type": "main", "index": 0 }]]
+    }
+  }
+}

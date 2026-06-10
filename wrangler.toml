@@ -1,0 +1,26 @@
+name = "investment-os-v9-phase1"
+main = "cloudflare/telegram-worker.js"
+compatibility_date = "2026-05-15"
+account_id = "751fb2353b94f45ce82cacff3e5e28c2"
+
+[vars]
+ALLOW_PAID_PROVIDERS = "false"
+AI_MODE = "needed_only"
+AI_PROVIDER_PRIMARY = "deepseek"
+AI_MODEL_PRIMARY = "deepseek-v4-flash"
+AI_PROVIDER_JUDGE = "deepseek"
+AI_MODEL_JUDGE = "deepseek-v4-flash"
+AI_JUDGE_MODE = "important_only"
+AUTO_TRIAGE_BATCH_LIMIT = "1"
+AUTO_TRIAGE_SCAN_LIMIT = "3"
+AUTO_TRIAGE_ENABLED = "false"
+AI_DAILY_LIMIT_KRW = "3000"
+AI_MONTHLY_LIMIT_KRW = "30000"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[[d1_databases]]
+binding = "PHASE1_DB"
+database_name = "investment-os-v9-phase1"
+database_id = "2fc358e0-86be-46e4-8518-f97feb5860d4"

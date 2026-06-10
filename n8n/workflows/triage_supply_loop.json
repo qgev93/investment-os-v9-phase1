@@ -1,0 +1,39 @@
+{
+  "name": "Investment OS Phase1 Triage Supply Loop",
+  "nodes": [
+    {
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {}
+    },
+    {
+      "name": "Local JIT Batch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:4319/jit/enqueue",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"limit\":100,\"provider\":\"manual\"}"
+      }
+    },
+    {
+      "name": "PAID Canonical Verification Disabled",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "disabled": true,
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [[{ "node": "Local JIT Batch", "type": "main", "index": 0 }]]
+    }
+  }
+}

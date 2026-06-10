@@ -1,0 +1,27 @@
+{
+  "name": "investment-os-v9-phase1",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "phase1": "tsx src/cli.ts",
+    "server": "tsx src/server.ts",
+    "d1:export-local": "node scripts/export-local-store-to-d1-sql.mjs",
+    "cloudflare:dev": "npx wrangler dev",
+    "cloudflare:d1:migrate": "npx wrangler d1 execute investment-os-v9-phase1 --remote --file db/d1/001_phase1_schema.sql",
+    "cloudflare:deploy": "npx wrangler deploy"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "@types/pg": "^8.20.0",
+    "n8n": "^2.20.7-exp.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.4"
+  },
+  "dependencies": {
+    "pg": "^8.20.0"
+  }
+}
