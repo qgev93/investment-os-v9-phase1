@@ -72,24 +72,26 @@ jobs:
           mkdir -p automation/xapi-data
           cp scripts/xapi/*.py automation/xapi-data/
 
-      - name: Stop scheduled run before accidental full backfill
-        if: ${{ github.event_name == 'schedule' }}
+      - name: Decide collection mode
+        id: collection-mode
         run: |
-          if [ ! -f automation/xapi-data/progress.json ]; then
-            echo "No cached progress found. Scheduled run will not start full historical backfill."
-            echo "Run workflow_dispatch with full_backfill=true once, or seed automation/xapi-data from a previous artifact."
+          if [ -f automation/xapi-data/progress.json ]; then
+            echo "run_pipeline=true" >> "$GITHUB_OUTPUT"
+            echo "Cached progress found. Running incremental collection."
             exit 0
           fi
 
-      - name: Stop manual run before accidental full backfill
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.full_backfill != 'true' }}
-        run: |
-          if [ ! -f automation/xapi-data/progress.json ]; then
-            echo "No cached progress found. Set full_backfill=true for the first run."
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.full_backfill }}" = "true" ]; then
+            echo "run_pipeline=true" >> "$GITHUB_OUTPUT"
+            echo "Full backfill explicitly requested."
             exit 0
           fi
+
+          echo "run_pipeline=false" >> "$GITHUB_OUTPUT"
+          echo "No cached progress found. Skipping collection to avoid accidental full backfill."
 
       - name: Run X API collection pipeline
+        if: ${{ steps.collection-mode.outputs.run_pipeline == 'true' }}
         working-directory: automation/xapi-data
         run: |
           python collect.py
@@ -98,19 +100,22 @@ jobs:
           python rebuild_trees.py
 
       - name: Import prepared contexts into local store
+        if: ${{ steps.collection-mode.outputs.run_pipeline == 'true' }}
         run: |
           PHASE1_STORE_PATH=automation/xapi-data/local-store.json npm run phase1 -- ingest:historical --source xapi --file automation/xapi-data/context_units.json --context-trees automation/xapi-data/context_trees.json --raw-posts-enriched automation/xapi-data/raw_posts_enriched.json --persist
 
       - name: Export local store to D1 SQL
+        if: ${{ steps.collection-mode.outputs.run_pipeline == 'true' }}
         run: |
           node scripts/export-local-store-to-d1-sql.mjs automation/xapi-data/local-store.json automation/xapi-data/d1-import.sql
 
       - name: Import into Cloudflare D1
+        if: ${{ steps.collection-mode.outputs.run_pipeline == 'true' }}
         run: |
           npx wrangler d1 execute investment-os-v9-phase1 --remote --file automation/xapi-data/d1-import.sql
 
       - name: Trigger one automatic triage scan
-        if: ${{ github.event_name == 'schedule' || inputs.auto_triage == 'true' }}
+        if: ${{ steps.collection-mode.outputs.run_pipeline == 'true' && (github.event_name == 'schedule' || inputs.auto_triage == 'true') }}
         run: |
           curl -fsS -X POST "$WORKER_AUTO_TRIAGE_URL" \
             -H "content-type: application/json" \
