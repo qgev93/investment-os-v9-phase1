@@ -87,8 +87,9 @@ jobs:
             exit 0
           fi
 
-          echo "run_pipeline=false" >> "$GITHUB_OUTPUT"
-          echo "No cached progress found. Skipping collection to avoid accidental full backfill."
+          python automation/xapi-data/seed_progress.py
+          echo "run_pipeline=true" >> "$GITHUB_OUTPUT"
+          echo "No cached progress found. Seeded safe incremental progress instead of running a full backfill."
 
       - name: Run X API collection pipeline
         if: ${{ steps.collection-mode.outputs.run_pipeline == 'true' }}

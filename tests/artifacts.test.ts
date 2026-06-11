@@ -183,7 +183,8 @@ describe("Phase 1 implementation artifacts", () => {
     expect(worker).toContain("ctx?.waitUntil");
     expect(worker).toContain("runTriageUntilReviewCard");
     expect(worker).toContain("runTriageUntilReviewCard(env, chatId)");
-    expect(worker).not.toContain("sendBackgroundFailureFallback");
+    expect(worker).toContain("sendBackgroundFailureNotice");
+    expect(worker).toContain("sendOldestPendingApproval(env, chatId)");
     expect(worker).not.toContain('text: "다음"');
     expect(worker).toContain("handleWebhook(request, env, botRole, ctx)");
     expect(worker).toContain("handleWebhook(request, env, \"triage\", ctx)");
@@ -267,12 +268,14 @@ describe("Phase 1 implementation artifacts", () => {
   it("ships PC-off X collection automation without committing API secrets", () => {
     const workflow = read(".github/workflows/xapi-daily.yml");
     const collect = read("scripts/xapi/collect.py");
+    const seedProgress = read("scripts/xapi/seed_progress.py");
     const enrich = read("scripts/xapi/enrich.py");
     const fixNotFound = read("scripts/xapi/fix_not_found.py");
     const docs = read("scripts/xapi/README.md");
     const gitignore = read(".gitignore");
 
     expect(exists("scripts/xapi/rebuild_trees.py")).toBe(true);
+    expect(exists("scripts/xapi/seed_progress.py")).toBe(true);
     expect(exists("scripts/xapi/requirements.txt")).toBe(true);
     expect(workflow).toContain("schedule:");
     expect(workflow).toContain("workflow_dispatch:");
@@ -280,11 +283,14 @@ describe("Phase 1 implementation artifacts", () => {
     expect(workflow).toContain("CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}");
     expect(workflow).toContain("WORKER_ADMIN_TOKEN: ${{ secrets.WORKER_ADMIN_TOKEN }}");
     expect(workflow).toContain("PHASE1_STORE_PATH=automation/xapi-data/local-store.json");
+    expect(workflow).toContain("python automation/xapi-data/seed_progress.py");
     expect(workflow).toContain("wrangler d1 execute investment-os-v9-phase1 --remote");
     expect(workflow).toContain("/telegram/auto-triage");
     expect(workflow).toContain("x-admin-token: $WORKER_ADMIN_TOKEN");
     expect(workflow).toContain('--data \'{"limit":10}\'');
     expect(collect).toContain('os.environ.get("GETXAPI_KEY")');
+    expect(collect).toContain("completed_until");
+    expect(seedProgress).toContain("seeded_incremental");
     expect(enrich).toContain('os.environ.get("GETXAPI_KEY")');
     expect(fixNotFound).toContain('os.environ.get("GETXAPI_KEY")');
     expect(`${collect}\n${enrich}\n${fixNotFound}`).not.toContain("get-x-api-");
@@ -304,10 +310,10 @@ describe("Phase 1 implementation artifacts", () => {
     expect(wrangler).toContain('AI_PROVIDER_PRIMARY = "deepseek"');
     expect(wrangler).toContain('AI_MODEL_PRIMARY = "deepseek-v4-flash"');
     expect(wrangler).toContain('AI_PROVIDER_JUDGE = "anthropic"');
-    expect(wrangler).toContain('AI_MODEL_JUDGE = "claude-haiku-4-5-20251001"');
+    expect(wrangler).toContain('AI_MODEL_JUDGE = "claude-sonnet-4-6"');
     expect(wrangler).toContain('AUTO_TRIAGE_BATCH_LIMIT = "10"');
     expect(wrangler).toContain('AUTO_TRIAGE_SCAN_LIMIT = "10"');
-    expect(readme).toContain("Claude Haiku 4.5");
+    expect(readme).toContain("Claude Sonnet 4.6");
     expect(readme).toContain("DeepSeek fallback");
   });
 

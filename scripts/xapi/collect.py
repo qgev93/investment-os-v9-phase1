@@ -62,12 +62,19 @@ def load_progress():
     if os.path.exists(PROGRESS_FILE):
         with open(PROGRESS_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
-    return {"completed_ranges": {}, "posts": {}}
+    return {"completed_ranges": {}, "posts": {}, "completed_until": {}}
 
 
 def save_progress(progress):
     with open(PROGRESS_FILE, "w", encoding="utf-8") as f:
         json.dump(progress, f, ensure_ascii=False)
+
+
+def effective_start_date(username, fallback_start_date, progress):
+    completed_until = progress.get("completed_until", {}).get(username)
+    if completed_until:
+        return max(fallback_start_date, completed_until)
+    return fallback_start_date
 
 
 def safe_request(params):
@@ -129,6 +136,8 @@ def get_posts_by_range(username, since, until):
 
 
 def collect_account(username, start_date, progress):
+    if "completed_until" not in progress:
+        progress["completed_until"] = {}
     if username not in progress["posts"]:
         progress["posts"][username] = []
     if username not in progress["completed_ranges"]:
@@ -138,7 +147,7 @@ def collect_account(username, start_date, progress):
     seen_ids = set(str(p.get("id")) for p in all_posts)
     done_ranges = set(tuple(r) for r in progress["completed_ranges"][username])
 
-    ranges = date_ranges(start_date, INTERVAL_MONTHS)
+    ranges = date_ranges(effective_start_date(username, start_date, progress), INTERVAL_MONTHS)
     total_ranges = len(ranges)
 
     for idx, (since, until) in enumerate(ranges, 1):
@@ -159,6 +168,7 @@ def collect_account(username, start_date, progress):
         print(f"    → {len(posts)}개 받음, 신규 {new_count}개, 누적 {len(all_posts)}개")
 
         progress["completed_ranges"][username].append([since, until])
+        progress["completed_until"][username] = until
         progress["posts"][username] = all_posts
         save_progress(progress)
         time.sleep(0.5)

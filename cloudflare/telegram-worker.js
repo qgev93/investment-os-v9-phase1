@@ -63,6 +63,18 @@ function queueBackground(ctx, task, onError) {
   return true;
 }
 
+async function sendBackgroundFailureNotice(env, botRole, chatId, message) {
+  try {
+    await telegram(env, botRole, "sendMessage", {
+      chat_id: chatId,
+      text: message,
+      reply_markup: { inline_keyboard: BACK_TO_MENU },
+    });
+  } catch (error) {
+    console.error("failed to send background failure notice", error);
+  }
+}
+
 function messageChunks(text, maxLength = 3600) {
   if (text.length <= maxLength) return [text];
   const chunks = [];
@@ -1260,10 +1272,26 @@ async function handleTriage(env, callback, ctx) {
         triageScore,
       );
       await clearClickedMessage(env, "triage", callback);
+      const sentPending = await sendOldestPendingApproval(env, chatId);
+      if (sentPending) {
+        return {
+          decision,
+          nextResult: {
+            action: "sendOldestPendingApproval",
+            pendingApproval: 1,
+            reusedPendingApproval: true,
+          },
+        };
+      }
       const nextResult = await runTriageUntilReviewCard(env, chatId);
       return { decision, nextResult };
     };
-    if (queueBackground(ctx, runApproval)) {
+    if (queueBackground(ctx, runApproval, (error) => sendBackgroundFailureNotice(
+      env,
+      "triage",
+      chatId,
+      `다음 맥락을 준비하다가 멈췄습니다.\n이유: ${error.message}\n\n시작을 누르면 다시 이어갑니다.`,
+    ))) {
       return {
         handled: true,
         action,
@@ -1421,7 +1449,12 @@ async function handleOps(env, callback, ctx) {
       await clearClickedMessage(env, "triage", callback);
       return runTriageUntilReviewCard(env, chatId);
     };
-    if (queueBackground(ctx, runAutoTriage)) {
+    if (queueBackground(ctx, runAutoTriage, (error) => sendBackgroundFailureNotice(
+      env,
+      "triage",
+      chatId,
+      `체화구분을 준비하다가 멈췄습니다.\n이유: ${error.message}\n\n시작을 누르면 다시 이어갑니다.`,
+    ))) {
       return { handled: true, action: "auto_triage_queued" };
     }
     const result = await runAutoTriage();
