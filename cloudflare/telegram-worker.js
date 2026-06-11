@@ -446,7 +446,7 @@ async function sendTriageReviewCard(env, chatId, unit, judged) {
       [{ text: "체화봇으로 보내기", callback_data: `triage:approve:${unit.unit_id}` }],
       [{ text: "이번 건 넘기기", callback_data: `triage:reject:${unit.unit_id}` }],
     ],
-  });
+  }, { cleanupBefore: true, remember: true });
 }
 
 function triageMessage(unit) {
@@ -1692,6 +1692,7 @@ async function resendPendingApproval(env) {
       "WHERE triage_decision = 'pendingApproval'",
       "AND triage_grade IN ('A', 'B')",
       "ORDER BY completed_at ASC, unit_id ASC",
+      "LIMIT 1",
     ].join(" "),
   ).all();
   const units = query.results ?? [];
