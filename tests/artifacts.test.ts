@@ -282,14 +282,17 @@ describe("Phase 1 implementation artifacts", () => {
     expect(exists("scripts/xapi/rebuild_trees.py")).toBe(true);
     expect(exists("scripts/xapi/seed_progress.py")).toBe(true);
     expect(exists("scripts/xapi/requirements.txt")).toBe(true);
+    expect(exists("scripts/import-local-store-to-worker.mjs")).toBe(true);
     expect(workflow).toContain("schedule:");
     expect(workflow).toContain("workflow_dispatch:");
     expect(workflow).toContain("GETXAPI_KEY: ${{ secrets.GETXAPI_KEY }}");
-    expect(workflow).toContain("CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}");
+    expect(workflow).not.toContain("CLOUDFLARE_API_TOKEN");
     expect(workflow).toContain("WORKER_ADMIN_TOKEN: ${{ secrets.WORKER_ADMIN_TOKEN }}");
     expect(workflow).toContain("PHASE1_STORE_PATH=automation/xapi-data/local-store.json");
+    expect(workflow).toContain("WORKER_IMPORT_URL");
     expect(workflow).toContain("python automation/xapi-data/seed_progress.py");
-    expect(workflow).toContain("wrangler d1 execute investment-os-v9-phase1 --remote");
+    expect(workflow).toContain("node scripts/import-local-store-to-worker.mjs automation/xapi-data/local-store.json");
+    expect(workflow).not.toContain("wrangler d1 execute investment-os-v9-phase1 --remote");
     expect(workflow).toContain("/telegram/auto-triage");
     expect(workflow).toContain("x-admin-token: $WORKER_ADMIN_TOKEN");
     expect(workflow).toContain('--data \'{"limit":15}\'');
@@ -302,6 +305,7 @@ describe("Phase 1 implementation artifacts", () => {
     expect(gitignore).toContain("automation/xapi-data/");
     expect(docs).toContain("GETXAPI_KEY");
     expect(docs).toContain("GitHub Secrets");
+    expect(docs).toContain("WORKER_ADMIN_TOKEN");
   });
 
   it("uses Claude for first-pass triage with DeepSeek fallback", () => {
@@ -341,6 +345,7 @@ describe("Phase 1 implementation artifacts", () => {
       "/telegram/auto-triage",
       "/telegram/resend-queued-for-approval",
       "/telegram/resend-pending-approval",
+      "/admin/import-local-store",
     ]) {
       expect(worker).toContain("requireAdminRequest(request, env)");
       expect(worker).toContain(`url.pathname === "${path}"`);

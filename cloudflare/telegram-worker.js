@@ -1715,6 +1715,114 @@ async function resendPendingApproval(env) {
   return json({ ok: true, data: { action: "resendPendingApproval", sent } });
 }
 
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+async function importLedgerRows(env, rows) {
+  let imported = 0;
+  for (const row of rows) {
+    await env.PHASE1_DB.prepare(
+      [
+        "INSERT OR REPLACE INTO ledger_posts",
+        "(post_id, expert_handle, trust_layer, fetched_via, is_rt_only, cost_usd)",
+        "VALUES (?, ?, ?, ?, ?, ?)",
+      ].join(" "),
+    ).bind(
+      row.postId,
+      row.expertHandle,
+      row.trustLayer,
+      row.fetchedVia,
+      row.isRtOnly ? 1 : 0,
+      Number(row.costUsd ?? 0),
+    ).run();
+    imported += 1;
+  }
+  return imported;
+}
+
+async function importRtArchiveRows(env, rows) {
+  let imported = 0;
+  for (const row of rows) {
+    await env.PHASE1_DB.prepare(
+      [
+        "INSERT OR REPLACE INTO rt_only_archive",
+        "(post_id, expert_handle, retweeted_post_id, self_rt, notes)",
+        "VALUES (?, ?, ?, ?, ?)",
+      ].join(" "),
+    ).bind(
+      row.postId,
+      row.expertHandle,
+      row.retweetedPostId ?? null,
+      row.selfRt ? 1 : 0,
+      row.notes ?? null,
+    ).run();
+    imported += 1;
+  }
+  return imported;
+}
+
+async function importContextUnitRows(env, rows) {
+  let imported = 0;
+  for (const row of rows) {
+    await env.PHASE1_DB.prepare(
+      [
+        "INSERT INTO context_units",
+        "(unit_id, expert_handle, original_text, completed_at, canonical_status, rt_only_excluded, structural_basis_json, triage_decision, triage_sent_at, triage_message_id, internalization_state)",
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "ON CONFLICT(unit_id) DO UPDATE SET",
+        "expert_handle = excluded.expert_handle,",
+        "original_text = excluded.original_text,",
+        "completed_at = excluded.completed_at,",
+        "canonical_status = excluded.canonical_status,",
+        "rt_only_excluded = excluded.rt_only_excluded,",
+        "structural_basis_json = excluded.structural_basis_json,",
+        "triage_decision = COALESCE(context_units.triage_decision, excluded.triage_decision),",
+        "triage_sent_at = COALESCE(context_units.triage_sent_at, excluded.triage_sent_at),",
+        "triage_message_id = COALESCE(context_units.triage_message_id, excluded.triage_message_id),",
+        "internalization_state = COALESCE(context_units.internalization_state, excluded.internalization_state)",
+      ].join(" "),
+    ).bind(
+      row.unitId,
+      row.expertHandle,
+      row.originalText,
+      row.completedAt,
+      row.canonicalStatus,
+      row.rtOnlyExcluded ? 1 : 0,
+      JSON.stringify(row.structuralBasis ?? []),
+      row.triageDecision ?? null,
+      row.triageSentAt ?? null,
+      row.triageMessageId ?? null,
+      row.internalizationState ?? null,
+    ).run();
+    imported += 1;
+  }
+  return imported;
+}
+
+async function importLocalStoreRequest(request, env) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ ok: false, error: "JSON body is required" }, 400);
+  }
+
+  const ledger = await importLedgerRows(env, asArray(body.ledger));
+  const rtArchive = await importRtArchiveRows(env, asArray(body.rtArchive));
+  const contextUnits = await importContextUnitRows(env, asArray(body.contextUnits));
+
+  return json({
+    ok: true,
+    data: {
+      action: "importLocalStore",
+      ledger,
+      rtArchive,
+      contextUnits,
+    },
+  });
+}
+
 export default {
   async scheduled(_event, env, ctx) {
     if (env.AUTO_TRIAGE_ENABLED === "true") {
@@ -1774,6 +1882,11 @@ export default {
       const adminError = requireAdminRequest(request, env);
       if (adminError) return adminError;
       return resendPendingApproval(env);
+    }
+    if (request.method === "POST" && url.pathname === "/admin/import-local-store") {
+      const adminError = requireAdminRequest(request, env);
+      if (adminError) return adminError;
+      return importLocalStoreRequest(request, env);
     }
     return json({ ok: false, error: "Not found" }, 404);
   },

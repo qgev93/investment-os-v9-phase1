@@ -227,14 +227,14 @@ npm.cmd run cloudflare:deploy
 ## PC-off X collection with GitHub Actions
 
 The Telegram bots already run on Cloudflare, so the remaining PC-off piece is X
-collection and D1 import. Use `.github/workflows/xapi-daily.yml` for that.
+collection and D1 import. Use `.github/workflows/xapi-daily.yml` for that. The
+workflow imports data through the deployed Worker `/admin/import-local-store`
+endpoint, so it does not need a long-lived Cloudflare API token.
 
 Set these GitHub Secrets before running it:
 
 ```text
 GETXAPI_KEY
-CLOUDFLARE_API_TOKEN
-CLOUDFLARE_ACCOUNT_ID
 WORKER_ADMIN_TOKEN
 ```
 

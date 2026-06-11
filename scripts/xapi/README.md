@@ -7,8 +7,6 @@ This folder contains the GitHub Actions-safe copy of the X collection scripts.
 Set these in GitHub Secrets before running `.github/workflows/xapi-daily.yml`:
 
 - `GETXAPI_KEY`: GetXAPI bearer token.
-- `CLOUDFLARE_API_TOKEN`: Cloudflare API token with Worker/D1 edit access.
-- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare account id.
 - `WORKER_ADMIN_TOKEN`: token sent to the Worker `x-admin-token` header.
 
 Do not commit API keys or generated paid raw data.
@@ -33,9 +31,10 @@ python enrich.py
 python fix_not_found.py
 python rebuild_trees.py
 npm run phase1 -- ingest:historical --source xapi --file automation/xapi-data/context_units.json --context-trees automation/xapi-data/context_trees.json --raw-posts-enriched automation/xapi-data/raw_posts_enriched.json --persist
-node scripts/export-local-store-to-d1-sql.mjs automation/xapi-data/local-store.json automation/xapi-data/d1-import.sql
-npx wrangler d1 execute investment-os-v9-phase1 --remote --file automation/xapi-data/d1-import.sql
+node scripts/import-local-store-to-worker.mjs automation/xapi-data/local-store.json
 ```
 
-Then it calls the deployed Worker `/telegram/auto-triage` endpoint with a
-15-unit scan limit so the triage bot can keep about 10 A/B contexts prepared without hitting Worker request limits.
+The import script posts chunks to the deployed Worker `/admin/import-local-store`
+endpoint, so the workflow does not need a Cloudflare API token. Then it calls
+`/telegram/auto-triage` with a 15-unit scan limit so the triage bot can keep
+about 10 A/B contexts prepared without hitting Worker request limits.
