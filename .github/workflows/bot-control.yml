@@ -1,0 +1,70 @@
+name: Bot control
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Worker bot action to run"
+        required: true
+        default: "send_all"
+        type: choice
+        options:
+          - "send_all"
+          - "send_triage_menu"
+          - "send_internalization_home"
+          - "auto_triage"
+          - "resend_pending_approval"
+      auto_triage_limit:
+        description: "How many contexts to scan when action uses auto triage"
+        required: false
+        default: "15"
+
+jobs:
+  run-bot-action:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      WORKER_ADMIN_TOKEN: ${{ secrets.WORKER_ADMIN_TOKEN }}
+      WORKER_BASE_URL: https://investment-os-v9-phase1.eolala940.workers.dev
+      ACTION: ${{ inputs.action }}
+      AUTO_TRIAGE_LIMIT: ${{ inputs.auto_triage_limit }}
+
+    steps:
+      - name: Run selected bot action
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          call_worker() {
+            local path="$1"
+            local body="${2:-{}}"
+            curl -fsS -X POST "$WORKER_BASE_URL$path" \
+              -H "content-type: application/json" \
+              -H "x-admin-token: $WORKER_ADMIN_TOKEN" \
+              --data "$body"
+            echo
+          }
+
+          case "$ACTION" in
+            send_all)
+              call_worker "/telegram/auto-triage" "{\"limit\":$AUTO_TRIAGE_LIMIT}"
+              call_worker "/telegram/send-menu"
+              call_worker "/telegram/send-internalization-home"
+              ;;
+            send_triage_menu)
+              call_worker "/telegram/send-menu"
+              ;;
+            send_internalization_home)
+              call_worker "/telegram/send-internalization-home"
+              ;;
+            auto_triage)
+              call_worker "/telegram/auto-triage" "{\"limit\":$AUTO_TRIAGE_LIMIT}"
+              ;;
+            resend_pending_approval)
+              call_worker "/telegram/resend-pending-approval"
+              ;;
+            *)
+              echo "Unknown action: $ACTION" >&2
+              exit 1
+              ;;
+          esac
