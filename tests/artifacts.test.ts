@@ -159,21 +159,26 @@ describe("Phase 1 implementation artifacts", () => {
     expect(d1Schema).toContain("bot_message_cleanup");
   });
 
-  it("sends only one triage approval card at a time", () => {
+  it("keeps a ten-item triage approval queue while showing one card at a time", () => {
     const worker = read("cloudflare/telegram-worker.js");
     const wrangler = read("wrangler.toml");
 
-    expect(worker).toContain("MAX_PENDING_APPROVAL_CARDS");
-    expect(worker).toContain("pendingApproval >= MAX_PENDING_APPROVAL_CARDS");
+    expect(worker).toContain("PENDING_APPROVAL_QUEUE_TARGET = 10");
+    expect(worker).toContain("pendingApproval >= PENDING_APPROVAL_QUEUE_TARGET");
+    expect(worker).toContain("queuedForApproval");
+    expect(worker).toContain("promoteSkippedApprovalCandidates");
+    expect(worker).toContain("recoveredForApproval");
     expect(worker).toContain("hasPendingApproval");
+    expect(worker).toContain("pendingApprovalCount");
     expect(worker).toContain("runOneTriageStep");
     expect(worker).toContain("callback_data: \"ops:auto_triage\"");
     expect(worker).not.toContain("ops:status");
     expect(worker).not.toContain("ops:help");
     expect(worker).toContain("sendOldestPendingApproval");
     expect(worker).toContain("AUTO_TRIAGE_SCAN_LIMIT");
-    expect(wrangler).toContain('AUTO_TRIAGE_BATCH_LIMIT = "10"');
-    expect(wrangler).toContain('AUTO_TRIAGE_SCAN_LIMIT = "10"');
+    expect(wrangler).toContain('AUTO_TRIAGE_BATCH_LIMIT = "15"');
+    expect(wrangler).toContain('AUTO_TRIAGE_SCAN_LIMIT = "15"');
+    expect(wrangler).toContain('AUTO_TRIAGE_ENABLED = "true"');
   });
 
   it("does not block Telegram button callbacks while DeepSeek triage runs", () => {
@@ -287,7 +292,7 @@ describe("Phase 1 implementation artifacts", () => {
     expect(workflow).toContain("wrangler d1 execute investment-os-v9-phase1 --remote");
     expect(workflow).toContain("/telegram/auto-triage");
     expect(workflow).toContain("x-admin-token: $WORKER_ADMIN_TOKEN");
-    expect(workflow).toContain('--data \'{"limit":10}\'');
+    expect(workflow).toContain('--data \'{"limit":15}\'');
     expect(collect).toContain('os.environ.get("GETXAPI_KEY")');
     expect(collect).toContain("completed_until");
     expect(seedProgress).toContain("seeded_incremental");
@@ -309,10 +314,10 @@ describe("Phase 1 implementation artifacts", () => {
     expect(worker).toContain("judgeTriageWithDeepSeek");
     expect(wrangler).toContain('AI_PROVIDER_PRIMARY = "deepseek"');
     expect(wrangler).toContain('AI_MODEL_PRIMARY = "deepseek-v4-flash"');
-    expect(wrangler).toContain('AI_PROVIDER_JUDGE = "anthropic"');
+    expect(wrangler).toContain('AI_PROVIDER_JUDGE = "deepseek"');
     expect(wrangler).toContain('AI_MODEL_JUDGE = "claude-sonnet-4-6"');
-    expect(wrangler).toContain('AUTO_TRIAGE_BATCH_LIMIT = "10"');
-    expect(wrangler).toContain('AUTO_TRIAGE_SCAN_LIMIT = "10"');
+    expect(wrangler).toContain('AUTO_TRIAGE_BATCH_LIMIT = "15"');
+    expect(wrangler).toContain('AUTO_TRIAGE_SCAN_LIMIT = "15"');
     expect(readme).toContain("Claude Sonnet 4.6");
     expect(readme).toContain("DeepSeek fallback");
   });

@@ -38,4 +38,4 @@ npx wrangler d1 execute investment-os-v9-phase1 --remote --file automation/xapi-
 ```
 
 Then it calls the deployed Worker `/telegram/auto-triage` endpoint with a
-10-unit scan limit so the triage bot can prepare the next review card.
+15-unit scan limit so the triage bot can keep about 10 A/B contexts prepared without hitting Worker request limits.

@@ -250,7 +250,7 @@ First cloud run:
 
 After the first run, the daily schedule restores cached progress, collects new X
 data, rebuilds context trees, imports to Cloudflare D1, and calls
-`/telegram/auto-triage` with a 10-unit scan limit.
+`/telegram/auto-triage` with a 15-unit scan limit so the triage queue can stay near 10 prepared A/B contexts without hitting Worker request limits.
 
 Set secrets in Cloudflare, not in git:
 

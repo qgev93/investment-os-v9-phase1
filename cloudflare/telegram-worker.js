@@ -3,7 +3,7 @@ const TRIAGE_MENU_BUTTONS = [
 ];
 
 const BACK_TO_MENU = [[{ text: "시작", callback_data: "ops:auto_triage" }]];
-const MAX_PENDING_APPROVAL_CARDS = 1;
+const PENDING_APPROVAL_QUEUE_TARGET = 10;
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -266,10 +266,33 @@ async function nextAutoTriageUnits(env, limit) {
 }
 
 async function hasPendingApproval(env) {
+  return (await pendingApprovalCount(env)) > 0;
+}
+
+async function pendingApprovalCount(env) {
   const row = await env.PHASE1_DB.prepare(
     "SELECT COUNT(*) AS count FROM context_units WHERE triage_decision = 'pendingApproval'",
   ).first();
-  return Number(row?.count ?? 0) > 0;
+  return Number(row?.count ?? 0);
+}
+
+async function promoteSkippedApprovalCandidates(env, limit) {
+  const amount = Math.max(0, Math.floor(Number(limit) || 0));
+  if (amount <= 0) return 0;
+  const result = await env.PHASE1_DB.prepare(
+    [
+      "UPDATE context_units",
+      "SET triage_decision = 'pendingApproval'",
+      "WHERE unit_id IN (",
+      "SELECT unit_id FROM context_units",
+      "WHERE triage_decision = '체화_안해도_됨'",
+      "AND triage_grade IN ('A', 'B')",
+      "ORDER BY completed_at ASC, unit_id ASC",
+      "LIMIT ?",
+      ")",
+    ].join(" "),
+  ).bind(amount).run();
+  return Number(result.meta?.changes ?? 0);
 }
 
 async function oldestPendingApproval(env) {
@@ -958,12 +981,18 @@ async function judgeTriageWithAi(env, originalText) {
 function autoTriageLimit(value) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return 5;
-  return Math.max(1, Math.min(20, Math.floor(parsed)));
+  return Math.max(1, Math.min(100, Math.floor(parsed)));
 }
 
 async function autoTriageBatch(env, requestedLimit = 5) {
   const limit = autoTriageLimit(requestedLimit);
-  if (await hasPendingApproval(env)) {
+  const currentPendingApproval = await pendingApprovalCount(env);
+  const recoveredForApproval = await promoteSkippedApprovalCandidates(
+    env,
+    PENDING_APPROVAL_QUEUE_TARGET - currentPendingApproval,
+  );
+  const startingPendingApproval = await pendingApprovalCount(env);
+  if (startingPendingApproval >= PENDING_APPROVAL_QUEUE_TARGET) {
     const remaining = await env.PHASE1_DB.prepare(
       "SELECT COUNT(*) AS count FROM context_units WHERE rt_only_excluded = 0 AND canonical_status = 'verified' AND triage_decision IS NULL",
     ).first();
@@ -972,7 +1001,9 @@ async function autoTriageBatch(env, requestedLimit = 5) {
       requestedLimit: limit,
       processed: 0,
       internalized: 0,
-      pendingApproval: 0,
+      pendingApproval: startingPendingApproval,
+      queuedForApproval: 0,
+      recoveredForApproval,
       skipped: 0,
       failed: 0,
       grades: { A: 0, B: 0, C: 0, D: 0 },
@@ -987,20 +1018,19 @@ async function autoTriageBatch(env, requestedLimit = 5) {
   let internalized = 0;
   let skipped = 0;
   let failed = 0;
-  let pendingApproval = 0;
+  let queuedForApproval = 0;
+  let pendingApproval = startingPendingApproval;
   const grades = { A: 0, B: 0, C: 0, D: 0 };
 
   for (const unit of units) {
+    if (pendingApproval >= PENDING_APPROVAL_QUEUE_TARGET) break;
     try {
       const judged = await judgeTriageWithAi(env, unit.original_text);
       const needsApproval = judged.decision === "internalize";
       const decision = await applyTriageDecision(env, unit, needsApproval ? "pendingApproval" : "skip", judged);
       if (needsApproval) {
+        queuedForApproval += 1;
         pendingApproval += 1;
-        if (env.TRIAGE_CHAT_ID) {
-          await sendTriageReviewCard(env, String(env.TRIAGE_CHAT_ID), unit, judged);
-        }
-        if (pendingApproval >= MAX_PENDING_APPROVAL_CARDS) break;
       }
       if (judged.decision === "skip") skipped += 1;
       grades[judged.grade] = (grades[judged.grade] ?? 0) + 1;
@@ -1021,6 +1051,34 @@ async function autoTriageBatch(env, requestedLimit = 5) {
         model: judged.model,
       });
     } catch (error) {
+      if (!String(error.message ?? "").includes("Too many subrequests")) {
+        await applyTriageDecision(env, unit, "skip", {
+          grade: "D",
+          totalScore: 0,
+          scores: {
+            thinking: 0,
+            reusability: 0,
+            context_completeness: 0,
+            rarity: 0,
+            noise_penalty: 0,
+          },
+          reason: `AI 채점 실패로 자동 넘김: ${error.message}`,
+          extractedPrinciple: "",
+          noiseReason: "AI 채점 실패",
+        });
+        skipped += 1;
+        grades.D += 1;
+        results.push({
+          unitId: unit.unit_id,
+          expertHandle: unit.expert_handle,
+          decision: "체화_안해도_됨",
+          aiDecision: "skip",
+          grade: "D",
+          score: 0,
+          error: error.message,
+        });
+        continue;
+      }
       failed += 1;
       results.push({
         unitId: unit.unit_id,
@@ -1038,9 +1096,11 @@ async function autoTriageBatch(env, requestedLimit = 5) {
   return {
     action: "autoTriageBatch",
     requestedLimit: limit,
-    processed: pendingApproval + skipped,
+    processed: queuedForApproval + skipped,
     internalized,
     pendingApproval,
+    queuedForApproval,
+    recoveredForApproval,
     skipped,
     failed,
     grades,
@@ -1072,7 +1132,10 @@ async function runOneTriageStep(env, chatId) {
   if (result.failed > 0) {
     return result;
   }
-  if (result.pendingApproval > 0) return result;
+  if (result.pendingApproval > 0) {
+    await sendOldestPendingApproval(env, chatId);
+    return result;
+  }
   return result;
 }
 
@@ -1276,6 +1339,7 @@ async function handleTriage(env, callback, ctx) {
       await clearClickedMessage(env, "triage", callback);
       const sentPending = await sendOldestPendingApproval(env, chatId);
       if (sentPending) {
+        await autoTriageBatch(env, env.AUTO_TRIAGE_SCAN_LIMIT ?? 20);
         return {
           decision,
           nextResult: {
