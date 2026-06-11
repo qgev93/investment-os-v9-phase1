@@ -1015,6 +1015,8 @@ async function autoTriageBatch(env, requestedLimit = 5) {
         reason: judged.reason,
         extractedPrinciple: judged.extractedPrinciple,
         noiseReason: judged.noiseReason,
+        fallbackFrom: judged.fallbackFrom,
+        fallbackReason: judged.fallbackReason,
         estimatedKrw: judged.estimatedKrw,
         model: judged.model,
       });
