@@ -42,18 +42,46 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Guard one X collection per KST day
+        id: daily-guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          today_kst="$(TZ=Asia/Seoul date +%F)"
+          runs_json="$(curl -fsS \
+            -H "authorization: Bearer $GH_TOKEN" \
+            -H "accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/xapi-daily.yml/runs?per_page=30")"
+          same_day_runs="$(echo "$runs_json" | jq \
+            --arg current_run_id "${{ github.run_id }}" \
+            --arg today_kst "$today_kst" \
+            '[.workflow_runs[]
+              | select((.id | tostring) != $current_run_id)
+              | select(.status == "queued" or .status == "in_progress" or .conclusion == "success")
+              | select(((.created_at | fromdateiso8601) + 32400 | strftime("%Y-%m-%d")) == $today_kst)
+            ] | length')"
+          if [ "$same_day_runs" -gt 0 ]; then
+            echo "skip_pipeline=true" >> "$GITHUB_OUTPUT"
+            echo "X collection already ran or is running for KST date $today_kst. Skipping collection/context rebuild."
+          else
+            echo "skip_pipeline=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Set up Node.js
+        if: ${{ steps.daily-guard.outputs.skip_pipeline != 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
 
       - name: Set up Python
+        if: ${{ steps.daily-guard.outputs.skip_pipeline != 'true' }}
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Restore X API working data
+        if: ${{ steps.daily-guard.outputs.skip_pipeline != 'true' }}
         uses: actions/cache@v4
         with:
           path: automation/xapi-data
@@ -62,17 +90,20 @@ jobs:
             xapi-data-
 
       - name: Install dependencies
+        if: ${{ steps.daily-guard.outputs.skip_pipeline != 'true' }}
         run: |
           npm install --no-save --package-lock=false --no-audit --no-fund --omit=optional --omit=peer tsx@4.19.4 typescript@5.8.3 pg@8.20.0
           python -m pip install --upgrade pip
           python -m pip install -r scripts/xapi/requirements.txt
 
       - name: Prepare working directory
+        if: ${{ steps.daily-guard.outputs.skip_pipeline != 'true' }}
         run: |
           mkdir -p automation/xapi-data
           cp scripts/xapi/*.py automation/xapi-data/
 
       - name: Decide collection mode
+        if: ${{ steps.daily-guard.outputs.skip_pipeline != 'true' }}
         id: collection-mode
         run: |
           if [ -f automation/xapi-data/progress.json ]; then
@@ -119,7 +150,7 @@ jobs:
             --data '{"limit":15}'
 
       - name: Upload X API working data backup
-        if: always()
+        if: ${{ always() && steps.daily-guard.outputs.skip_pipeline != 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: xapi-working-data-${{ github.run_id }}
