@@ -302,7 +302,7 @@ async function oldestPendingApproval(env) {
       "triage_grade, triage_score, triage_rationale_json, canonical_status, rt_only_excluded",
       "FROM context_units",
       "WHERE triage_decision = 'pendingApproval'",
-      "ORDER BY completed_at ASC, unit_id ASC",
+      "ORDER BY CASE WHEN triage_sent_at IS NULL THEN 0 ELSE 1 END, completed_at ASC, unit_id ASC",
       "LIMIT 1",
     ].join(" "),
   ).first();
@@ -387,7 +387,7 @@ async function saveInternalizedContextUnit(env, unit, grade = "A") {
   ).run();
 }
 
-async function applyTriageDecision(env, unit, action, triageScore = null) {
+async function applyTriageDecision(env, unit, action, triageScore = null, metadata = {}) {
   const decision = action === "internalize"
     ? "체화"
     : action === "pendingApproval"
@@ -406,6 +406,8 @@ async function applyTriageDecision(env, unit, action, triageScore = null) {
       model_grade: triageScore.modelGrade,
       fallback_from: triageScore.fallbackFrom,
       fallback_reason: triageScore.fallbackReason,
+      manual_action: metadata.manualAction,
+      manual_decision: metadata.manualDecision,
     })
     : null;
   await env.PHASE1_DB.prepare(
@@ -441,12 +443,14 @@ async function sendTriageReviewCard(env, chatId, unit, judged) {
     "읽어볼 맥락",
     unit.original_text,
   ].join("\n");
-  return sendLongMessage(env, "triage", chatId, text, {
+  const sent = await sendLongMessage(env, "triage", chatId, text, {
     inline_keyboard: [
       [{ text: "체화봇으로 보내기", callback_data: `triage:approve:${unit.unit_id}` }],
       [{ text: "이번 건 넘기기", callback_data: `triage:reject:${unit.unit_id}` }],
     ],
   }, { cleanupBefore: true, remember: true });
+  await markTriageSent(env, unit.unit_id, new Date().toISOString(), sent.message_id);
+  return sent;
 }
 
 function triageMessage(unit) {
@@ -481,10 +485,14 @@ function internalizationMessage(unit) {
 async function sendTriageUnit(env, chatId, unit) {
   const payload = triageMessage(unit);
   const sent = await sendLongMessage(env, "triage", chatId, payload.text, payload.reply_markup, { cleanupBefore: true, remember: true });
+  await markTriageSent(env, unit.unit_id, new Date().toISOString(), sent.message_id);
+  return sent;
+}
+
+async function markTriageSent(env, unitId, sentAt, messageId) {
   await env.PHASE1_DB.prepare(
     "UPDATE context_units SET triage_sent_at = ?, triage_message_id = ? WHERE unit_id = ?",
-  ).bind(new Date().toISOString(), sent.message_id, unit.unit_id).run();
-  return sent;
+  ).bind(sentAt, messageId, unitId).run();
 }
 
 function parseScopedCallback(data, scope, allowedActions) {
@@ -986,11 +994,7 @@ function autoTriageLimit(value) {
 
 async function autoTriageBatch(env, requestedLimit = 5) {
   const limit = autoTriageLimit(requestedLimit);
-  const currentPendingApproval = await pendingApprovalCount(env);
-  const recoveredForApproval = await promoteSkippedApprovalCandidates(
-    env,
-    PENDING_APPROVAL_QUEUE_TARGET - currentPendingApproval,
-  );
+  const recoveredForApproval = 0;
   const startingPendingApproval = await pendingApprovalCount(env);
   if (startingPendingApproval >= PENDING_APPROVAL_QUEUE_TARGET) {
     const remaining = await env.PHASE1_DB.prepare(
@@ -1335,6 +1339,7 @@ async function handleTriage(env, callback, ctx) {
         unit,
         action === "approve" ? "internalize" : "skip",
         triageScore,
+        { manualAction: action, manualDecision: true },
       );
       await clearClickedMessage(env, "triage", callback);
       const sentPending = await sendOldestPendingApproval(env, chatId);
