@@ -29,8 +29,9 @@ concurrency:
 jobs:
   collect-and-import:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 240
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       GETXAPI_KEY: ${{ secrets.GETXAPI_KEY }}
       WORKER_ADMIN_TOKEN: ${{ secrets.WORKER_ADMIN_TOKEN }}
       PHASE1_STORE_PATH: automation/xapi-data/local-store.json
