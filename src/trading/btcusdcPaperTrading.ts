@@ -746,23 +746,24 @@ export function buildBtcusdcPaperTelegramMessage(
   summary: BtcusdcPaperTradingSummary,
 ): { text: string } {
   const lines = [
-    `${summary.displaySymbol} paper`,
-    `events ${summary.events} | closed ${summary.closedTrades} | open ${summary.openOrders}`,
-    `equity ${formatMoney(summary.equity)} | pnl ${signed(summary.totalPnlR)}R | maxDD ${(summary.maxDrawdownPct * 100).toFixed(2)}%`,
-    `seed ${formatMoney(summary.dailySeedEquity)} ${summary.dailySeedDate} | risk ${(summary.riskPct * 100).toFixed(3)}%`,
+    `${summary.displaySymbol} 페이퍼 매매 알림`,
+    `이벤트 ${summary.events} | 종료거래 ${summary.closedTrades} | 오픈주문 ${summary.openOrders}`,
+    `자산 ${formatMoney(summary.equity)} | 손익 ${signed(summary.totalPnlR)}R | 최대DD ${(summary.maxDrawdownPct * 100).toFixed(2)}%`,
+    `일일시드 ${formatMoney(summary.dailySeedEquity)} ${summary.dailySeedDate} | 리스크 ${(summary.riskPct * 100).toFixed(3)}%`,
   ];
 
   for (const event of events.slice(-6)) {
     if (event.type === "trade_closed") {
       lines.push(
-        `${event.type} ${event.candidateLabel} ${event.direction} ${signed(event.pnlR ?? 0)}R ${event.exitReason} risk ${formatMoney(event.riskAmount ?? 0)} equity ${formatMoney(event.equity ?? summary.equity)}`,
+        `거래종료 ${event.candidateLabel} ${event.direction} ${signed(event.pnlR ?? 0)}R ${event.exitReason} 리스크 ${formatMoney(event.riskAmount ?? 0)} 자산 ${formatMoney(event.equity ?? summary.equity)}`,
       );
     } else if (event.type === "order_filled") {
       lines.push(
-        `${event.type} ${event.candidateLabel} ${event.direction} @ ${event.entryPrice} risk ${formatMoney(event.riskAmount ?? 0)}`,
+        `주문체결 ${event.candidateLabel} ${event.direction} @ ${event.entryPrice} 리스크 ${formatMoney(event.riskAmount ?? 0)}`,
       );
     } else {
-      lines.push(`${event.type} ${event.candidateLabel} ${event.direction} @ ${event.entryPrice}`);
+      const type = event.type === "order_submitted" ? "주문제출" : event.type === "order_missed" ? "주문미체결" : event.type;
+      lines.push(`${type} ${event.candidateLabel} ${event.direction} @ ${event.entryPrice}`);
     }
   }
 

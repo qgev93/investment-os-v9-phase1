@@ -11,6 +11,10 @@ import {
 import { buildBtcusdcPaperTelegramMessage, loadBtcusdcPaperTradingState } from "./btcusdcPaperTrading.js";
 import { buildBtcusdcActivePaperCandidateSets, loadBtcusdcStrategyRegistryOrDefault } from "./btcusdcStrategyRegistry.js";
 import {
+  recordBtcusdcTelegramReportSend,
+  shouldSendBtcusdcTelegramReport,
+} from "./btcusdcTelegramReportQuota.js";
+import {
   buildBinanceFuturesKlineStreamUrl,
   loadRealtimeCandles,
   parseBinanceFuturesClosedKline,
@@ -34,6 +38,7 @@ interface DailyReportRuntimeState {
   lastSentDate?: string;
   lastSentAtIso?: string;
   lastTelegramMessageId?: number;
+  lastSkippedReason?: string;
 }
 
 interface CoreResearchRuntimeState {
@@ -169,6 +174,8 @@ async function main(): Promise<void> {
   const initialEquity = envNumber("BTCUSDC_PAPER_INITIAL_EQUITY", 1_000);
   const dailyReportAtKst = process.env.BTCUSDC_DAILY_REPORT_AT_KST ?? "09:00";
   const dailyReportStatePath = process.env.BTCUSDC_DAILY_REPORT_STATE_PATH ?? "/data/btcusdc-daily-report-state.json";
+  const telegramReportQuotaPath = process.env.BTCUSDC_TELEGRAM_REPORT_QUOTA_PATH ?? "/data/btcusdc-telegram-report-quota.json";
+  const telegramReportMaxPerDay = envNumber("BTCUSDC_TELEGRAM_REPORT_MAX_PER_DAY", 2);
   const autoResearchEnabled = (process.env.BTCUSDC_AUTO_RESEARCH_ENABLED ?? "true").toLowerCase() !== "false";
   const coreResearchRunDayOfWeek = envNumber("BTCUSDC_CORE_RESEARCH_DAY_OF_WEEK", 1);
   const coreResearchAtKst = process.env.BTCUSDC_CORE_RESEARCH_AT_KST ?? "01:20";
@@ -192,6 +199,23 @@ async function main(): Promise<void> {
   process.once("SIGTERM", stop);
   let coreResearchInFlight = false;
 
+  const sendTelegramReport = async (payload: { text: string }, nowIso: string) => {
+    if (!telegramClient || !chatId) {
+      return { telegramSent: false, telegramMessageId: null, telegramSkippedReason: "telegram_not_configured" };
+    }
+    const quota = shouldSendBtcusdcTelegramReport({
+      quotaPath: telegramReportQuotaPath,
+      nowIso,
+      maxPerDay: telegramReportMaxPerDay,
+    });
+    if (!quota.allowed) {
+      return { telegramSent: false, telegramMessageId: null, telegramSkippedReason: "daily_quota_exhausted" };
+    }
+    const sent = await telegramClient.sendMessage(chatId, payload);
+    recordBtcusdcTelegramReportSend({ quotaPath: telegramReportQuotaPath, nowIso, messageId: sent.message_id });
+    return { telegramSent: true, telegramMessageId: sent.message_id, telegramSkippedReason: null };
+  };
+
   const maybeSendDailyReport = async () => {
     if (!telegramClient || !chatId) return;
     const nowIso = new Date().toISOString();
@@ -211,13 +235,21 @@ async function main(): Promise<void> {
       strategyStatuses: registrySets.strategyStatuses,
       generatedAtIso: nowIso,
     });
-    const sent = await telegramClient.sendMessage(chatId, { text: message });
+    const sendResult = await sendTelegramReport({ text: message }, nowIso);
     saveDailyReportRuntimeState(dailyReportStatePath, {
       lastSentDate: decision.currentDate,
       lastSentAtIso: nowIso,
-      lastTelegramMessageId: sent.message_id,
+      lastTelegramMessageId: sendResult.telegramMessageId ?? undefined,
+      lastSkippedReason: sendResult.telegramSkippedReason ?? undefined,
     });
-    console.log(JSON.stringify({ event: "daily_report_sent", date: decision.currentDate, telegramMessageId: sent.message_id }));
+    console.log(
+      JSON.stringify({
+        event: sendResult.telegramSent ? "daily_report_sent" : "daily_report_skipped",
+        date: decision.currentDate,
+        telegramMessageId: sendResult.telegramMessageId,
+        reason: sendResult.telegramSkippedReason,
+      }),
+    );
   };
 
   const maybeRunCoreResearch = async () => {
@@ -300,9 +332,9 @@ async function main(): Promise<void> {
       }),
     );
     if (result.code !== 0 && telegramClient && chatId) {
-      await telegramClient.sendMessage(chatId, {
-        text: `BTCUSDC.P weekly core research failed\nweek ${decision.currentWeek} | exit ${result.code ?? "null"} | signal ${result.signal ?? "none"}\n${stderrTail.slice(-1200)}`,
-      });
+      await sendTelegramReport({
+        text: `BTCUSDC.P 주간 core 연구 실패\n주차 ${decision.currentWeek} | 종료코드 ${result.code ?? "null"} | signal ${result.signal ?? "none"}\n${stderrTail.slice(-1200)}`,
+      }, finishedAtIso);
     }
   };
 
@@ -341,7 +373,10 @@ async function main(): Promise<void> {
                 }),
               );
               if (telegramClient && chatId && result.telegramEventRows.length > 0) {
-                await telegramClient.sendMessage(chatId, buildBtcusdcPaperTelegramMessage(result.telegramEventRows, result));
+                const sendResult = await sendTelegramReport(buildBtcusdcPaperTelegramMessage(result.telegramEventRows, result), new Date().toISOString());
+                if (!sendResult.telegramSent) {
+                  console.log(JSON.stringify({ event: "trade_report_skipped", reason: sendResult.telegramSkippedReason }));
+                }
               }
               await maybeSendDailyReport();
               void maybeRunCoreResearch().catch((error) => {

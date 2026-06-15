@@ -210,26 +210,26 @@ export function buildBtcusdcDailyPerformanceTelegramMessage(
   });
   const portfolioExpectancy = portfolio.closedTrades > 0 ? portfolio.totalPnlR / portfolio.closedTrades : 0;
   const lines = [
-    "BTCUSDC.P Paper Daily",
-    `generated ${generatedAtIso} | seed ${money(seedEquity)} USDC | bots ${strategyStats.length}`,
-    `Portfolio: submitted ${portfolio.submittedOrders} | filled ${portfolio.filledOrders} | missed ${portfolio.missedOrders} | closed ${portfolio.closedTrades} | W/L ${portfolio.wins}/${portfolio.losses} | total ${signedR(portfolio.totalPnlR)} | exp ${signedR(portfolioExpectancy)} | PF ${round(profitFactor(portfolio))}`,
+    "BTCUSDC.P 페이퍼 일일 보고",
+    `생성 ${generatedAtIso} | 기준시드 ${money(seedEquity)} USDC | 봇 ${strategyStats.length}개`,
+    `포트폴리오: 제출 ${portfolio.submittedOrders} | 체결 ${portfolio.filledOrders} | 미체결 ${portfolio.missedOrders} | 종료 ${portfolio.closedTrades} | 승/패 ${portfolio.wins}/${portfolio.losses} | 합계 ${signedR(portfolio.totalPnlR)} | 기대값 ${signedR(portfolioExpectancy)} | PF ${round(profitFactor(portfolio))}`,
   ];
 
   if (options.state) {
     lines.push(
-      `state equity ${money(options.state.equity)} | total ${signedR(options.state.totalPnlR)} | maxDD ${round(options.state.maxDrawdownPct * 100)}% | daily ${options.state.dailySeedDate}`,
+      `상태: 자산 ${money(options.state.equity)} | 누적 ${signedR(options.state.totalPnlR)} | 최대DD ${round(options.state.maxDrawdownPct * 100)}% | 일일시드일 ${options.state.dailySeedDate}`,
     );
   }
 
   for (const stats of strategyStats) {
     const expectancy = stats.closedTrades > 0 ? stats.totalPnlR / stats.closedTrades : 0;
     lines.push(
-      `[${stats.status}] ${stats.label}: submitted ${stats.submittedOrders} | filled ${stats.filledOrders} | missed ${stats.missedOrders} | closed ${stats.closedTrades} | W/L ${stats.wins}/${stats.losses} | total ${signedR(stats.totalPnlR)} | exp ${signedR(expectancy)} | PF ${round(profitFactor(stats))}`,
+      `[${stats.status}] ${stats.label}: 제출 ${stats.submittedOrders} | 체결 ${stats.filledOrders} | 미체결 ${stats.missedOrders} | 종료 ${stats.closedTrades} | 승/패 ${stats.wins}/${stats.losses} | 합계 ${signedR(stats.totalPnlR)} | 기대값 ${signedR(expectancy)} | PF ${round(profitFactor(stats))}`,
     );
   }
 
   if (strategyStats.length === 0) {
-    lines.push("No paper events recorded for this report window.");
+    lines.push("이번 보고 구간에 기록된 페이퍼 이벤트가 없습니다.");
   }
 
   return lines.join("\n");

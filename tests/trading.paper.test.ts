@@ -18,6 +18,10 @@ import {
   shouldSendBtcusdcDailyReport,
 } from "../src/trading/btcusdcDailyReport.js";
 import {
+  recordBtcusdcTelegramReportSend,
+  shouldSendBtcusdcTelegramReport,
+} from "../src/trading/btcusdcTelegramReportQuota.js";
+import {
   buildBtcusdcActivePaperCandidateSets,
   evaluateBtcusdcCoreTestGate,
   filterBtcusdcCoreTelegramEvents,
@@ -581,8 +585,8 @@ describe("BTCUSDC.P paper forward trading bot", () => {
 
     const message = buildBtcusdcPaperTelegramMessage(result.events, result.summary);
 
-    expect(message.text).toContain("BTCUSDC.P paper");
-    expect(message.text).toContain("trade_closed");
+    expect(message.text).toContain("BTCUSDC.P 페이퍼 매매 알림");
+    expect(message.text).toContain("거래종료");
     expect(message.text).toContain("+1.00R");
     expect(message.text).toContain("10,100.00");
   });
@@ -711,11 +715,44 @@ describe("BTCUSDC.P paper forward trading bot", () => {
       ]),
     });
 
-    expect(message).toContain("BTCUSDC.P Paper Daily");
+    expect(message).toContain("BTCUSDC.P 페이퍼 일일 보고");
     expect(message).toContain(TEST_CANDIDATE_LABEL);
     expect(message).toContain(TEST_STRATEGYLESS_CANDIDATE_LABEL);
-    expect(message).toContain("Portfolio");
-    expect(message.match(/BTCUSDC\.P Paper Daily/g)).toHaveLength(1);
+    expect(message).toContain("포트폴리오");
+    expect(message.match(/BTCUSDC\.P 페이퍼 일일 보고/g)).toHaveLength(1);
+  });
+
+  it("limits all BTCUSDC Telegram reports to two sends per KST day", () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-telegram-quota-"));
+    try {
+      const quotaPath = join(dir, "quota.json");
+      const first = shouldSendBtcusdcTelegramReport({
+        quotaPath,
+        nowIso: "2026-06-16T00:10:00.000Z",
+        maxPerDay: 2,
+      });
+      expect(first).toEqual({ allowed: true, currentDate: "2026-06-16", sentCount: 0, maxPerDay: 2 });
+      recordBtcusdcTelegramReportSend({ quotaPath, nowIso: "2026-06-16T00:10:00.000Z", messageId: 1 });
+      recordBtcusdcTelegramReportSend({ quotaPath, nowIso: "2026-06-16T01:10:00.000Z", messageId: 2 });
+
+      expect(
+        shouldSendBtcusdcTelegramReport({
+          quotaPath,
+          nowIso: "2026-06-16T12:00:00.000Z",
+          maxPerDay: 2,
+        }),
+      ).toEqual({ allowed: false, currentDate: "2026-06-16", sentCount: 2, maxPerDay: 2 });
+
+      expect(
+        shouldSendBtcusdcTelegramReport({
+          quotaPath,
+          nowIso: "2026-06-16T15:00:00.000Z",
+          maxPerDay: 2,
+        }),
+      ).toEqual({ allowed: true, currentDate: "2026-06-17", sentCount: 0, maxPerDay: 2 });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("sends the scheduled daily report once per KST day after the due time", () => {
@@ -778,6 +815,7 @@ describe("BTCUSDC.P paper forward trading bot", () => {
     try {
       const statePath = join(dir, "state.json");
       const logPath = join(dir, "events.jsonl");
+      const quotaPath = join(dir, "telegram-quota.json");
       saveBtcusdcPaperTradingState(
         statePath,
         createInitialBtcusdcPaperTradingState({
@@ -825,6 +863,8 @@ describe("BTCUSDC.P paper forward trading bot", () => {
           "-1001",
           "--generated-at",
           "2026-06-16T00:10:00.000Z",
+          "--telegram-quota-path",
+          quotaPath,
         ],
         { TELEGRAM_BOT_TOKEN: "TEST_TOKEN" },
       );
@@ -836,9 +876,58 @@ describe("BTCUSDC.P paper forward trading bot", () => {
         telegramMessageId: 88,
       });
       expect(sentMessages).toHaveLength(1);
-      expect(sentMessages[0]).toContain("BTCUSDC.P Paper Daily");
+      expect(sentMessages[0]).toContain("BTCUSDC.P 페이퍼 일일 보고");
       expect(sentMessages[0]).toContain("baseline-early-climax-short");
       expect(sentMessages[0]).toContain(TEST_STRATEGYLESS_CANDIDATES[0].label);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("skips daily report Telegram send when the KST daily report quota is exhausted", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-paper-daily-quota-"));
+    try {
+      const statePath = join(dir, "state.json");
+      const logPath = join(dir, "events.jsonl");
+      const quotaPath = join(dir, "telegram-quota.json");
+      saveBtcusdcPaperTradingState(
+        statePath,
+        createInitialBtcusdcPaperTradingState({
+          nowIso: "2026-06-15T00:00:00.000Z",
+          activationOpenTime: 0,
+          initialEquity: 1000,
+        }),
+      );
+      writeFileSync(logPath, "");
+      recordBtcusdcTelegramReportSend({ quotaPath, nowIso: "2026-06-16T00:00:00.000Z", messageId: 1 });
+      recordBtcusdcTelegramReportSend({ quotaPath, nowIso: "2026-06-16T01:00:00.000Z", messageId: 2 });
+
+      globalThis.fetch = async () => {
+        throw new Error("Telegram should not be called when daily quota is exhausted");
+      };
+
+      const result = await runPhase1Command(
+        [
+          "trading:paper-btcusdc-daily-report",
+          "--state-path",
+          statePath,
+          "--log-path",
+          logPath,
+          "--chat-id",
+          "-1001",
+          "--generated-at",
+          "2026-06-16T12:00:00.000Z",
+          "--telegram-quota-path",
+          quotaPath,
+        ],
+        { TELEGRAM_BOT_TOKEN: "TEST_TOKEN" },
+      );
+
+      expect(result.data).toMatchObject({
+        mode: "paper_daily_report",
+        telegramSent: false,
+        telegramSkippedReason: "daily_quota_exhausted",
+      });
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -850,6 +939,7 @@ describe("BTCUSDC.P paper forward trading bot", () => {
       const filePath = join(dir, "klines.json");
       const statePath = join(dir, "state.json");
       const logPath = join(dir, "events.jsonl");
+      const quotaPath = join(dir, "telegram-quota.json");
       writeFileSync(filePath, JSON.stringify(buildInsideVolumeWinCandles().map(klineFromCandle)));
 
       const sentMessages: string[] = [];
@@ -875,6 +965,8 @@ describe("BTCUSDC.P paper forward trading bot", () => {
           "inside-volume|inside-bar-expansion-retest-long|volumeRank:high|limit-signal-close|1|1",
           "--chat-id",
           "-1001",
+          "--telegram-quota-path",
+          quotaPath,
         ],
         { TELEGRAM_BOT_TOKEN: "TEST_TOKEN" },
       );
@@ -886,7 +978,7 @@ describe("BTCUSDC.P paper forward trading bot", () => {
         events: 3,
         closedTrades: 1,
       });
-      expect(sentMessages.at(-1)).toContain("BTCUSDC.P paper");
+      expect(sentMessages.at(-1)).toContain("BTCUSDC.P 페이퍼 매매 알림");
       expect(existsSync(statePath)).toBe(true);
       expect(readFileSync(logPath, "utf8").trim().split(/\r?\n/)).toHaveLength(3);
     } finally {

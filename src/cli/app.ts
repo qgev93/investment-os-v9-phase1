@@ -29,6 +29,10 @@ import {
   buildBtcusdcDailyPerformanceTelegramMessage,
   loadBtcusdcPaperTradingEventLog,
 } from "../trading/btcusdcDailyReport.js";
+import {
+  recordBtcusdcTelegramReportSend,
+  shouldSendBtcusdcTelegramReport,
+} from "../trading/btcusdcTelegramReportQuota.js";
 import { buildBtcusdcSixMonthCoreResearchReport } from "../trading/btcusdcCoreResearch.js";
 import {
   buildBtcusdcActivePaperCandidateSets,
@@ -122,6 +126,46 @@ function flagValue(args: string[], flag: string): string | undefined {
 
 function hasFlag(args: string[], flag: string): boolean {
   return args.includes(flag);
+}
+
+function btcusdcTelegramQuotaPath(args: string[], env: Record<string, string | undefined>): string {
+  return flagValue(args, "--telegram-quota-path") ?? env.BTCUSDC_TELEGRAM_REPORT_QUOTA_PATH ?? "/data/btcusdc-telegram-report-quota.json";
+}
+
+function btcusdcTelegramQuotaMax(args: string[], env: Record<string, string | undefined>): number {
+  return Number(flagValue(args, "--telegram-quota-max-per-day") ?? env.BTCUSDC_TELEGRAM_REPORT_MAX_PER_DAY ?? "2");
+}
+
+async function sendBtcusdcTelegramReport(input: {
+  args: string[];
+  env: Record<string, string | undefined>;
+  chatId: string;
+  payload: TelegramMessagePayload;
+  nowIso: string;
+}): Promise<{ telegramSent: boolean; telegramMessageId: number | null; telegramSkippedReason: string | null }> {
+  const quotaPath = btcusdcTelegramQuotaPath(input.args, input.env);
+  const maxPerDay = btcusdcTelegramQuotaMax(input.args, input.env);
+  const decision = shouldSendBtcusdcTelegramReport({
+    quotaPath,
+    nowIso: input.nowIso,
+    maxPerDay,
+  });
+  if (!decision.allowed) {
+    return {
+      telegramSent: false,
+      telegramMessageId: null,
+      telegramSkippedReason: "daily_quota_exhausted",
+    };
+  }
+
+  const client = new TelegramBotClient({ token: requireTelegramToken(input.env) });
+  const sent = await client.sendMessage(input.chatId, input.payload);
+  recordBtcusdcTelegramReportSend({ quotaPath, nowIso: input.nowIso, messageId: sent.message_id });
+  return {
+    telegramSent: true,
+    telegramMessageId: sent.message_id,
+    telegramSkippedReason: null,
+  };
 }
 
 function parseNumberList(value: string): number[] {
@@ -653,10 +697,17 @@ export async function runPhase1Command(
     const chatId = flagValue(args, "--chat-id") ?? env.TRADING_TELEGRAM_CHAT_ID;
     const telegramEvents = filterBtcusdcCoreTelegramEvents(result.events, coreTelegramCandidateLabels);
     let telegramMessageId: number | null = null;
+    let telegramSkippedReason: string | null = null;
     if (chatId && (telegramEvents.length > 0 || hasFlag(args, "--notify-empty"))) {
-      const client = new TelegramBotClient({ token: requireTelegramToken(env) });
-      const sent = await client.sendMessage(chatId, buildBtcusdcPaperTelegramMessage(telegramEvents, result.summary));
-      telegramMessageId = sent.message_id;
+      const telegramResult = await sendBtcusdcTelegramReport({
+        args,
+        env,
+        chatId,
+        payload: buildBtcusdcPaperTelegramMessage(telegramEvents, result.summary),
+        nowIso: new Date().toISOString(),
+      });
+      telegramMessageId = telegramResult.telegramMessageId;
+      telegramSkippedReason = telegramResult.telegramSkippedReason;
     }
 
     return {
@@ -676,6 +727,7 @@ export async function runPhase1Command(
       maxDrawdownPct: result.summary.maxDrawdownPct,
       telegramSent: telegramMessageId !== null,
       telegramMessageId,
+      telegramSkippedReason,
     };
   };
 
@@ -688,19 +740,27 @@ export async function runPhase1Command(
       flagValue(args, "--registry-path") ?? env.BTCUSDC_STRATEGY_REGISTRY_PATH,
     );
     const registrySets = buildBtcusdcActivePaperCandidateSets(registry);
+    const generatedAtIso = flagValue(args, "--generated-at") ?? new Date().toISOString();
     const message = buildBtcusdcDailyPerformanceTelegramMessage(events, {
       state,
       seedEquity: Number(flagValue(args, "--seed-equity") ?? env.BTCUSDC_PAPER_INITIAL_EQUITY ?? "1000"),
       strategyStatuses: registrySets.strategyStatuses,
-      generatedAtIso: flagValue(args, "--generated-at"),
+      generatedAtIso,
     });
 
     const chatId = flagValue(args, "--chat-id") ?? env.TRADING_TELEGRAM_CHAT_ID;
     let telegramMessageId: number | null = null;
+    let telegramSkippedReason: string | null = null;
     if (chatId && !hasFlag(args, "--no-send")) {
-      const client = new TelegramBotClient({ token: requireTelegramToken(env) });
-      const sent = await client.sendMessage(chatId, { text: message });
-      telegramMessageId = sent.message_id;
+      const telegramResult = await sendBtcusdcTelegramReport({
+        args,
+        env,
+        chatId,
+        payload: { text: message },
+        nowIso: generatedAtIso,
+      });
+      telegramMessageId = telegramResult.telegramMessageId;
+      telegramSkippedReason = telegramResult.telegramSkippedReason;
     }
 
     return {
@@ -712,6 +772,7 @@ export async function runPhase1Command(
       events: events.length,
       telegramSent: telegramMessageId !== null,
       telegramMessageId,
+      telegramSkippedReason,
       text: message,
     };
   };
@@ -1008,19 +1069,26 @@ export async function runPhase1Command(
     }
 
     const summaryLines = [
-      `${displaySymbol} 6M Core Gate`,
-      `candles ${report.candles} | lookback ${report.lookbackDays.toFixed(1)}d | passed ${report.candidates.filter((row) => row.gate.passed).length}/${report.candidates.length}`,
-      `portfolio trades ${report.portfolio.filledTrades} | exp ${report.portfolio.expectancyR.toFixed(3)}R | PF ${Number.isFinite(report.portfolio.profitFactor) ? report.portfolio.profitFactor.toFixed(2) : "inf"} | maxDD ${report.portfolio.maxDrawdownR.toFixed(2)}R`,
+      `${displaySymbol} 6개월 Core Gate 연구보고`,
+      `캔들 ${report.candles}개 | 기간 ${report.lookbackDays.toFixed(1)}일 | 통과 ${report.candidates.filter((row) => row.gate.passed).length}/${report.candidates.length}`,
+      `포트폴리오 거래 ${report.portfolio.filledTrades} | 기대값 ${report.portfolio.expectancyR.toFixed(3)}R | PF ${Number.isFinite(report.portfolio.profitFactor) ? report.portfolio.profitFactor.toFixed(2) : "inf"} | 최대DD ${report.portfolio.maxDrawdownR.toFixed(2)}R`,
       ...report.candidates.slice(0, 12).map((row) =>
-        `${row.gate.passed ? "core" : "shadow"} ${row.label}: trades ${row.coreTest.filledTrades}/${row.coreTest.submittedOrders} | exp ${row.coreTest.expectancyR.toFixed(3)}R | PF ${Number.isFinite(row.coreTest.profitFactor) ? row.coreTest.profitFactor.toFixed(2) : "inf"} | folds ${(row.coreTest.positiveFoldRate * 100).toFixed(0)}%${row.gate.passed ? "" : ` | ${row.gate.reasons.slice(0, 3).join("; ")}`}`,
+        `${row.gate.passed ? "core" : "shadow"} ${row.label}: 거래 ${row.coreTest.filledTrades}/${row.coreTest.submittedOrders} | 기대값 ${row.coreTest.expectancyR.toFixed(3)}R | PF ${Number.isFinite(row.coreTest.profitFactor) ? row.coreTest.profitFactor.toFixed(2) : "inf"} | 양수 fold ${(row.coreTest.positiveFoldRate * 100).toFixed(0)}%${row.gate.passed ? "" : ` | 탈락: ${row.gate.reasons.slice(0, 3).join("; ")}`}`,
       ),
     ];
     const chatId = flagValue(args, "--chat-id") ?? env.TRADING_TELEGRAM_CHAT_ID;
     let telegramMessageId: number | null = null;
+    let telegramSkippedReason: string | null = null;
     if (chatId && !hasFlag(args, "--no-send")) {
-      const client = new TelegramBotClient({ token: requireTelegramToken(env) });
-      const sent = await client.sendMessage(chatId, { text: summaryLines.join("\n") });
-      telegramMessageId = sent.message_id;
+      const telegramResult = await sendBtcusdcTelegramReport({
+        args,
+        env,
+        chatId,
+        payload: { text: summaryLines.join("\n") },
+        nowIso: new Date().toISOString(),
+      });
+      telegramMessageId = telegramResult.telegramMessageId;
+      telegramSkippedReason = telegramResult.telegramSkippedReason;
     }
 
     return {
@@ -1030,6 +1098,7 @@ export async function runPhase1Command(
         registryOut: registryOut ?? null,
         telegramSent: telegramMessageId !== null,
         telegramMessageId,
+        telegramSkippedReason,
         report,
       },
     };
