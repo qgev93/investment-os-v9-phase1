@@ -19,7 +19,7 @@ kill_timeout = "30s"
   BTCUSDC_REALTIME_LOG_PATH = "/data/btcusdc-paper-events.jsonl"
   BTCUSDC_REALTIME_WARMUP_CANDLES = "6000"
   BTCUSDC_REALTIME_MAX_CANDLES = "6000"
-  BTCUSDC_STRATEGY_REGISTRY_PATH = "/app/config/btcusdc-strategy-registry.json"
+  BTCUSDC_STRATEGY_REGISTRY_PATH = "/data/btcusdc-strategy-registry.json"
   BTCUSDC_PAPER_INITIAL_EQUITY = "1000"
 
 [[mounts]]

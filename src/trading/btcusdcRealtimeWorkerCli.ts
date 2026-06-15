@@ -111,7 +111,6 @@ async function main(): Promise<void> {
   const statePath = process.env.BTCUSDC_REALTIME_STATE_PATH ?? "/data/btcusdc-paper-state.json";
   const logPath = process.env.BTCUSDC_REALTIME_LOG_PATH ?? "/data/btcusdc-paper-events.jsonl";
   const registryPath = process.env.BTCUSDC_STRATEGY_REGISTRY_PATH;
-  const strategyRegistry = loadBtcusdcStrategyRegistryOrDefault(registryPath);
   const warmupCandles = envNumber("BTCUSDC_REALTIME_WARMUP_CANDLES", 6_000);
   const maxCandles = envNumber("BTCUSDC_REALTIME_MAX_CANDLES", 6_000);
   const reconnectBaseMs = envNumber("BTCUSDC_REALTIME_RECONNECT_BASE_MS", 1_000);
@@ -156,7 +155,7 @@ async function main(): Promise<void> {
                 displaySymbol,
                 initialEquity,
                 riskPct,
-                strategyRegistry,
+                strategyRegistry: loadBtcusdcStrategyRegistryOrDefault(registryPath),
               });
               console.log(
                 JSON.stringify({

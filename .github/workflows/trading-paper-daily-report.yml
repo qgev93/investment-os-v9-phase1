@@ -25,4 +25,4 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          flyctl ssh console --app btcusdc-paper-forward -C 'node dist/src/cli.js trading:paper-btcusdc-daily-report --state-path /data/btcusdc-paper-state.json --log-path /data/btcusdc-paper-events.jsonl --registry-path /app/config/btcusdc-strategy-registry.json'
+          flyctl ssh console --app btcusdc-paper-forward -C 'node dist/src/cli.js trading:paper-btcusdc-daily-report --state-path /data/btcusdc-paper-state.json --log-path /data/btcusdc-paper-events.jsonl --registry-path /data/btcusdc-strategy-registry.json'
