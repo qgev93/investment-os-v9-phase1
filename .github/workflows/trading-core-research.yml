@@ -82,7 +82,7 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts
           MAX_CANDLES=$((DAYS * 24 * 60))
-          flyctl ssh console --app btcusdc-paper-forward -C "node dist/src/cli.js trading:research-btcusdc-core-gate --days $DAYS --max-candles $MAX_CANDLES --registry-path /data/btcusdc-strategy-registry.json --registry-out /data/btcusdc-strategy-registry.json" \
+          flyctl ssh console --app btcusdc-paper-forward -C "sh -lc 'NODE_OPTIONS=--max-old-space-size=384 node dist/src/cli.js trading:research-btcusdc-core-gate --days $DAYS --max-candles $MAX_CANDLES --registry-path /data/btcusdc-strategy-registry.json --registry-out /data/btcusdc-strategy-registry.json'" \
             | tee artifacts/btcusdc-six-month-core-gate.json
 
       - name: Upload research artifact
