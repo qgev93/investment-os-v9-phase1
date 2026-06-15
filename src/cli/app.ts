@@ -746,6 +746,12 @@ export async function runPhase1Command(
       seedEquity: Number(flagValue(args, "--seed-equity") ?? env.BTCUSDC_PAPER_INITIAL_EQUITY ?? "1000"),
       strategyStatuses: registrySets.strategyStatuses,
       generatedAtIso,
+      workflowStatus: {
+        realtimeWorker: "Fly worker 기준",
+        dailyReport: "일일보고 CLI 실행",
+        weeklyResearch: "주간연구 Fly/GitHub Actions 기준",
+        telegramQuota: `Telegram 하루 최대 ${Number(flagValue(args, "--telegram-quota-max-per-day") ?? env.BTCUSDC_TELEGRAM_REPORT_MAX_PER_DAY ?? "2")}회`,
+      },
     });
 
     const chatId = flagValue(args, "--chat-id") ?? env.TRADING_TELEGRAM_CHAT_ID;

@@ -100,6 +100,19 @@ function tailText(current: string, chunk: Buffer | string, maxLength = 8_000): s
   return next.length > maxLength ? next.slice(next.length - maxLength) : next;
 }
 
+function kstDayLabel(dayOfWeek: number): string {
+  return ["일", "월", "화", "수", "목", "금", "토"][dayOfWeek] ?? String(dayOfWeek);
+}
+
+function describeCoreResearchProgress(state: CoreResearchRuntimeState): string {
+  if (state.lastFinishedAtIso) {
+    const result = state.lastExitCode === 0 ? "성공" : `실패(${state.lastExitCode ?? state.lastSignal ?? "unknown"})`;
+    return `최근 ${state.lastFinishedAtIso} ${result}`;
+  }
+  if (state.lastStartedAtIso) return `진행중 또는 중단확인필요 ${state.lastStartedAtIso}`;
+  return "아직 기록없음";
+}
+
 async function bootstrapCandles(input: {
   symbol: string;
   candlesPath: string;
@@ -229,11 +242,20 @@ async function main(): Promise<void> {
 
     const registry = loadBtcusdcStrategyRegistryOrDefault(registryPath);
     const registrySets = buildBtcusdcActivePaperCandidateSets(registry);
+    const coreResearchState = loadCoreResearchRuntimeState(coreResearchStatePath);
     const message = buildBtcusdcDailyPerformanceTelegramMessage(loadBtcusdcPaperTradingEventLog(logPath), {
       state: loadBtcusdcPaperTradingState(statePath),
       seedEquity: initialEquity,
       strategyStatuses: registrySets.strategyStatuses,
       generatedAtIso: nowIso,
+      workflowStatus: {
+        realtimeWorker: "실시간 worker 실행중",
+        dailyReport: `일일보고 KST ${dailyReportAtKst}`,
+        weeklyResearch: autoResearchEnabled
+          ? `주간연구 ${kstDayLabel(coreResearchRunDayOfWeek)} KST ${coreResearchAtKst}; ${describeCoreResearchProgress(coreResearchState)}`
+          : "주간연구 꺼짐",
+        telegramQuota: `Telegram 하루 최대 ${telegramReportMaxPerDay}회`,
+      },
     });
     const sendResult = await sendTelegramReport({ text: message }, nowIso);
     saveDailyReportRuntimeState(dailyReportStatePath, {

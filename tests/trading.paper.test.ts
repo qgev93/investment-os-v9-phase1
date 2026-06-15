@@ -709,13 +709,27 @@ describe("BTCUSDC.P paper forward trading bot", () => {
 
     const message = buildBtcusdcDailyPerformanceTelegramMessage(events, {
       seedEquity: 1000,
+      state: createInitialBtcusdcPaperTradingState({
+        nowIso: "2026-06-16T00:00:00.000Z",
+        initialEquity: 1000,
+      }),
       strategyStatuses: new Map([
         [TEST_CANDIDATE_LABEL, "core"],
         [TEST_STRATEGYLESS_CANDIDATE_LABEL, "shadow"],
       ]),
+      workflowStatus: {
+        realtimeWorker: "실시간 worker 실행중",
+        dailyReport: "일일보고 KST 09:00",
+        weeklyResearch: "주간연구 월 KST 01:20",
+        telegramQuota: "Telegram 하루 최대 2회",
+      },
     });
 
     expect(message).toContain("BTCUSDC.P 페이퍼 일일 보고");
+    expect(message).toContain("워크플로우");
+    expect(message).toContain("실시간 worker 실행중");
+    expect(message).toContain("주간연구 월 KST 01:20");
+    expect(message).toContain("1000 USDC 테스트");
     expect(message).toContain(TEST_CANDIDATE_LABEL);
     expect(message).toContain(TEST_STRATEGYLESS_CANDIDATE_LABEL);
     expect(message).toContain("포트폴리오");

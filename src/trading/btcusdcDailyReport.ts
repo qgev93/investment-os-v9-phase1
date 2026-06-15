@@ -18,11 +18,19 @@ interface StrategyDailyStats {
   lastEquity: number | null;
 }
 
+export interface BtcusdcWorkflowReportStatus {
+  realtimeWorker: string;
+  dailyReport: string;
+  weeklyResearch: string;
+  telegramQuota: string;
+}
+
 export interface BtcusdcDailyPerformanceReportOptions {
   seedEquity?: number;
   strategyStatuses?: Map<string, BtcusdcStrategyStatus>;
   state?: BtcusdcPaperTradingState | null;
   generatedAtIso?: string;
+  workflowStatus?: BtcusdcWorkflowReportStatus;
 }
 
 export interface BtcusdcDailyReportScheduleDecision {
@@ -50,6 +58,10 @@ function money(value: number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
+}
+
+function seedLabel(value: number): string {
+  return Number.isInteger(value) ? String(value) : round(value);
 }
 
 function parseKstReportMinute(reportAtKst: string): number {
@@ -215,9 +227,15 @@ export function buildBtcusdcDailyPerformanceTelegramMessage(
     `포트폴리오: 제출 ${portfolio.submittedOrders} | 체결 ${portfolio.filledOrders} | 미체결 ${portfolio.missedOrders} | 종료 ${portfolio.closedTrades} | 승/패 ${portfolio.wins}/${portfolio.losses} | 합계 ${signedR(portfolio.totalPnlR)} | 기대값 ${signedR(portfolioExpectancy)} | PF ${round(profitFactor(portfolio))}`,
   ];
 
+  if (options.workflowStatus) {
+    lines.push(
+      `워크플로우: ${options.workflowStatus.realtimeWorker} | ${options.workflowStatus.dailyReport} | ${options.workflowStatus.weeklyResearch} | ${options.workflowStatus.telegramQuota}`,
+    );
+  }
+
   if (options.state) {
     lines.push(
-      `상태: 자산 ${money(options.state.equity)} | 누적 ${signedR(options.state.totalPnlR)} | 최대DD ${round(options.state.maxDrawdownPct * 100)}% | 일일시드일 ${options.state.dailySeedDate}`,
+      `${seedLabel(seedEquity)} USDC 테스트: 자산 ${money(options.state.equity)} | 누적 ${signedR(options.state.totalPnlR)} | 최대DD ${round(options.state.maxDrawdownPct * 100)}% | 일일시드일 ${options.state.dailySeedDate}`,
     );
   }
 
