@@ -1,0 +1,95 @@
+name: BTCUSDC six-month core research
+
+on:
+  push:
+    branches:
+      - codex/phase1-free
+    paths:
+      - ".github/workflows/trading-core-research.yml"
+      - "Dockerfile.fly"
+      - "config/btcusdc-strategy-registry.json"
+      - "fly.toml"
+      - "src/cli/app.ts"
+      - "src/trading/**"
+      - "tests/trading.*.test.ts"
+      - "tsconfig.runtime.json"
+  schedule:
+    # 01:20 KST every Monday.
+    - cron: "20 16 * * 0"
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Lookback days for the core gate"
+        required: false
+        default: "180"
+      deploy:
+        description: "Deploy Fly worker after the gate passes tests/build"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+jobs:
+  research-core-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TRADING_TELEGRAM_CHAT_ID: ${{ secrets.TRADING_TELEGRAM_CHAT_ID }}
+      DAYS: ${{ inputs.days || '180' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Runtime typecheck
+        run: npx tsc -p tsconfig.runtime.json
+
+      - name: Build
+        run: npm run build
+
+      - name: Run six-month core gate and update registry artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          npx tsx src/cli.ts trading:research-btcusdc-core-gate \
+            --days "$DAYS" \
+            --max-candles "$((DAYS * 24 * 60))" \
+            --registry-out config/btcusdc-strategy-registry.json \
+            > artifacts/btcusdc-six-month-core-gate.json
+
+      - name: Upload research artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: btcusdc-six-month-core-gate
+          path: |
+            artifacts/btcusdc-six-month-core-gate.json
+            config/btcusdc-strategy-registry.json
+
+      - name: Install flyctl
+        if: ${{ inputs.deploy != 'false' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L https://fly.io/install.sh | sh
+          echo "$HOME/.fly/bin" >> "$GITHUB_PATH"
+
+      - name: Deploy Fly worker with updated registry
+        if: ${{ inputs.deploy != 'false' }}
+        run: flyctl deploy --remote-only --app btcusdc-paper-forward

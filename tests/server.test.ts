@@ -18,6 +18,16 @@ async function startServer(storePath: string) {
   return `http://127.0.0.1:${address.port}`;
 }
 
+async function startServerWithEnv(env: Record<string, string | undefined>) {
+  const server = createPhase1HttpServer(env);
+  await new Promise<void>((resolve) => {
+    server.listen(0, "127.0.0.1", resolve);
+  });
+  openServer = server;
+  const address = server.address() as AddressInfo;
+  return `http://127.0.0.1:${address.port}`;
+}
+
 async function closeServer() {
   if (!openServer) return;
   await new Promise<void>((resolve, reject) => {
@@ -52,6 +62,63 @@ describe("local Phase 1 HTTP server", () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+
+  it("serves the local AI dashboard", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "phase1-server-"));
+    try {
+      const baseUrl = await startServer(join(dir, "store.json"));
+      const response = await fetch(`${baseUrl}/`);
+      const text = await response.text();
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get("content-type")).toContain("text/html");
+      expect(text).toContain("Investment OS AI");
+      expect(text).toContain("/ai/status");
+      expect(text).toContain("/ai/test");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("reports AI key status without exposing secrets", async () => {
+    const baseUrl = await startServerWithEnv({
+      OPENAI_API_KEY: "sk-test-secret",
+      OPENAI_MODEL: "gpt-5.5",
+      ANTHROPIC_API_KEY: "",
+      ANTHROPIC_MODEL: "claude-test",
+    });
+
+    const response = await fetch(`${baseUrl}/ai/status`);
+    const body = await json(response);
+
+    expect(body).toEqual({
+      ok: true,
+      data: {
+        openai: {
+          configured: true,
+          model: "gpt-5.5",
+        },
+        anthropic: {
+          configured: false,
+          model: "claude-test",
+        },
+      },
+    });
+    expect(JSON.stringify(body)).not.toContain("sk-test-secret");
+  });
+
+  it("returns clear AI test errors when keys are missing", async () => {
+    const baseUrl = await startServerWithEnv({});
+    const response = await fetch(`${baseUrl}/ai/test`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ provider: "openai", prompt: "test" }),
+    });
+    const body = await json(response);
+
+    expect(response.status).toBe(502);
+    expect(body).toEqual({ ok: false, error: "OPENAI_API_KEY is not configured" });
   });
 
   it("persists fixture ingestion, JIT enqueue, and triage over HTTP", async () => {

@@ -282,6 +282,40 @@ npm.cmd run phase1 -- ingest:historical --source xapi --file C:\Users\qgev9\Down
 
 The importer treats the prepared `context_units.json` as the triage queue, keeps reply/thread order by timestamp, includes `quoted_tweet` text inside the card, and keeps retweet-only material out of context units.
 
+## Fly.io BTCUSDC.P realtime paper worker
+
+GitHub Actions is not used for realtime trading tests because scheduled runs can
+be delayed. The realtime path is a long-running Fly.io worker that listens to the
+Binance USD-M Futures `BTCUSDC` 1m kline WebSocket, processes only closed
+candles, reuses the `core3` paper strategy, persists state/logs on `/data`, and
+sends Telegram alerts when paper orders are submitted, filled, missed, or closed.
+Paper sizing starts from `1000` USDC, updates the betting seed once per KST day,
+and uses past-only Kelly sizing unless `BTCUSDC_PAPER_RISK_PCT` is explicitly
+set as a fixed-risk override.
+
+Local smoke test:
+
+```powershell
+Set-Location "C:\Users\qgev9\Documents\New project"
+$env:TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_BOT_TOKEN"
+$env:TRADING_TELEGRAM_CHAT_ID="YOUR_CHAT_ID"
+npm.cmd run trading:paper-btcusdc-realtime
+```
+
+Fly setup:
+
+```powershell
+fly launch --no-deploy --name btcusdc-paper-forward
+fly volumes create btcusdc_paper_data --size 1 --region nrt
+fly secrets set TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_BOT_TOKEN" TRADING_TELEGRAM_CHAT_ID="YOUR_CHAT_ID"
+fly deploy
+fly logs
+```
+
+If the Fly app name is already taken, change `app = "btcusdc-paper-forward"` in
+`fly.toml` before running `fly launch`. The volume is required; without it,
+paper state and JSONL review logs will disappear on redeploy/restart.
+
 ## AI policy
 
 AI is paid only when needed for user questions or judgement:

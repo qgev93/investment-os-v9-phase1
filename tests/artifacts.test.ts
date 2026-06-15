@@ -308,6 +308,35 @@ describe("Phase 1 implementation artifacts", () => {
     expect(docs).toContain("WORKER_ADMIN_TOKEN");
   });
 
+  it("ships a Fly.io realtime BTCUSDC paper worker deployment", () => {
+    const packageJson = read("package.json");
+    const dockerfile = read("Dockerfile.fly");
+    const flyToml = read("fly.toml");
+    const envExample = read(".env.example");
+    const readme = read("README.md");
+
+    expect(packageJson).toContain("trading:paper-btcusdc-realtime");
+    expect(dockerfile).toContain("FROM node:22-slim");
+    expect(dockerfile).toContain("tsconfig.runtime.json");
+    expect(dockerfile).toContain("npx tsc -p tsconfig.runtime.json");
+    expect(dockerfile).not.toContain("TELEGRAM_BOT_TOKEN=");
+    expect(flyToml).toContain("[processes]");
+    expect(flyToml).toContain("node dist/src/trading/btcusdcRealtimeWorkerCli.js");
+    expect(flyToml).toContain("[[mounts]]");
+    expect(flyToml).toContain("destination = \"/data\"");
+    expect(flyToml).toContain("[[restart]]");
+    expect(flyToml).toContain("policy = \"always\"");
+    expect(flyToml).toContain("BTCUSDC_PAPER_INITIAL_EQUITY = \"1000\"");
+    expect(flyToml).not.toContain("BTCUSDC_PAPER_RISK_PCT = \"0.005\"");
+    expect(envExample).toContain("BTCUSDC_REALTIME_STATE_PATH=/data/btcusdc-paper-state.json");
+    expect(envExample).toContain("BTCUSDC_REALTIME_CANDLES_PATH=/data/btcusdc-1m-candles.json");
+    expect(envExample).toContain("BTCUSDC_PAPER_INITIAL_EQUITY=1000");
+    expect(envExample).toContain("BTCUSDC_PAPER_RISK_PCT=");
+    expect(readme).toContain("Fly.io BTCUSDC.P realtime paper worker");
+    expect(readme).toContain("updates the betting seed once per KST day");
+    expect(readme).toContain("fly volumes create");
+  });
+
   it("uses Claude for first-pass triage with DeepSeek fallback", () => {
     const worker = read("cloudflare/telegram-worker.js");
     const wrangler = read("wrangler.toml");

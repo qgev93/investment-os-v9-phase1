@@ -1,0 +1,38 @@
+app = "btcusdc-paper-forward"
+primary_region = "nrt"
+kill_signal = "SIGINT"
+kill_timeout = "30s"
+
+[build]
+  dockerfile = "Dockerfile.fly"
+
+[processes]
+  app = "node dist/src/trading/btcusdcRealtimeWorkerCli.js"
+
+[env]
+  NODE_ENV = "production"
+  BTCUSDC_REALTIME_SYMBOL = "BTCUSDC"
+  BTCUSDC_REALTIME_DISPLAY_SYMBOL = "BTCUSDC.P"
+  BTCUSDC_REALTIME_INTERVAL = "1m"
+  BTCUSDC_REALTIME_CANDLES_PATH = "/data/btcusdc-1m-candles.json"
+  BTCUSDC_REALTIME_STATE_PATH = "/data/btcusdc-paper-state.json"
+  BTCUSDC_REALTIME_LOG_PATH = "/data/btcusdc-paper-events.jsonl"
+  BTCUSDC_REALTIME_WARMUP_CANDLES = "6000"
+  BTCUSDC_REALTIME_MAX_CANDLES = "6000"
+  BTCUSDC_STRATEGY_REGISTRY_PATH = "/app/config/btcusdc-strategy-registry.json"
+  BTCUSDC_PAPER_INITIAL_EQUITY = "1000"
+
+[[mounts]]
+  source = "btcusdc_paper_data"
+  destination = "/data"
+  processes = ["app"]
+
+[[restart]]
+  policy = "always"
+  retries = 10
+  processes = ["app"]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+  cpus = 1

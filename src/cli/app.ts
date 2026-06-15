@@ -18,6 +18,41 @@ import { handleTelegramTextAttempt } from "../telegram/internalization.js";
 import { loadTelegramOffset, saveTelegramOffset } from "../telegram/pollState.js";
 import { TRIAGE_ACTION_BUTTONS } from "../telegram/labels.js";
 import {
+  advanceBtcusdcPaperTradingState,
+  appendBtcusdcPaperTradingEvents,
+  buildBtcusdcPaperTelegramMessage,
+  createInitialBtcusdcPaperTradingState,
+  loadBtcusdcPaperTradingState,
+  saveBtcusdcPaperTradingState,
+} from "../trading/btcusdcPaperTrading.js";
+import {
+  buildBtcusdcDailyPerformanceTelegramMessage,
+  loadBtcusdcPaperTradingEventLog,
+} from "../trading/btcusdcDailyReport.js";
+import { buildBtcusdcSixMonthCoreResearchReport } from "../trading/btcusdcCoreResearch.js";
+import {
+  buildBtcusdcActivePaperCandidateSets,
+  defaultBtcusdcStrategyRegistry,
+  filterBtcusdcCoreTelegramEvents,
+  loadBtcusdcStrategyRegistryOrDefault,
+} from "../trading/btcusdcStrategyRegistry.js";
+import {
+  buildBtcusdtEdgeZoneFragilityReport,
+  buildBtcusdtEdgeZonePortfolioReport,
+  buildBtcusdtEdgeZonePortfolioRobustnessReport,
+  buildBtcusdtEdgeZonePortfolioRollingReport,
+  buildBtcusdtEdgeZonePortfolioExecutionSweepReport,
+  buildBtcusdtEdgeZoneStressReport,
+  buildBtcusdtResearchReport,
+  buildBtcusdtResearchSweep,
+  buildBtcusdtStrategylessOhlcvReport,
+  buildBtcusdtWalkForwardReport,
+  fetchBinanceBtcusdtOneMinuteCandles,
+  loadCandlesFromBinanceKlineFile,
+  type EdgeZonePortfolioCandidate,
+  type ReplayEntryMode,
+} from "../trading/btcusdtResearch.js";
+import {
   buildCostDecision,
   canEnterTriage,
   enqueueJitBatch,
@@ -56,6 +91,12 @@ interface TelegramPollSummary {
 
 const memoryStores = new Map<string, Phase1Store>();
 const OPS_MENU_VERSION = "triage-internalization-split-v1";
+const REPLAY_ENTRY_MODES = new Set<ReplayEntryMode>([
+  "next-open",
+  "limit-signal-close",
+  "limit-quarter-pullback",
+  "limit-half-pullback",
+]);
 
 interface TelegramMenuState {
   chatId: string;
@@ -81,6 +122,45 @@ function flagValue(args: string[], flag: string): string | undefined {
 
 function hasFlag(args: string[], flag: string): boolean {
   return args.includes(flag);
+}
+
+function parseNumberList(value: string): number[] {
+  return value
+    .split(",")
+    .map((item) => Number(item.trim()))
+    .filter(Number.isFinite);
+}
+
+function parsePortfolioCandidates(value: string): EdgeZonePortfolioCandidate[] {
+  return value
+    .split(";")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [label, strategyId, zoneId, entryMode, targetR, maxHoldFiveMinuteBars] = entry
+        .split("|")
+        .map((part) => part.trim());
+      if (
+        !label ||
+        !strategyId ||
+        !zoneId ||
+        !REPLAY_ENTRY_MODES.has(entryMode as ReplayEntryMode) ||
+        !Number.isFinite(Number(targetR)) ||
+        !Number.isFinite(Number(maxHoldFiveMinuteBars))
+      ) {
+        throw new Error(
+          "--portfolio-candidates entries must be label|strategyId|zoneId|entryMode|targetR|hold5m separated by semicolons",
+        );
+      }
+      return {
+        label,
+        strategyId,
+        zoneId,
+        entryMode: entryMode as ReplayEntryMode,
+        targetR: Number(targetR),
+        maxHoldFiveMinuteBars: Number(maxHoldFiveMinuteBars),
+      };
+    });
 }
 
 function getStore(env: Record<string, string | undefined>): Phase1Store {
@@ -110,6 +190,14 @@ function delay(ms: number): Promise<void> {
 
 function telegramMenuStatePath(env: Record<string, string | undefined>): string {
   return env.TELEGRAM_MENU_STATE_PATH ?? resolve(".phase1/telegram-menu-state.json");
+}
+
+function btcusdcPaperStatePath(env: Record<string, string | undefined>): string {
+  return env.BTCUSDC_PAPER_STATE_PATH ?? resolve(".phase1/btcusdc-paper-state.json");
+}
+
+function btcusdcPaperLogPath(env: Record<string, string | undefined>): string {
+  return env.BTCUSDC_PAPER_LOG_PATH ?? resolve(".phase1/btcusdc-paper-events.jsonl");
 }
 
 function readTelegramMenuState(path: string): TelegramMenuState | null {
@@ -483,6 +571,150 @@ export async function runPhase1Command(
 ): Promise<CommandResult> {
   const command = args[0];
   const config = loadPhase1Config(env);
+  const runBtcusdcPaperOnce = async () => {
+    const filePath = flagValue(args, "--file");
+    const symbol = flagValue(args, "--symbol") ?? env.BTCUSDC_PAPER_SYMBOL ?? "BTCUSDC";
+    const displaySymbol = flagValue(args, "--display-symbol") ?? env.BTCUSDC_PAPER_DISPLAY_SYMBOL ?? "BTCUSDC.P";
+    const days = Number(flagValue(args, "--days") ?? env.BTCUSDC_PAPER_DAYS ?? "3");
+    const maxCandlesFlag = flagValue(args, "--max-candles") ?? flagValue(args, "--limit");
+    const statePath = flagValue(args, "--state-path") ?? btcusdcPaperStatePath(env);
+    const logPath = flagValue(args, "--log-path") ?? btcusdcPaperLogPath(env);
+    const riskPctValue = flagValue(args, "--risk-pct") ?? env.BTCUSDC_PAPER_RISK_PCT;
+    const riskPct = riskPctValue === undefined || riskPctValue.trim() === "" ? undefined : Number(riskPctValue);
+    const initialEquity = Number(flagValue(args, "--initial-equity") ?? env.BTCUSDC_PAPER_INITIAL_EQUITY ?? "1000");
+    const portfolioCandidateFlag = flagValue(args, "--portfolio-candidates");
+    const registry = loadBtcusdcStrategyRegistryOrDefault(
+      flagValue(args, "--registry-path") ?? env.BTCUSDC_STRATEGY_REGISTRY_PATH,
+    );
+    const registrySets = buildBtcusdcActivePaperCandidateSets(registry);
+    const candidates = portfolioCandidateFlag ? parsePortfolioCandidates(portfolioCandidateFlag) : registrySets.runtimeCandidates;
+    const microCandidates = portfolioCandidateFlag ? [] : registrySets.runtimeMicroCandidates;
+    const strategylessCandidates = portfolioCandidateFlag ? [] : registrySets.runtimeStrategylessCandidates;
+    const coreTelegramCandidateLabels = portfolioCandidateFlag
+      ? new Set(candidates.map((candidate) => candidate.label ?? candidate.strategyId))
+      : registrySets.coreTelegramCandidateLabels;
+    const candles = filePath
+      ? loadCandlesFromBinanceKlineFile(filePath)
+      : await fetchBinanceBtcusdtOneMinuteCandles({
+          symbol,
+          days,
+          maxCandles: maxCandlesFlag ? Number(maxCandlesFlag) : undefined,
+        });
+    const activationOpenTime =
+      flagValue(args, "--activation-open-time") === undefined
+        ? undefined
+        : Number(flagValue(args, "--activation-open-time"));
+    const state =
+      loadBtcusdcPaperTradingState(statePath) ??
+      createInitialBtcusdcPaperTradingState({
+        candles,
+        activationOpenTime,
+        initialEquity,
+        riskPct,
+        symbol,
+        displaySymbol,
+      });
+    const entryModes = (
+      flagValue(args, "--entry-modes") ??
+      env.BTCUSDC_PAPER_ENTRY_MODES ??
+      "limit-signal-close,limit-half-pullback"
+    )
+      .split(",")
+      .map((value) => value.trim())
+      .filter((value): value is ReplayEntryMode => REPLAY_ENTRY_MODES.has(value as ReplayEntryMode));
+    const result = advanceBtcusdcPaperTradingState(candles, state, {
+      candidates,
+      microCandidates,
+      strategylessCandidates,
+      symbol,
+      displaySymbol,
+      riskPct,
+      initialEquity,
+      config: {
+        minTrades: Number(flagValue(args, "--min-trades") ?? env.BTCUSDC_PAPER_MIN_TRADES ?? "20"),
+        feeRate: Number(flagValue(args, "--fee-rate") ?? env.BTCUSDC_PAPER_FEE_RATE ?? "0"),
+        tickSize: Number(flagValue(args, "--tick-size") ?? env.BTCUSDC_PAPER_TICK_SIZE ?? "0.1"),
+        adverseTicks: Number(flagValue(args, "--adverse-ticks") ?? env.BTCUSDC_PAPER_ADVERSE_TICKS ?? "0"),
+        kellyFraction: Number(flagValue(args, "--kelly-fraction") ?? env.BTCUSDC_PAPER_KELLY_FRACTION ?? "0.25"),
+        riskCapPct: Number(flagValue(args, "--risk-cap-pct") ?? env.BTCUSDC_PAPER_RISK_CAP_PCT ?? "0.005"),
+        minRiskPct: Number(flagValue(args, "--min-risk-pct") ?? env.BTCUSDC_PAPER_MIN_RISK_PCT ?? "0.00035"),
+        entryModes,
+        entryWaitBars: Number(flagValue(args, "--entry-wait-bars") ?? env.BTCUSDC_PAPER_ENTRY_WAIT_BARS ?? "3"),
+        entryFillBufferTicks: Number(
+          flagValue(args, "--entry-fill-buffer-ticks") ?? env.BTCUSDC_PAPER_ENTRY_FILL_BUFFER_TICKS ?? "2",
+        ),
+        minFillRate: Number(flagValue(args, "--min-fill-rate") ?? env.BTCUSDC_PAPER_MIN_FILL_RATE ?? "0.15"),
+      },
+    });
+
+    saveBtcusdcPaperTradingState(statePath, result.state);
+    appendBtcusdcPaperTradingEvents(logPath, result.events);
+
+    const chatId = flagValue(args, "--chat-id") ?? env.TRADING_TELEGRAM_CHAT_ID;
+    const telegramEvents = filterBtcusdcCoreTelegramEvents(result.events, coreTelegramCandidateLabels);
+    let telegramMessageId: number | null = null;
+    if (chatId && (telegramEvents.length > 0 || hasFlag(args, "--notify-empty"))) {
+      const client = new TelegramBotClient({ token: requireTelegramToken(env) });
+      const sent = await client.sendMessage(chatId, buildBtcusdcPaperTelegramMessage(telegramEvents, result.summary));
+      telegramMessageId = sent.message_id;
+    }
+
+    return {
+      mode: "paper_forward_once",
+      symbol,
+      displaySymbol,
+      statePath,
+      logPath,
+      candles: candles.length,
+      events: result.events.length,
+      telegramEvents: telegramEvents.length,
+      newClosedTrades: result.summary.newClosedTrades,
+      closedTrades: result.summary.closedTrades,
+      openOrders: result.summary.openOrders,
+      totalPnlR: result.summary.totalPnlR,
+      equity: result.summary.equity,
+      maxDrawdownPct: result.summary.maxDrawdownPct,
+      telegramSent: telegramMessageId !== null,
+      telegramMessageId,
+    };
+  };
+
+  const runBtcusdcPaperDailyReport = async () => {
+    const statePath = flagValue(args, "--state-path") ?? btcusdcPaperStatePath(env);
+    const logPath = flagValue(args, "--log-path") ?? btcusdcPaperLogPath(env);
+    const state = loadBtcusdcPaperTradingState(statePath);
+    const events = loadBtcusdcPaperTradingEventLog(logPath);
+    const registry = loadBtcusdcStrategyRegistryOrDefault(
+      flagValue(args, "--registry-path") ?? env.BTCUSDC_STRATEGY_REGISTRY_PATH,
+    );
+    const registrySets = buildBtcusdcActivePaperCandidateSets(registry);
+    const message = buildBtcusdcDailyPerformanceTelegramMessage(events, {
+      state,
+      seedEquity: Number(flagValue(args, "--seed-equity") ?? env.BTCUSDC_PAPER_INITIAL_EQUITY ?? "1000"),
+      strategyStatuses: registrySets.strategyStatuses,
+      generatedAtIso: flagValue(args, "--generated-at"),
+    });
+
+    const chatId = flagValue(args, "--chat-id") ?? env.TRADING_TELEGRAM_CHAT_ID;
+    let telegramMessageId: number | null = null;
+    if (chatId && !hasFlag(args, "--no-send")) {
+      const client = new TelegramBotClient({ token: requireTelegramToken(env) });
+      const sent = await client.sendMessage(chatId, { text: message });
+      telegramMessageId = sent.message_id;
+    }
+
+    return {
+      mode: "paper_daily_report",
+      symbol: "BTCUSDC",
+      displaySymbol: "BTCUSDC.P",
+      statePath,
+      logPath,
+      events: events.length,
+      telegramSent: telegramMessageId !== null,
+      telegramMessageId,
+      text: message,
+    };
+  };
 
   if (command === "config:check") {
     return {
@@ -700,6 +932,453 @@ export async function runPhase1Command(
     return {
       ok: true,
       data: await buildOpsStatus(getStore(env)),
+    };
+  }
+
+  if (command === "trading:research-btcusdc-core-gate") {
+    const filePath = flagValue(args, "--file");
+    const symbol = flagValue(args, "--symbol") ?? env.BTCUSDT_RESEARCH_SYMBOL ?? "BTCUSDC";
+    const displaySymbol = flagValue(args, "--display-symbol") ?? env.BTCUSDT_RESEARCH_DISPLAY_SYMBOL ?? "BTCUSDC.P";
+    const days = Number(flagValue(args, "--days") ?? env.BTCUSDT_RESEARCH_DAYS ?? "180");
+    const maxCandlesFlag = flagValue(args, "--max-candles") ?? flagValue(args, "--limit");
+    const minTrades = Number(flagValue(args, "--min-trades") ?? env.BTCUSDT_RESEARCH_MIN_TRADES ?? "20");
+    const registry = loadBtcusdcStrategyRegistryOrDefault(
+      flagValue(args, "--registry-path") ?? env.BTCUSDC_STRATEGY_REGISTRY_PATH,
+    );
+    const registrySets = buildBtcusdcActivePaperCandidateSets(registry);
+    const portfolioCandidateFlag = flagValue(args, "--portfolio-candidates");
+    const candidates = portfolioCandidateFlag
+      ? parsePortfolioCandidates(portfolioCandidateFlag)
+      : [...registrySets.coreCandidates, ...registrySets.shadowCandidates];
+    if (candidates.length === 0) {
+      throw new Error("trading:research-btcusdc-core-gate requires at least one edge portfolio candidate");
+    }
+    const candles = filePath
+      ? loadCandlesFromBinanceKlineFile(filePath)
+      : await fetchBinanceBtcusdtOneMinuteCandles({
+          symbol,
+          days,
+          maxCandles: maxCandlesFlag ? Number(maxCandlesFlag) : days * 24 * 60,
+        });
+    const config = {
+      minTrades,
+      feeRate: Number(flagValue(args, "--fee-rate") ?? env.BTCUSDT_FEE_RATE ?? "0"),
+      tickSize: Number(flagValue(args, "--tick-size") ?? env.BTCUSDT_TICK_SIZE ?? "0.1"),
+      adverseTicks: Number(flagValue(args, "--adverse-ticks") ?? env.BTCUSDT_ADVERSE_TICKS ?? "0"),
+      kellyFraction: Number(flagValue(args, "--kelly-fraction") ?? env.BTCUSDT_KELLY_FRACTION ?? "0.25"),
+      riskCapPct: Number(flagValue(args, "--risk-cap-pct") ?? env.BTCUSDT_RISK_CAP_PCT ?? "0.005"),
+      minRiskPct: Number(flagValue(args, "--min-risk-pct") ?? env.BTCUSDT_MIN_RISK_PCT ?? "0.00035"),
+      entryModes: (flagValue(args, "--entry-modes") ?? env.BTCUSDT_ENTRY_MODES ?? "limit-signal-close,limit-half-pullback")
+        .split(",")
+        .map((value) => value.trim())
+        .filter((value): value is ReplayEntryMode => REPLAY_ENTRY_MODES.has(value as ReplayEntryMode)),
+      entryWaitBars: Number(flagValue(args, "--entry-wait-bars") ?? env.BTCUSDT_ENTRY_WAIT_BARS ?? "3"),
+      entryFillBufferTicks: Number(
+        flagValue(args, "--entry-fill-buffer-ticks") ?? env.BTCUSDT_ENTRY_FILL_BUFFER_TICKS ?? "2",
+      ),
+      minFillRate: Number(flagValue(args, "--min-fill-rate") ?? env.BTCUSDT_MIN_FILL_RATE ?? "0.15"),
+    };
+    const report = buildBtcusdcSixMonthCoreResearchReport(candles, {
+      symbol,
+      displaySymbol,
+      candidates,
+      config,
+      initialEquity: Number(flagValue(args, "--initial-equity") ?? env.BTCUSDC_PAPER_INITIAL_EQUITY ?? "1000"),
+      riskPct: Number(flagValue(args, "--risk-pct") ?? env.BTCUSDT_RISK_CAP_PCT ?? "0.005"),
+      foldDays: Number(flagValue(args, "--fold-days") ?? "14"),
+    });
+    const registryOut = flagValue(args, "--registry-out");
+    const byLabel = new Map(report.candidates.map((row) => [row.label, row]));
+    if (registryOut) {
+      const updatedRegistry = registry.map((entry) => {
+        const label = entry.candidate.label ?? entry.name;
+        const row = entry.candidateType === "edge" ? byLabel.get(label) : null;
+        if (!row) return entry;
+        return {
+          ...entry,
+          status: row.gate.passed ? ("core" as const) : ("shadow" as const),
+          coreTest: row.coreTest,
+          notes: row.gate.passed
+            ? "Promoted by the latest six-month core gate."
+            : `Demoted by the latest six-month core gate: ${row.gate.reasons.join(", ")}`,
+        };
+      });
+      mkdirSync(dirname(registryOut), { recursive: true });
+      writeFileSync(registryOut, JSON.stringify(updatedRegistry, null, 2));
+    }
+
+    const summaryLines = [
+      `${displaySymbol} 6M Core Gate`,
+      `candles ${report.candles} | lookback ${report.lookbackDays.toFixed(1)}d | passed ${report.candidates.filter((row) => row.gate.passed).length}/${report.candidates.length}`,
+      `portfolio trades ${report.portfolio.filledTrades} | exp ${report.portfolio.expectancyR.toFixed(3)}R | PF ${Number.isFinite(report.portfolio.profitFactor) ? report.portfolio.profitFactor.toFixed(2) : "inf"} | maxDD ${report.portfolio.maxDrawdownR.toFixed(2)}R`,
+      ...report.candidates.slice(0, 12).map((row) =>
+        `${row.gate.passed ? "core" : "shadow"} ${row.label}: trades ${row.coreTest.filledTrades}/${row.coreTest.submittedOrders} | exp ${row.coreTest.expectancyR.toFixed(3)}R | PF ${Number.isFinite(row.coreTest.profitFactor) ? row.coreTest.profitFactor.toFixed(2) : "inf"} | folds ${(row.coreTest.positiveFoldRate * 100).toFixed(0)}%${row.gate.passed ? "" : ` | ${row.gate.reasons.slice(0, 3).join("; ")}`}`,
+      ),
+    ];
+    const chatId = flagValue(args, "--chat-id") ?? env.TRADING_TELEGRAM_CHAT_ID;
+    let telegramMessageId: number | null = null;
+    if (chatId && !hasFlag(args, "--no-send")) {
+      const client = new TelegramBotClient({ token: requireTelegramToken(env) });
+      const sent = await client.sendMessage(chatId, { text: summaryLines.join("\n") });
+      telegramMessageId = sent.message_id;
+    }
+
+    return {
+      ok: true,
+      data: {
+        mode: "six_month_core_gate",
+        registryOut: registryOut ?? null,
+        telegramSent: telegramMessageId !== null,
+        telegramMessageId,
+        report,
+      },
+    };
+  }
+
+  if (command === "trading:research-btcusdt" || command === "trading:research-btcusdc") {
+    const filePath = flagValue(args, "--file");
+    const defaultSymbol = command === "trading:research-btcusdc" ? "BTCUSDC" : "BTCUSDT";
+    const symbol = flagValue(args, "--symbol") ?? env.BTCUSDT_RESEARCH_SYMBOL ?? defaultSymbol;
+    const displaySymbol =
+      flagValue(args, "--display-symbol") ??
+      env.BTCUSDT_RESEARCH_DISPLAY_SYMBOL ??
+      (symbol === "BTCUSDC" ? "BTCUSDC.P" : symbol);
+    const makerLimit = hasFlag(args, "--maker-limit") || flagValue(args, "--execution") === "maker-limit";
+    const days = Number(flagValue(args, "--days") ?? env.BTCUSDT_RESEARCH_DAYS ?? "7");
+    const maxCandlesFlag = flagValue(args, "--max-candles") ?? flagValue(args, "--limit");
+    const minTrades = Number(flagValue(args, "--min-trades") ?? env.BTCUSDT_RESEARCH_MIN_TRADES ?? "20");
+    const feeRate = Number(
+      flagValue(args, "--fee-rate") ??
+        flagValue(args, "--maker-fee-rate") ??
+        env.BTCUSDT_FEE_RATE ??
+        (makerLimit ? "0" : "0.0004"),
+    );
+    const tickSize = Number(flagValue(args, "--tick-size") ?? env.BTCUSDT_TICK_SIZE ?? "0.1");
+    const adverseTicks = Number(flagValue(args, "--adverse-ticks") ?? env.BTCUSDT_ADVERSE_TICKS ?? (makerLimit ? "0" : "1"));
+    const kellyFraction = Number(flagValue(args, "--kelly-fraction") ?? env.BTCUSDT_KELLY_FRACTION ?? "0.25");
+    const riskCapPct = Number(flagValue(args, "--risk-cap-pct") ?? env.BTCUSDT_RISK_CAP_PCT ?? "0.005");
+    const minRiskPct = Number(flagValue(args, "--min-risk-pct") ?? env.BTCUSDT_MIN_RISK_PCT ?? "0.0005");
+    const entryModes = (
+      flagValue(args, "--entry-modes") ??
+      env.BTCUSDT_ENTRY_MODES ??
+      (makerLimit ? "limit-signal-close,limit-quarter-pullback,limit-half-pullback" : "next-open")
+    )
+      .split(",")
+      .map((value) => value.trim())
+      .filter((value): value is ReplayEntryMode => REPLAY_ENTRY_MODES.has(value as ReplayEntryMode));
+    const entryWaitBars = Number(flagValue(args, "--entry-wait-bars") ?? env.BTCUSDT_ENTRY_WAIT_BARS ?? (makerLimit ? "3" : "0"));
+    const entryFillBufferTicks = Number(
+      flagValue(args, "--entry-fill-buffer-ticks") ?? env.BTCUSDT_ENTRY_FILL_BUFFER_TICKS ?? "0",
+    );
+    const minFillRate = Number(flagValue(args, "--min-fill-rate") ?? env.BTCUSDT_MIN_FILL_RATE ?? (makerLimit ? "0.15" : "0"));
+    const market = flagValue(args, "--market") ?? (symbol === "BTCUSDC" ? "USD-M perpetual futures" : "USDT-M perpetual futures");
+    const candles = filePath
+      ? loadCandlesFromBinanceKlineFile(filePath)
+      : await fetchBinanceBtcusdtOneMinuteCandles({
+          symbol,
+          days,
+          maxCandles: maxCandlesFlag ? Number(maxCandlesFlag) : undefined,
+        });
+    const config = {
+      minTrades,
+      feeRate,
+      tickSize,
+      adverseTicks,
+      kellyFraction,
+      riskCapPct,
+      minRiskPct,
+      entryModes,
+      entryWaitBars,
+      entryFillBufferTicks,
+      minFillRate,
+    };
+
+    if (hasFlag(args, "--strategyless-ohlcv") || hasFlag(args, "--strategyless-scan")) {
+      const report = buildBtcusdtStrategylessOhlcvReport(candles, {
+        config,
+        targetRs:
+          flagValue(args, "--target-rs") === undefined
+            ? undefined
+            : parseNumberList(flagValue(args, "--target-rs") ?? ""),
+        holdMinutes:
+          flagValue(args, "--hold-minutes") === undefined
+            ? undefined
+            : parseNumberList(flagValue(args, "--hold-minutes") ?? ""),
+        maxConditions:
+          flagValue(args, "--max-conditions") === undefined
+            ? undefined
+            : Number(flagValue(args, "--max-conditions")),
+        maxConditionSetsPerSignal:
+          flagValue(args, "--max-condition-sets") === undefined
+            ? undefined
+            : Number(flagValue(args, "--max-condition-sets")),
+        maxRawBuckets:
+          flagValue(args, "--max-raw-buckets") === undefined
+            ? undefined
+            : Number(flagValue(args, "--max-raw-buckets")),
+        maxCandidates:
+          flagValue(args, "--max-candidates") === undefined
+            ? undefined
+            : Number(flagValue(args, "--max-candidates")),
+        minTrades,
+        minFillRate,
+        minExpectancyR:
+          flagValue(args, "--min-expectancy-r") === undefined
+            ? undefined
+            : Number(flagValue(args, "--min-expectancy-r")),
+        minProfitFactor:
+          flagValue(args, "--min-profit-factor") === undefined
+            ? undefined
+            : Number(flagValue(args, "--min-profit-factor")),
+      });
+      return {
+        ok: true,
+        data: {
+          symbol,
+          displaySymbol,
+          exchange: "Binance",
+          market,
+          ...report,
+        },
+      };
+    }
+
+    if (hasFlag(args, "--stress-zone")) {
+      const strategyId = flagValue(args, "--strategy-id");
+      const zoneId = flagValue(args, "--zone-id");
+      const entryModeFlag = flagValue(args, "--entry-mode");
+      const entryMode = REPLAY_ENTRY_MODES.has(entryModeFlag as ReplayEntryMode)
+        ? (entryModeFlag as ReplayEntryMode)
+        : entryModes[0] ?? "next-open";
+      if (!strategyId || !zoneId) {
+        throw new Error("--stress-zone requires --strategy-id and --zone-id");
+      }
+      return {
+        ok: true,
+        data: buildBtcusdtEdgeZoneStressReport(candles, {
+          strategyId,
+          zoneId,
+          entryMode,
+          targetR: Number(flagValue(args, "--target-r") ?? "3"),
+          maxHoldFiveMinuteBars: Number(flagValue(args, "--max-hold-5m-bars") ?? "6"),
+          riskPct: flagValue(args, "--risk-pct") === undefined ? undefined : Number(flagValue(args, "--risk-pct")),
+          initialEquity:
+            flagValue(args, "--initial-equity") === undefined
+              ? undefined
+              : Number(flagValue(args, "--initial-equity")),
+          config,
+        }),
+      };
+    }
+
+    if (hasFlag(args, "--fragility-zone")) {
+      const strategyId = flagValue(args, "--strategy-id");
+      const zoneId = flagValue(args, "--zone-id");
+      const entryModeFlag = flagValue(args, "--entry-mode");
+      const entryMode = REPLAY_ENTRY_MODES.has(entryModeFlag as ReplayEntryMode)
+        ? (entryModeFlag as ReplayEntryMode)
+        : entryModes[0] ?? "next-open";
+      if (!strategyId || !zoneId) {
+        throw new Error("--fragility-zone requires --strategy-id and --zone-id");
+      }
+      return {
+        ok: true,
+        data: buildBtcusdtEdgeZoneFragilityReport(candles, {
+          strategyId,
+          zoneId,
+          entryMode,
+          targetR: Number(flagValue(args, "--target-r") ?? "3"),
+          maxHoldFiveMinuteBars: Number(flagValue(args, "--max-hold-5m-bars") ?? "6"),
+          riskPct: flagValue(args, "--risk-pct") === undefined ? undefined : Number(flagValue(args, "--risk-pct")),
+          initialEquity:
+            flagValue(args, "--initial-equity") === undefined
+              ? undefined
+              : Number(flagValue(args, "--initial-equity")),
+          config,
+        }),
+      };
+    }
+
+    const portfolioCandidateFlag = flagValue(args, "--portfolio-candidates");
+    if (hasFlag(args, "--portfolio-robustness")) {
+      if (!portfolioCandidateFlag) {
+        throw new Error("--portfolio-robustness requires --portfolio-candidates");
+      }
+      return {
+        ok: true,
+        data: buildBtcusdtEdgeZonePortfolioRobustnessReport(candles, {
+          candidates: parsePortfolioCandidates(portfolioCandidateFlag),
+          riskPct: flagValue(args, "--risk-pct") === undefined ? undefined : Number(flagValue(args, "--risk-pct")),
+          riskPctValues:
+            flagValue(args, "--risk-pct-values") === undefined
+              ? undefined
+              : parseNumberList(flagValue(args, "--risk-pct-values") ?? ""),
+          topProfitDayCounts:
+            flagValue(args, "--top-profit-day-counts") === undefined
+              ? undefined
+              : parseNumberList(flagValue(args, "--top-profit-day-counts") ?? ""),
+          initialEquity:
+            flagValue(args, "--initial-equity") === undefined
+              ? undefined
+              : Number(flagValue(args, "--initial-equity")),
+          config,
+        }),
+      };
+    }
+
+    if (hasFlag(args, "--portfolio-rolling")) {
+      if (!portfolioCandidateFlag) {
+        throw new Error("--portfolio-rolling requires --portfolio-candidates");
+      }
+      return {
+        ok: true,
+        data: buildBtcusdtEdgeZonePortfolioRollingReport(candles, {
+          candidates: parsePortfolioCandidates(portfolioCandidateFlag),
+          windowDays: Number(flagValue(args, "--rolling-window-days") ?? "30"),
+          stepDays:
+            flagValue(args, "--rolling-step-days") === undefined
+              ? undefined
+              : Number(flagValue(args, "--rolling-step-days")),
+          minEntryGroups:
+            flagValue(args, "--min-entry-groups") === undefined ? undefined : Number(flagValue(args, "--min-entry-groups")),
+          riskPct: flagValue(args, "--risk-pct") === undefined ? undefined : Number(flagValue(args, "--risk-pct")),
+          initialEquity:
+            flagValue(args, "--initial-equity") === undefined
+              ? undefined
+              : Number(flagValue(args, "--initial-equity")),
+          config,
+        }),
+      };
+    }
+
+    if (hasFlag(args, "--portfolio-execution-sweep")) {
+      if (!portfolioCandidateFlag) {
+        throw new Error("--portfolio-execution-sweep requires --portfolio-candidates");
+      }
+      return {
+        ok: true,
+        data: buildBtcusdtEdgeZonePortfolioExecutionSweepReport(candles, {
+          candidates: parsePortfolioCandidates(portfolioCandidateFlag),
+          entryWaitBarsValues: parseNumberList(flagValue(args, "--entry-wait-bars-values") ?? "1,2,3"),
+          entryFillBufferTicksValues: parseNumberList(flagValue(args, "--entry-fill-buffer-ticks-values") ?? "2,3,5,8"),
+          riskPct: flagValue(args, "--risk-pct") === undefined ? undefined : Number(flagValue(args, "--risk-pct")),
+          initialEquity:
+            flagValue(args, "--initial-equity") === undefined
+              ? undefined
+              : Number(flagValue(args, "--initial-equity")),
+          config,
+        }),
+      };
+    }
+
+    if (portfolioCandidateFlag) {
+      return {
+        ok: true,
+        data: buildBtcusdtEdgeZonePortfolioReport(candles, {
+          candidates: parsePortfolioCandidates(portfolioCandidateFlag),
+          riskPct: flagValue(args, "--risk-pct") === undefined ? undefined : Number(flagValue(args, "--risk-pct")),
+          initialEquity:
+            flagValue(args, "--initial-equity") === undefined
+              ? undefined
+              : Number(flagValue(args, "--initial-equity")),
+          config,
+        }),
+      };
+    }
+
+    if (hasFlag(args, "--walk-forward")) {
+      return {
+        ok: true,
+        data: buildBtcusdtWalkForwardReport(candles, {
+          foldFiveMinuteBars: Number(flagValue(args, "--fold-5m-bars") ?? env.BTCUSDT_WALK_FORWARD_FOLD_5M_BARS ?? "1440"),
+          minTrades,
+          minPositiveFoldRate: Number(flagValue(args, "--min-positive-fold-rate") ?? env.BTCUSDT_MIN_POSITIVE_FOLD_RATE ?? "0.6"),
+          minEligibleFolds: Number(flagValue(args, "--min-eligible-folds") ?? env.BTCUSDT_MIN_ELIGIBLE_FOLDS ?? "3"),
+          minTradesPerFold: Number(flagValue(args, "--min-trades-per-fold") ?? env.BTCUSDT_MIN_TRADES_PER_FOLD ?? Math.min(10, minTrades)),
+          minWorstFoldExpectancyR: Number(
+            flagValue(args, "--min-worst-fold-expectancy-r") ?? env.BTCUSDT_MIN_WORST_FOLD_EXPECTANCY_R ?? "-0.25",
+          ),
+          config,
+        }),
+      };
+    }
+
+    if (hasFlag(args, "--sweep")) {
+      const minRiskPctValues = (flagValue(args, "--min-risk-pct-values") ?? "0,0.00075,0.001,0.0015,0.002,0.003,0.005")
+        .split(",")
+        .map((value) => Number(value.trim()))
+        .filter(Number.isFinite);
+      const feeRateValues = (flagValue(args, "--fee-rate-values") ?? "0,0.0004,0.0006,0.001")
+        .split(",")
+        .map((value) => Number(value.trim()))
+        .filter(Number.isFinite);
+      return {
+        ok: true,
+        data: buildBtcusdtResearchSweep(candles, {
+          minRiskPctValues,
+          feeRateValues,
+          baseConfig: config,
+        }),
+      };
+    }
+
+    return {
+      ok: true,
+      data: buildBtcusdtResearchReport(candles, config, {
+        symbol,
+        displaySymbol,
+        market,
+      }),
+    };
+  }
+
+  if (command === "trading:paper-btcusdc-once") {
+    return {
+      ok: true,
+      data: await runBtcusdcPaperOnce(),
+    };
+  }
+
+  if (command === "trading:paper-btcusdc-daily-report") {
+    return {
+      ok: true,
+      data: await runBtcusdcPaperDailyReport(),
+    };
+  }
+
+  if (command === "trading:paper-btcusdc-loop") {
+    const intervalMs = Number(flagValue(args, "--interval-ms") ?? env.BTCUSDC_PAPER_INTERVAL_MS ?? "60000");
+    const maxIterationsFlag = flagValue(args, "--max-iterations");
+    const maxIterations = maxIterationsFlag ? Number(maxIterationsFlag) : Number.POSITIVE_INFINITY;
+    const aggregate = {
+      mode: "paper_forward_loop",
+      iterations: 0,
+      events: 0,
+      newClosedTrades: 0,
+      closedTrades: 0,
+      openOrders: 0,
+      equity: 0,
+      telegramMessages: 0,
+    };
+
+    while (aggregate.iterations < maxIterations) {
+      const step = await runBtcusdcPaperOnce();
+      aggregate.iterations += 1;
+      aggregate.events += step.events;
+      aggregate.newClosedTrades += step.newClosedTrades;
+      aggregate.closedTrades = step.closedTrades;
+      aggregate.openOrders = step.openOrders;
+      aggregate.equity = step.equity;
+      if (step.telegramSent) aggregate.telegramMessages += 1;
+
+      if (aggregate.iterations < maxIterations) {
+        await delay(intervalMs);
+      }
+    }
+
+    return {
+      ok: true,
+      data: aggregate,
     };
   }
 

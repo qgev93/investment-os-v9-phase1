@@ -7,6 +7,9 @@
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "phase1": "tsx src/cli.ts",
+    "research:btc": "tsx src/cli.ts trading:research-btcusdt",
+    "research:btcusdc": "tsx src/cli.ts trading:research-btcusdc --maker-limit",
+    "trading:paper-btcusdc-realtime": "tsx src/trading/btcusdcRealtimeWorkerCli.ts",
     "server": "tsx src/server.ts",
     "d1:export-local": "node scripts/export-local-store-to-d1-sql.mjs",
     "cloudflare:dev": "npx wrangler dev",
@@ -22,6 +25,7 @@
     "vitest": "^3.1.4"
   },
   "dependencies": {
+    "hermesai": "^0.0.1-prerelease-gracie3",
     "pg": "^8.20.0"
   }
 }

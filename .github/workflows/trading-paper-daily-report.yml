@@ -1,0 +1,28 @@
+name: BTCUSDC paper daily report
+
+on:
+  schedule:
+    # 00:10 KST every day.
+    - cron: "10 15 * * *"
+  workflow_dispatch:
+
+jobs:
+  send-daily-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+    steps:
+      - name: Install flyctl
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L https://fly.io/install.sh | sh
+          echo "$HOME/.fly/bin" >> "$GITHUB_PATH"
+
+      - name: Send one combined Telegram report from Fly volume logs
+        shell: bash
+        run: |
+          set -euo pipefail
+          flyctl ssh console --app btcusdc-paper-forward -C 'node dist/src/cli.js trading:paper-btcusdc-daily-report --state-path /data/btcusdc-paper-state.json --log-path /data/btcusdc-paper-events.jsonl --registry-path /app/config/btcusdc-strategy-registry.json'

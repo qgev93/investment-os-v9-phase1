@@ -1,0 +1,16 @@
+FROM node:22-slim
+
+WORKDIR /app
+
+COPY package.json package-lock.json tsconfig.json tsconfig.runtime.json ./
+RUN npm install --no-save --package-lock=false --no-audit --no-fund --omit=optional --omit=peer \
+  typescript@5.8.3 \
+  @types/node@22.15.21 \
+  pg@8.20.0 \
+  hermesai@0.0.1-prerelease-gracie3
+
+COPY src ./src
+COPY config ./config
+RUN npx tsc -p tsconfig.runtime.json
+
+CMD ["node", "dist/src/trading/btcusdcRealtimeWorkerCli.js"]
