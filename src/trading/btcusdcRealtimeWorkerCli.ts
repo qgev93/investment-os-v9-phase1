@@ -1,6 +1,13 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import { TelegramBotClient, requireTelegramToken } from "../telegram/client.js";
-import { buildBtcusdcPaperTelegramMessage } from "./btcusdcPaperTrading.js";
-import { loadBtcusdcStrategyRegistryOrDefault } from "./btcusdcStrategyRegistry.js";
+import {
+  buildBtcusdcDailyPerformanceTelegramMessage,
+  loadBtcusdcPaperTradingEventLog,
+  shouldSendBtcusdcDailyReport,
+} from "./btcusdcDailyReport.js";
+import { buildBtcusdcPaperTelegramMessage, loadBtcusdcPaperTradingState } from "./btcusdcPaperTrading.js";
+import { buildBtcusdcActivePaperCandidateSets, loadBtcusdcStrategyRegistryOrDefault } from "./btcusdcStrategyRegistry.js";
 import {
   buildBinanceFuturesKlineStreamUrl,
   loadRealtimeCandles,
@@ -20,6 +27,12 @@ interface WebSocketLike {
 }
 
 type WebSocketConstructor = new (url: string) => WebSocketLike;
+
+interface DailyReportRuntimeState {
+  lastSentDate?: string;
+  lastSentAtIso?: string;
+  lastTelegramMessageId?: number;
+}
 
 function envNumber(name: string, fallback: number): number {
   const raw = process.env[name];
@@ -43,6 +56,16 @@ function delay(ms: number): Promise<void> {
 
 function latestOpenTime(candles: Candle[]): number | null {
   return candles.length === 0 ? null : candles[candles.length - 1].openTime;
+}
+
+function loadDailyReportRuntimeState(path: string): DailyReportRuntimeState {
+  if (!existsSync(path)) return {};
+  return JSON.parse(readFileSync(path, "utf8")) as DailyReportRuntimeState;
+}
+
+function saveDailyReportRuntimeState(path: string, state: DailyReportRuntimeState): void {
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, JSON.stringify(state, null, 2));
 }
 
 async function bootstrapCandles(input: {
@@ -117,6 +140,8 @@ async function main(): Promise<void> {
   const reconnectMaxMs = envNumber("BTCUSDC_REALTIME_RECONNECT_MAX_MS", 30_000);
   const riskPct = envOptionalNumber("BTCUSDC_PAPER_RISK_PCT");
   const initialEquity = envNumber("BTCUSDC_PAPER_INITIAL_EQUITY", 1_000);
+  const dailyReportAtKst = process.env.BTCUSDC_DAILY_REPORT_AT_KST ?? "09:00";
+  const dailyReportStatePath = process.env.BTCUSDC_DAILY_REPORT_STATE_PATH ?? "/data/btcusdc-daily-report-state.json";
   const chatId = process.env.TRADING_TELEGRAM_CHAT_ID;
   const telegramClient = chatId && process.env.TELEGRAM_BOT_TOKEN ? new TelegramBotClient({ token: requireTelegramToken(process.env) }) : null;
   const WebSocketCtor = (globalThis as unknown as { WebSocket?: WebSocketConstructor }).WebSocket;
@@ -131,6 +156,34 @@ async function main(): Promise<void> {
   };
   process.once("SIGINT", stop);
   process.once("SIGTERM", stop);
+
+  const maybeSendDailyReport = async () => {
+    if (!telegramClient || !chatId) return;
+    const nowIso = new Date().toISOString();
+    const runtimeState = loadDailyReportRuntimeState(dailyReportStatePath);
+    const decision = shouldSendBtcusdcDailyReport({
+      nowIso,
+      reportAtKst: dailyReportAtKst,
+      lastSentDate: runtimeState.lastSentDate,
+    });
+    if (!decision.due) return;
+
+    const registry = loadBtcusdcStrategyRegistryOrDefault(registryPath);
+    const registrySets = buildBtcusdcActivePaperCandidateSets(registry);
+    const message = buildBtcusdcDailyPerformanceTelegramMessage(loadBtcusdcPaperTradingEventLog(logPath), {
+      state: loadBtcusdcPaperTradingState(statePath),
+      seedEquity: initialEquity,
+      strategyStatuses: registrySets.strategyStatuses,
+      generatedAtIso: nowIso,
+    });
+    const sent = await telegramClient.sendMessage(chatId, { text: message });
+    saveDailyReportRuntimeState(dailyReportStatePath, {
+      lastSentDate: decision.currentDate,
+      lastSentAtIso: nowIso,
+      lastTelegramMessageId: sent.message_id,
+    });
+    console.log(JSON.stringify({ event: "daily_report_sent", date: decision.currentDate, telegramMessageId: sent.message_id }));
+  };
 
   while (!stopped) {
     await new Promise<void>((resolve) => {
@@ -169,6 +222,7 @@ async function main(): Promise<void> {
               if (telegramClient && chatId && result.telegramEventRows.length > 0) {
                 await telegramClient.sendMessage(chatId, buildBtcusdcPaperTelegramMessage(result.telegramEventRows, result));
               }
+              await maybeSendDailyReport();
             } catch (error) {
               console.error(JSON.stringify({ event: "message_error", error: error instanceof Error ? error.message : String(error) }));
             }

@@ -12,7 +12,10 @@ import {
   type BtcusdcPaperTradingEvent,
   type BtcusdcPaperTradingState,
 } from "../src/trading/btcusdcPaperTrading.js";
-import { buildBtcusdcDailyPerformanceTelegramMessage } from "../src/trading/btcusdcDailyReport.js";
+import {
+  buildBtcusdcDailyPerformanceTelegramMessage,
+  shouldSendBtcusdcDailyReport,
+} from "../src/trading/btcusdcDailyReport.js";
 import {
   buildBtcusdcActivePaperCandidateSets,
   evaluateBtcusdcCoreTestGate,
@@ -712,6 +715,32 @@ describe("BTCUSDC.P paper forward trading bot", () => {
     expect(message).toContain(TEST_STRATEGYLESS_CANDIDATE_LABEL);
     expect(message).toContain("Portfolio");
     expect(message.match(/BTCUSDC\.P Paper Daily/g)).toHaveLength(1);
+  });
+
+  it("sends the scheduled daily report once per KST day after the due time", () => {
+    expect(
+      shouldSendBtcusdcDailyReport({
+        nowIso: "2026-06-15T23:59:00.000Z",
+        reportAtKst: "09:00",
+        lastSentDate: undefined,
+      }),
+    ).toEqual({ due: false, currentDate: "2026-06-16" });
+
+    expect(
+      shouldSendBtcusdcDailyReport({
+        nowIso: "2026-06-16T00:00:00.000Z",
+        reportAtKst: "09:00",
+        lastSentDate: undefined,
+      }),
+    ).toEqual({ due: true, currentDate: "2026-06-16" });
+
+    expect(
+      shouldSendBtcusdcDailyReport({
+        nowIso: "2026-06-16T12:00:00.000Z",
+        reportAtKst: "09:00",
+        lastSentDate: "2026-06-16",
+      }),
+    ).toEqual({ due: false, currentDate: "2026-06-16" });
   });
 
   it("runs the daily report CLI and sends all bot performance in one Telegram message", async () => {

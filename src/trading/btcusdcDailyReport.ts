@@ -25,6 +25,11 @@ export interface BtcusdcDailyPerformanceReportOptions {
   generatedAtIso?: string;
 }
 
+export interface BtcusdcDailyReportScheduleDecision {
+  due: boolean;
+  currentDate: string;
+}
+
 function round(value: number, digits = 2): string {
   if (!Number.isFinite(value)) return "inf";
   return value.toFixed(digits);
@@ -40,6 +45,40 @@ function money(value: number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
+}
+
+function parseKstReportMinute(reportAtKst: string): number {
+  const match = /^(\d{2}):(\d{2})$/.exec(reportAtKst.trim());
+  if (!match) throw new Error("reportAtKst must use HH:mm");
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (!Number.isInteger(hours) || !Number.isInteger(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+    throw new Error("reportAtKst must use HH:mm");
+  }
+  return hours * 60 + minutes;
+}
+
+function kstDateParts(nowIso: string): { date: string; minuteOfDay: number } {
+  const time = Date.parse(nowIso);
+  if (!Number.isFinite(time)) throw new Error("nowIso must be a valid ISO date");
+  const kst = new Date(time + 9 * 60 * 60 * 1000);
+  return {
+    date: kst.toISOString().slice(0, 10),
+    minuteOfDay: kst.getUTCHours() * 60 + kst.getUTCMinutes(),
+  };
+}
+
+export function shouldSendBtcusdcDailyReport(input: {
+  nowIso: string;
+  reportAtKst: string;
+  lastSentDate?: string;
+}): BtcusdcDailyReportScheduleDecision {
+  const current = kstDateParts(input.nowIso);
+  const reportMinute = parseKstReportMinute(input.reportAtKst);
+  return {
+    due: current.minuteOfDay >= reportMinute && input.lastSentDate !== current.date,
+    currentDate: current.date,
+  };
 }
 
 function createStats(label: string, status: BtcusdcStrategyStatus | "unknown"): StrategyDailyStats {
