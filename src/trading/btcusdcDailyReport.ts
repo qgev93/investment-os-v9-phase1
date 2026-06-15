@@ -30,6 +30,11 @@ export interface BtcusdcDailyReportScheduleDecision {
   currentDate: string;
 }
 
+export interface BtcusdcWeeklyResearchScheduleDecision {
+  due: boolean;
+  currentWeek: string;
+}
+
 function round(value: number, digits = 2): string {
   if (!Number.isFinite(value)) return "inf";
   return value.toFixed(digits);
@@ -78,6 +83,39 @@ export function shouldSendBtcusdcDailyReport(input: {
   return {
     due: current.minuteOfDay >= reportMinute && input.lastSentDate !== current.date,
     currentDate: current.date,
+  };
+}
+
+function kstWeekParts(nowIso: string): {
+  weekStartDate: string;
+  minuteOfWeek: number;
+} {
+  const time = Date.parse(nowIso);
+  if (!Number.isFinite(time)) throw new Error("nowIso must be a valid ISO date");
+  const kst = new Date(time + 9 * 60 * 60 * 1000);
+  const dayOfWeek = kst.getUTCDay();
+  const daysSinceMonday = (dayOfWeek + 6) % 7;
+  const weekStart = new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate() - daysSinceMonday));
+  return {
+    weekStartDate: weekStart.toISOString().slice(0, 10),
+    minuteOfWeek: daysSinceMonday * 24 * 60 + kst.getUTCHours() * 60 + kst.getUTCMinutes(),
+  };
+}
+
+export function shouldRunBtcusdcWeeklyResearch(input: {
+  nowIso: string;
+  runDayOfWeek: number;
+  runAtKst: string;
+  lastStartedWeek?: string;
+}): BtcusdcWeeklyResearchScheduleDecision {
+  if (!Number.isInteger(input.runDayOfWeek) || input.runDayOfWeek < 0 || input.runDayOfWeek > 6) {
+    throw new Error("runDayOfWeek must be 0-6 where 0 is Sunday");
+  }
+  const current = kstWeekParts(input.nowIso);
+  const runMinute = ((input.runDayOfWeek + 6) % 7) * 24 * 60 + parseKstReportMinute(input.runAtKst);
+  return {
+    due: current.minuteOfWeek >= runMinute && input.lastStartedWeek !== current.weekStartDate,
+    currentWeek: current.weekStartDate,
   };
 }
 

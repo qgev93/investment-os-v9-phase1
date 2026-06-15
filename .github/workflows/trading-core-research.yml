@@ -63,8 +63,20 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Check Fly token
+        id: fly-token
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${FLY_API_TOKEN:-}" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::FLY_API_TOKEN is not configured; Fly deploy and remote core gate are skipped. The Fly worker has its own weekly core-research scheduler."
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install flyctl
-        if: ${{ inputs.deploy != 'false' }}
+        if: ${{ inputs.deploy != 'false' && steps.fly-token.outputs.available == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -72,11 +84,11 @@ jobs:
           echo "$HOME/.fly/bin" >> "$GITHUB_PATH"
 
       - name: Deploy Fly worker with updated registry
-        if: ${{ inputs.deploy != 'false' }}
+        if: ${{ inputs.deploy != 'false' && steps.fly-token.outputs.available == 'true' }}
         run: flyctl deploy --remote-only --app btcusdc-paper-forward
 
       - name: Run six-month core gate on Fly volume registry
-        if: ${{ inputs.deploy != 'false' }}
+        if: ${{ inputs.deploy != 'false' && steps.fly-token.outputs.available == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -86,7 +98,7 @@ jobs:
             | tee artifacts/btcusdc-six-month-core-gate.json
 
       - name: Upload research artifact
-        if: ${{ inputs.deploy != 'false' }}
+        if: ${{ inputs.deploy != 'false' && steps.fly-token.outputs.available == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: btcusdc-six-month-core-gate

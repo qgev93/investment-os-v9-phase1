@@ -1,9 +1,11 @@
+import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { TelegramBotClient, requireTelegramToken } from "../telegram/client.js";
 import {
   buildBtcusdcDailyPerformanceTelegramMessage,
   loadBtcusdcPaperTradingEventLog,
+  shouldRunBtcusdcWeeklyResearch,
   shouldSendBtcusdcDailyReport,
 } from "./btcusdcDailyReport.js";
 import { buildBtcusdcPaperTelegramMessage, loadBtcusdcPaperTradingState } from "./btcusdcPaperTrading.js";
@@ -32,6 +34,16 @@ interface DailyReportRuntimeState {
   lastSentDate?: string;
   lastSentAtIso?: string;
   lastTelegramMessageId?: number;
+}
+
+interface CoreResearchRuntimeState {
+  lastStartedWeek?: string;
+  lastStartedAtIso?: string;
+  lastFinishedAtIso?: string;
+  lastExitCode?: number | null;
+  lastSignal?: NodeJS.Signals | null;
+  lastStdoutTail?: string;
+  lastStderrTail?: string;
 }
 
 function envNumber(name: string, fallback: number): number {
@@ -66,6 +78,21 @@ function loadDailyReportRuntimeState(path: string): DailyReportRuntimeState {
 function saveDailyReportRuntimeState(path: string, state: DailyReportRuntimeState): void {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, JSON.stringify(state, null, 2));
+}
+
+function loadCoreResearchRuntimeState(path: string): CoreResearchRuntimeState {
+  if (!existsSync(path)) return {};
+  return JSON.parse(readFileSync(path, "utf8")) as CoreResearchRuntimeState;
+}
+
+function saveCoreResearchRuntimeState(path: string, state: CoreResearchRuntimeState): void {
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, JSON.stringify(state, null, 2));
+}
+
+function tailText(current: string, chunk: Buffer | string, maxLength = 8_000): string {
+  const next = current + chunk.toString();
+  return next.length > maxLength ? next.slice(next.length - maxLength) : next;
 }
 
 async function bootstrapCandles(input: {
@@ -142,6 +169,13 @@ async function main(): Promise<void> {
   const initialEquity = envNumber("BTCUSDC_PAPER_INITIAL_EQUITY", 1_000);
   const dailyReportAtKst = process.env.BTCUSDC_DAILY_REPORT_AT_KST ?? "09:00";
   const dailyReportStatePath = process.env.BTCUSDC_DAILY_REPORT_STATE_PATH ?? "/data/btcusdc-daily-report-state.json";
+  const autoResearchEnabled = (process.env.BTCUSDC_AUTO_RESEARCH_ENABLED ?? "true").toLowerCase() !== "false";
+  const coreResearchRunDayOfWeek = envNumber("BTCUSDC_CORE_RESEARCH_DAY_OF_WEEK", 1);
+  const coreResearchAtKst = process.env.BTCUSDC_CORE_RESEARCH_AT_KST ?? "01:20";
+  const coreResearchStatePath = process.env.BTCUSDC_CORE_RESEARCH_STATE_PATH ?? "/data/btcusdc-core-research-state.json";
+  const coreResearchDays = envNumber("BTCUSDC_CORE_RESEARCH_DAYS", 180);
+  const coreResearchMaxCandles = envNumber("BTCUSDC_CORE_RESEARCH_MAX_CANDLES", coreResearchDays * 24 * 60);
+  const coreResearchCliPath = process.env.BTCUSDC_CORE_RESEARCH_CLI_PATH ?? "dist/src/cli.js";
   const chatId = process.env.TRADING_TELEGRAM_CHAT_ID;
   const telegramClient = chatId && process.env.TELEGRAM_BOT_TOKEN ? new TelegramBotClient({ token: requireTelegramToken(process.env) }) : null;
   const WebSocketCtor = (globalThis as unknown as { WebSocket?: WebSocketConstructor }).WebSocket;
@@ -156,6 +190,7 @@ async function main(): Promise<void> {
   };
   process.once("SIGINT", stop);
   process.once("SIGTERM", stop);
+  let coreResearchInFlight = false;
 
   const maybeSendDailyReport = async () => {
     if (!telegramClient || !chatId) return;
@@ -183,6 +218,92 @@ async function main(): Promise<void> {
       lastTelegramMessageId: sent.message_id,
     });
     console.log(JSON.stringify({ event: "daily_report_sent", date: decision.currentDate, telegramMessageId: sent.message_id }));
+  };
+
+  const maybeRunCoreResearch = async () => {
+    if (!autoResearchEnabled || coreResearchInFlight) return;
+    const nowIso = new Date().toISOString();
+    const runtimeState = loadCoreResearchRuntimeState(coreResearchStatePath);
+    const decision = shouldRunBtcusdcWeeklyResearch({
+      nowIso,
+      runDayOfWeek: coreResearchRunDayOfWeek,
+      runAtKst: coreResearchAtKst,
+      lastStartedWeek: runtimeState.lastStartedWeek,
+    });
+    if (!decision.due) return;
+
+    coreResearchInFlight = true;
+    const startedState: CoreResearchRuntimeState = {
+      ...runtimeState,
+      lastStartedWeek: decision.currentWeek,
+      lastStartedAtIso: nowIso,
+      lastExitCode: null,
+      lastSignal: null,
+      lastStdoutTail: "",
+      lastStderrTail: "",
+    };
+    saveCoreResearchRuntimeState(coreResearchStatePath, startedState);
+    console.log(JSON.stringify({ event: "core_research_started", week: decision.currentWeek, days: coreResearchDays }));
+
+    let stdoutTail = "";
+    let stderrTail = "";
+    const child = spawn(
+      process.execPath,
+      [
+        coreResearchCliPath,
+        "trading:research-btcusdc-core-gate",
+        "--days",
+        String(coreResearchDays),
+        "--max-candles",
+        String(coreResearchMaxCandles),
+        "--registry-path",
+        registryPath ?? "/data/btcusdc-strategy-registry.json",
+        "--registry-out",
+        registryPath ?? "/data/btcusdc-strategy-registry.json",
+      ],
+      {
+        env: {
+          ...process.env,
+          NODE_OPTIONS: process.env.NODE_OPTIONS ?? "--max-old-space-size=384",
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
+    child.stdout?.on("data", (chunk) => {
+      stdoutTail = tailText(stdoutTail, chunk);
+    });
+    child.stderr?.on("data", (chunk) => {
+      stderrTail = tailText(stderrTail, chunk);
+    });
+    child.on("error", (error) => {
+      stderrTail = tailText(stderrTail, error instanceof Error ? error.message : String(error));
+    });
+    const result = await new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve) => {
+      child.on("close", (code, signal) => resolve({ code, signal }));
+    });
+    const finishedAtIso = new Date().toISOString();
+    saveCoreResearchRuntimeState(coreResearchStatePath, {
+      ...startedState,
+      lastFinishedAtIso: finishedAtIso,
+      lastExitCode: result.code,
+      lastSignal: result.signal,
+      lastStdoutTail: stdoutTail,
+      lastStderrTail: stderrTail,
+    });
+    coreResearchInFlight = false;
+    console.log(
+      JSON.stringify({
+        event: "core_research_finished",
+        week: decision.currentWeek,
+        exitCode: result.code,
+        signal: result.signal,
+      }),
+    );
+    if (result.code !== 0 && telegramClient && chatId) {
+      await telegramClient.sendMessage(chatId, {
+        text: `BTCUSDC.P weekly core research failed\nweek ${decision.currentWeek} | exit ${result.code ?? "null"} | signal ${result.signal ?? "none"}\n${stderrTail.slice(-1200)}`,
+      });
+    }
   };
 
   while (!stopped) {
@@ -223,6 +344,12 @@ async function main(): Promise<void> {
                 await telegramClient.sendMessage(chatId, buildBtcusdcPaperTelegramMessage(result.telegramEventRows, result));
               }
               await maybeSendDailyReport();
+              void maybeRunCoreResearch().catch((error) => {
+                coreResearchInFlight = false;
+                console.error(
+                  JSON.stringify({ event: "core_research_error", error: error instanceof Error ? error.message : String(error) }),
+                );
+              });
             } catch (error) {
               console.error(JSON.stringify({ event: "message_error", error: error instanceof Error ? error.message : String(error) }));
             }

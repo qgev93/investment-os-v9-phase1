@@ -23,6 +23,13 @@ kill_timeout = "30s"
   BTCUSDC_PAPER_INITIAL_EQUITY = "1000"
   BTCUSDC_DAILY_REPORT_AT_KST = "09:00"
   BTCUSDC_DAILY_REPORT_STATE_PATH = "/data/btcusdc-daily-report-state.json"
+  BTCUSDC_AUTO_RESEARCH_ENABLED = "true"
+  BTCUSDC_CORE_RESEARCH_DAY_OF_WEEK = "1"
+  BTCUSDC_CORE_RESEARCH_AT_KST = "01:20"
+  BTCUSDC_CORE_RESEARCH_DAYS = "180"
+  BTCUSDC_CORE_RESEARCH_MAX_CANDLES = "259200"
+  BTCUSDC_CORE_RESEARCH_STATE_PATH = "/data/btcusdc-core-research-state.json"
+  NODE_OPTIONS = "--max-old-space-size=384"
 
 [[mounts]]
   source = "btcusdc_paper_data"

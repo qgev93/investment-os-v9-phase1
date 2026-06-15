@@ -14,6 +14,7 @@ import {
 } from "../src/trading/btcusdcPaperTrading.js";
 import {
   buildBtcusdcDailyPerformanceTelegramMessage,
+  shouldRunBtcusdcWeeklyResearch,
   shouldSendBtcusdcDailyReport,
 } from "../src/trading/btcusdcDailyReport.js";
 import {
@@ -741,6 +742,35 @@ describe("BTCUSDC.P paper forward trading bot", () => {
         lastSentDate: "2026-06-16",
       }),
     ).toEqual({ due: false, currentDate: "2026-06-16" });
+  });
+
+  it("runs the scheduled core research once per KST week after the due time", () => {
+    expect(
+      shouldRunBtcusdcWeeklyResearch({
+        nowIso: "2026-06-14T16:19:00.000Z",
+        runDayOfWeek: 1,
+        runAtKst: "01:20",
+        lastStartedWeek: undefined,
+      }),
+    ).toEqual({ due: false, currentWeek: "2026-06-15" });
+
+    expect(
+      shouldRunBtcusdcWeeklyResearch({
+        nowIso: "2026-06-14T16:20:00.000Z",
+        runDayOfWeek: 1,
+        runAtKst: "01:20",
+        lastStartedWeek: undefined,
+      }),
+    ).toEqual({ due: true, currentWeek: "2026-06-15" });
+
+    expect(
+      shouldRunBtcusdcWeeklyResearch({
+        nowIso: "2026-06-16T12:00:00.000Z",
+        runDayOfWeek: 1,
+        runAtKst: "01:20",
+        lastStartedWeek: "2026-06-15",
+      }),
+    ).toEqual({ due: false, currentWeek: "2026-06-15" });
   });
 
   it("runs the daily report CLI and sends all bot performance in one Telegram message", async () => {
