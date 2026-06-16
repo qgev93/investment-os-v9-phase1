@@ -9,6 +9,8 @@
     "phase1": "tsx src/cli.ts",
     "research:btc": "tsx src/cli.ts trading:research-btcusdt",
     "research:btcusdc": "tsx src/cli.ts trading:research-btcusdc --maker-limit",
+    "trading:agent-office-btcusdc": "tsx src/cli.ts trading:agent-office-btcusdc",
+    "trading:agent-office-btcusdc-loop": "tsx src/cli.ts trading:agent-office-btcusdc --max-cycles 100000 --interval-ms 1800000",
     "trading:paper-btcusdc-realtime": "tsx src/trading/btcusdcRealtimeWorkerCli.ts",
     "server": "tsx src/server.ts",
     "d1:export-local": "node scripts/export-local-store-to-d1-sql.mjs",

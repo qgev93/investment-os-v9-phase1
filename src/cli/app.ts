@@ -41,6 +41,7 @@ import {
   filterBtcusdcCoreTelegramEvents,
   loadBtcusdcStrategyRegistryOrDefault,
 } from "../trading/btcusdcStrategyRegistry.js";
+import { runBtcusdcAgentOfficeCycle } from "../trading/btcusdcAgentOffice.js";
 import {
   buildBtcusdtEdgeZoneFragilityReport,
   buildBtcusdtEdgeZonePortfolioReport,
@@ -820,6 +821,90 @@ export async function runPhase1Command(
     };
   };
 
+  const runBtcusdcAgentOffice = async () => {
+    const statePath =
+      flagValue(args, "--state-path") ??
+      env.BTCUSDC_AGENT_OFFICE_STATE_PATH ??
+      resolve(".phase1/btcusdc-agent-office/state.json");
+    const reportDir =
+      flagValue(args, "--report-dir") ??
+      env.BTCUSDC_AGENT_OFFICE_REPORT_DIR ??
+      resolve(".phase1/btcusdc-agent-office/reports");
+    const registryPath =
+      flagValue(args, "--registry-path") ??
+      env.BTCUSDC_STRATEGY_REGISTRY_PATH ??
+      resolve("config/btcusdc-strategy-registry.json");
+    const maxCycles = Math.max(1, Number(flagValue(args, "--max-cycles") ?? env.BTCUSDC_AGENT_OFFICE_MAX_CYCLES ?? "1"));
+    const intervalMs = Math.max(0, Number(flagValue(args, "--interval-ms") ?? env.BTCUSDC_AGENT_OFFICE_INTERVAL_MS ?? "0"));
+    const generatedAtIso = flagValue(args, "--generated-at") ?? new Date().toISOString();
+    const modelName =
+      flagValue(args, "--model") ??
+      env.BTCUSDC_AGENT_MODEL ??
+      env.AGENT_MODEL ??
+      env.OPENAI_MODEL ??
+      "local-ohclv-grammar";
+    const useModel = !hasFlag(args, "--no-model");
+    const runCoreGate = hasFlag(args, "--run-core-gate");
+    const allowRegistryWrite = hasFlag(args, "--allow-registry-write");
+    const coreGateDays = Number(flagValue(args, "--days") ?? env.BTCUSDC_CORE_RESEARCH_DAYS ?? "180");
+    const coreGateMaxCandles = Number(
+      flagValue(args, "--max-candles") ?? env.BTCUSDC_CORE_RESEARCH_MAX_CANDLES ?? String(coreGateDays * 24 * 60),
+    );
+    const cycles = [];
+
+    for (let index = 0; index < maxCycles; index += 1) {
+      const cycle = await runBtcusdcAgentOfficeCycle({
+        statePath,
+        reportDir,
+        registryPath,
+        nowIso: index === 0 ? generatedAtIso : new Date().toISOString(),
+        useModel,
+        modelName,
+        openAiApiKey: env.OPENAI_API_KEY,
+        runCoreGate,
+        allowRegistryWrite,
+        coreGateDays,
+        coreGateMaxCandles,
+        commandRunner: async (commandArgs) => runPhase1Command(commandArgs, env),
+      });
+      cycles.push(cycle);
+      if (index < maxCycles - 1) await delay(intervalMs);
+    }
+
+    const lastCycle = cycles.at(-1);
+    const chatId = flagValue(args, "--chat-id") ?? env.TRADING_TELEGRAM_CHAT_ID;
+    let telegramMessageId: number | null = null;
+    let telegramSkippedReason: string | null = null;
+    if (lastCycle && chatId && !hasFlag(args, "--no-send")) {
+      const telegramResult = await sendBtcusdcTelegramReport({
+        args,
+        env,
+        chatId,
+        payload: { text: lastCycle.telegramText },
+        nowIso: generatedAtIso,
+      });
+      telegramMessageId = telegramResult.telegramMessageId;
+      telegramSkippedReason = telegramResult.telegramSkippedReason;
+    }
+
+    return {
+      mode: "agent_office",
+      symbol: "BTCUSDC",
+      displaySymbol: "BTCUSDC.P",
+      statePath,
+      reportDir,
+      registryPath,
+      cyclesCompleted: cycles.length,
+      lastCycleId: lastCycle?.cycleId ?? null,
+      lastReportPath: lastCycle?.reportPath ?? null,
+      telegramSent: telegramMessageId !== null,
+      telegramMessageId,
+      telegramSkippedReason,
+      telegramText: lastCycle?.telegramText ?? "",
+      cycles,
+    };
+  };
+
   if (command === "config:check") {
     return {
       ok: true,
@@ -1461,6 +1546,12 @@ export async function runPhase1Command(
     return {
       ok: true,
       data: await runBtcusdcPaperWorkflowReport(),
+    };
+  }
+  if (command === "trading:agent-office-btcusdc") {
+    return {
+      ok: true,
+      data: await runBtcusdcAgentOffice(),
     };
   }
 
