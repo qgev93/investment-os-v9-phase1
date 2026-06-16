@@ -39,6 +39,42 @@ interface BtcusdcAgentOfficeCooldown {
   reason?: string;
 }
 
+interface BtcusdcAgentOfficeWorkflowFeedback {
+  strategyName: string;
+  failureMode: string;
+  evidence: string;
+  nextMutation: string;
+}
+
+interface BtcusdcAgentOfficeCandidateDraft {
+  candidateType: "edge";
+  label: string;
+  strategyId: string;
+  zoneId: string;
+  entryMode: "limit-signal-close" | "limit-half-pullback";
+  targetR: number;
+  maxHoldFiveMinuteBars: number;
+  reason: string;
+}
+
+interface BtcusdcAgentOfficeWorkflowExperiment {
+  id: string;
+  hypothesis: string;
+  featureAtoms: string[];
+  bettingQuestion: string;
+  validationFocus: string[];
+  candidateDrafts: BtcusdcAgentOfficeCandidateDraft[];
+}
+
+interface BtcusdcAgentOfficeWorkflowResearch {
+  cycleNumber: number;
+  generatedAtIso: string;
+  objective: string;
+  feedbackLoops: BtcusdcAgentOfficeWorkflowFeedback[];
+  experimentQueue: BtcusdcAgentOfficeWorkflowExperiment[];
+  ideaBriefs: string[];
+}
+
 export interface BtcusdcAgentOfficeCycleOptions {
   statePath: string;
   reportDir: string;
@@ -158,6 +194,353 @@ function localIdeaBriefs(): string[] {
   ];
 }
 
+const WORKFLOW_EXPERIMENT_TEMPLATES: BtcusdcAgentOfficeWorkflowExperiment[] = [
+  {
+    id: "force-bar-low-volume-pullback",
+    hypothesis:
+      "After a large body force bar, a low-volume counter pullback may create a better payoff than chasing the force bar.",
+    featureAtoms: ["bodyRatio:large", "volumeDerivative:falling", "rangeDerivative:compressing", "recentDrift:pullback"],
+    bettingQuestion: "Can a maker pullback entry keep losses small while preserving 3R-5R upside?",
+    validationFocus: ["submittedOrders >= 600", "filledTrades >= 300", "worstFoldExpectancyR >= -0.15"],
+    candidateDrafts: [
+      {
+        candidateType: "edge",
+        label: "wf-force-pullback-continuation-long-4r",
+        strategyId: "three-candle-low-volume-pullback-continuation-long",
+        zoneId: "volumeDerivative:falling+rangeDerivative:compressing",
+        entryMode: "limit-half-pullback",
+        targetR: 4,
+        maxHoldFiveMinuteBars: 12,
+        reason: "Long-side version of the user's large-body-candle then pullback-volume idea.",
+      },
+      {
+        candidateType: "edge",
+        label: "wf-force-pullback-continuation-short-4r",
+        strategyId: "three-candle-low-volume-pullback-continuation-short",
+        zoneId: "volumeDerivative:falling+rangeDerivative:compressing",
+        entryMode: "limit-half-pullback",
+        targetR: 4,
+        maxHoldFiveMinuteBars: 12,
+        reason: "Short-side symmetry check to avoid one-regime overfit.",
+      },
+    ],
+  },
+  {
+    id: "early-climax-late-hold-payoff",
+    hypothesis:
+      "A 5m candle whose 1m path makes the extreme early but holds late may be a skewed fade/continuation boundary.",
+    featureAtoms: ["intrabarHighMinute:early", "intrabarLowMinute:early", "intrabarMaxVolumeMinute:early", "closePosition"],
+    bettingQuestion: "Does early volume concentration let us accept lower win rate for 3R-5R payoff?",
+    validationFocus: ["bestFivePctRemovedExpectancyR >= 0", "recent30ExpectancyR > 0", "recent90ExpectancyR > 0"],
+    candidateDrafts: [
+      {
+        candidateType: "edge",
+        label: "wf-early-climax-short-4r-wide-sample",
+        strategyId: "intrabar-early-climax-late-hold-short",
+        zoneId: "rangeRank:high+volumeRank:high",
+        entryMode: "limit-half-pullback",
+        targetR: 4,
+        maxHoldFiveMinuteBars: 12,
+        reason: "Existing promising short skew, widened hold/target variant to test payoff resilience.",
+      },
+      {
+        candidateType: "edge",
+        label: "wf-early-climax-long-4r-wide-sample",
+        strategyId: "intrabar-early-climax-late-hold-long",
+        zoneId: "rangeRank:high+volumeRank:high",
+        entryMode: "limit-half-pullback",
+        targetR: 4,
+        maxHoldFiveMinuteBars: 12,
+        reason: "Long symmetry of the early-climax structure.",
+      },
+    ],
+  },
+  {
+    id: "derivative-exhaustion-reversal",
+    hypothesis:
+      "First-derivative deceleration in close movement plus fading volume may mark exhaustion where payoff beats hit rate.",
+    featureAtoms: ["closeDerivative", "closeAcceleration", "volumeDerivative:falling", "bodyDerivative:compressing"],
+    bettingQuestion: "Can deceleration filters reduce worst-fold damage without killing trade count?",
+    validationFocus: ["positiveFoldRate >= 0.70", "worstFoldExpectancyR >= -0.15"],
+    candidateDrafts: [
+      {
+        candidateType: "edge",
+        label: "wf-derivative-exhaustion-short-4r",
+        strategyId: "derivative-exhaustion-reversal-short",
+        zoneId: "closeAcceleration:deceleratingUp+volumeDerivative:falling",
+        entryMode: "limit-half-pullback",
+        targetR: 4,
+        maxHoldFiveMinuteBars: 9,
+        reason: "Uses candle first derivative and volume fade only.",
+      },
+      {
+        candidateType: "edge",
+        label: "wf-derivative-exhaustion-long-4r",
+        strategyId: "derivative-exhaustion-reversal-long",
+        zoneId: "closeAcceleration:deceleratingDown+volumeDerivative:falling",
+        entryMode: "limit-half-pullback",
+        targetR: 4,
+        maxHoldFiveMinuteBars: 9,
+        reason: "Long-side deceleration symmetry.",
+      },
+    ],
+  },
+  {
+    id: "wick-stack-absorption",
+    hypothesis:
+      "Repeated same-side wick rejection across several 5m candles may identify absorption using only candle geometry and volume.",
+    featureAtoms: ["wickImbalance", "closePosition", "effortResult:highEffortNoResult", "volumeRank:high"],
+    bettingQuestion: "Can repeated wick rejection lift win rate enough while still targeting 3R-4R?",
+    validationFocus: ["fillRate >= 0.15", "profitFactor >= 1.20", "bestDayRemovedProfitFactor >= 1.05"],
+    candidateDrafts: [
+      {
+        candidateType: "edge",
+        label: "wf-wick-stack-absorption-long-3r",
+        strategyId: "wick-stack-absorption-long",
+        zoneId: "effortResult:highEffortNoResult+closePosition:upper",
+        entryMode: "limit-signal-close",
+        targetR: 3,
+        maxHoldFiveMinuteBars: 9,
+        reason: "Tests repeated lower-wick rejection as an absorption long.",
+      },
+      {
+        candidateType: "edge",
+        label: "wf-wick-stack-absorption-short-3r",
+        strategyId: "wick-stack-absorption-short",
+        zoneId: "effortResult:highEffortNoResult+closePosition:lower",
+        entryMode: "limit-signal-close",
+        targetR: 3,
+        maxHoldFiveMinuteBars: 9,
+        reason: "Tests repeated upper-wick rejection as an absorption short.",
+      },
+    ],
+  },
+  {
+    id: "quiet-coil-failed-expansion",
+    hypothesis:
+      "Low-range and low-volume compression that breaks and fails can be a high payoff mean-reversion zone.",
+    featureAtoms: ["rangeDerivative:compressing", "volumeRank:low", "closePosition:failedBreak", "localRangeState:compressing"],
+    bettingQuestion: "Does failed expansion create enough asymmetry after fees and maker fill assumptions?",
+    validationFocus: ["totalRToMaxDrawdown >= 2.0", "submittedOrders >= 600"],
+    candidateDrafts: [
+      {
+        candidateType: "edge",
+        label: "wf-quiet-coil-failure-short-4r",
+        strategyId: "quiet-coil-failed-expansion-short",
+        zoneId: "rangeDerivative:compressing+volumeRank:low",
+        entryMode: "limit-half-pullback",
+        targetR: 4,
+        maxHoldFiveMinuteBars: 12,
+        reason: "Fades upside failed expansion from candle compression.",
+      },
+      {
+        candidateType: "edge",
+        label: "wf-quiet-coil-failure-long-4r",
+        strategyId: "quiet-coil-failed-expansion-long",
+        zoneId: "rangeDerivative:compressing+volumeRank:low",
+        entryMode: "limit-half-pullback",
+        targetR: 4,
+        maxHoldFiveMinuteBars: 12,
+        reason: "Fades downside failed expansion from candle compression.",
+      },
+    ],
+  },
+  {
+    id: "pressure-shelf-break",
+    hypothesis:
+      "Repeated rising lows or falling highs against a flat shelf may show one-sided pressure before a maker retest.",
+    featureAtoms: ["shelfHighCluster", "shelfLowCluster", "rangeDerivative:compressing", "volumeDerivative:rising"],
+    bettingQuestion: "Can shelf pressure improve fill count while keeping payoff above 3R?",
+    validationFocus: ["filledTrades >= 300", "fillRate >= 0.15", "fullKelly > 0"],
+    candidateDrafts: [
+      {
+        candidateType: "edge",
+        label: "wf-pressure-shelf-break-long-3r",
+        strategyId: "pressure-shelf-break-long",
+        zoneId: "rangeDerivative:compressing+volumeDerivative:rising",
+        entryMode: "limit-half-pullback",
+        targetR: 3,
+        maxHoldFiveMinuteBars: 9,
+        reason: "Long pressure shelf with rising lows.",
+      },
+      {
+        candidateType: "edge",
+        label: "wf-pressure-shelf-break-short-3r",
+        strategyId: "pressure-shelf-break-short",
+        zoneId: "rangeDerivative:compressing+volumeDerivative:rising",
+        entryMode: "limit-half-pullback",
+        targetR: 3,
+        maxHoldFiveMinuteBars: 9,
+        reason: "Short pressure shelf with falling highs.",
+      },
+    ],
+  },
+  {
+    id: "low-volume-breakout-trap",
+    hypothesis:
+      "A boundary break on weak volume that cannot hold may be a cleaner trade than a normal breakout fade.",
+    featureAtoms: ["volumeRank:low", "recentHighBreak", "recentLowBreak", "closeBackInside"],
+    bettingQuestion: "Can weak breakout traps raise PF after removing the best day?",
+    validationFocus: ["bestDayRemovedProfitFactor >= 1.05", "recent90ExpectancyR > 0"],
+    candidateDrafts: [
+      {
+        candidateType: "edge",
+        label: "wf-low-volume-trap-short-4r",
+        strategyId: "low-volume-breakout-trap-short",
+        zoneId: "volumeRank:low+closePosition:lower",
+        entryMode: "limit-half-pullback",
+        targetR: 4,
+        maxHoldFiveMinuteBars: 9,
+        reason: "Short trap after failed weak-volume upside break.",
+      },
+      {
+        candidateType: "edge",
+        label: "wf-low-volume-trap-long-4r",
+        strategyId: "low-volume-breakout-trap-long",
+        zoneId: "volumeRank:low+closePosition:upper",
+        entryMode: "limit-half-pullback",
+        targetR: 4,
+        maxHoldFiveMinuteBars: 9,
+        reason: "Long trap after failed weak-volume downside break.",
+      },
+    ],
+  },
+  {
+    id: "inside-bar-expansion-retest",
+    hypothesis:
+      "A contained 5m candle followed by expansion may create simple maker retest entries with enough sample size.",
+    featureAtoms: ["insideBar", "rangeDerivative:expanding", "volumeRank:high", "closePosition:upper/lower"],
+    bettingQuestion: "Can a simpler continuation logic beat more complex path filters over 6 months?",
+    validationFocus: ["submittedOrders >= 600", "expectancyR > 0", "portfolioMaxDrawdownDeltaR <= 0"],
+    candidateDrafts: [
+      {
+        candidateType: "edge",
+        label: "wf-inside-expansion-retest-long-3r",
+        strategyId: "inside-bar-expansion-retest-long",
+        zoneId: "volumeRank:high+rangeDerivative:expanding",
+        entryMode: "limit-half-pullback",
+        targetR: 3,
+        maxHoldFiveMinuteBars: 9,
+        reason: "Simple continuation after stored range breaks upward.",
+      },
+      {
+        candidateType: "edge",
+        label: "wf-inside-expansion-retest-short-3r",
+        strategyId: "inside-bar-expansion-retest-short",
+        zoneId: "volumeRank:high+rangeDerivative:expanding",
+        entryMode: "limit-half-pullback",
+        targetR: 3,
+        maxHoldFiveMinuteBars: 9,
+        reason: "Simple continuation after stored range breaks downward.",
+      },
+    ],
+  },
+];
+
+function failureModesFromRegistryEntry(entry: Record<string, unknown>): string[] {
+  const coreTest = (entry.coreTest && typeof entry.coreTest === "object" ? entry.coreTest : {}) as Record<string, unknown>;
+  const notes = typeof entry.notes === "string" ? entry.notes : "";
+  const modes = new Set<string>();
+  const filledTrades = Number(coreTest.filledTrades ?? 0);
+  const submittedOrders = Number(coreTest.submittedOrders ?? 0);
+  const expectancyR = Number(coreTest.expectancyR ?? 0);
+  const profitFactor = Number(coreTest.profitFactor ?? 0);
+  const positiveFoldRate = Number(coreTest.positiveFoldRate ?? 1);
+  const worstFoldExpectancyR = Number(coreTest.worstFoldExpectancyR ?? 0);
+  const recent30ExpectancyR = Number(coreTest.recent30ExpectancyR ?? 0);
+  const recent90ExpectancyR = Number(coreTest.recent90ExpectancyR ?? 0);
+
+  if (filledTrades > 0 && filledTrades < 300) modes.add("sample_shortage");
+  if (submittedOrders > 0 && submittedOrders < 600) modes.add("order_frequency_shortage");
+  if (positiveFoldRate < 0.7 || worstFoldExpectancyR < -0.15 || notes.includes("worstFoldExpectancyR")) {
+    modes.add("fold_fragility");
+  }
+  if (expectancyR > 0 && profitFactor >= 1.2 && filledTrades < 300) modes.add("positive_skew_low_sample");
+  if (recent30ExpectancyR <= 0 || recent90ExpectancyR <= 0) modes.add("recent_decay");
+  if (modes.size === 0 && notes) modes.add("unclassified_gate_failure");
+  return [...modes];
+}
+
+function registryFeedbackLoops(registryPath: string): BtcusdcAgentOfficeWorkflowFeedback[] {
+  if (!existsSync(registryPath)) return [];
+  try {
+    const parsed = JSON.parse(readFileSync(registryPath, "utf8").replace(/^\uFEFF/, "")) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    const feedback: BtcusdcAgentOfficeWorkflowFeedback[] = [];
+    for (const rawEntry of parsed) {
+      if (!rawEntry || typeof rawEntry !== "object") continue;
+      const entry = rawEntry as Record<string, unknown>;
+      const name = String(entry.name ?? entry.id ?? "unknown");
+      const coreTest = (entry.coreTest && typeof entry.coreTest === "object" ? entry.coreTest : {}) as Record<string, unknown>;
+      for (const failureMode of failureModesFromRegistryEntry(entry)) {
+        feedback.push({
+          strategyName: name,
+          failureMode,
+          evidence: `filled=${String(coreTest.filledTrades ?? "na")}, orders=${String(coreTest.submittedOrders ?? "na")}, expectancyR=${String(coreTest.expectancyR ?? "na")}, pf=${String(coreTest.profitFactor ?? "na")}, positiveFoldRate=${String(coreTest.positiveFoldRate ?? "na")}, worstFold=${String(coreTest.worstFoldExpectancyR ?? "na")}`,
+          nextMutation:
+            failureMode === "fold_fragility"
+              ? "Split long/short symmetry and add derivative/compression filters before core promotion."
+              : failureMode === "sample_shortage" || failureMode === "order_frequency_shortage"
+                ? "Widen the condition grammar or reduce over-specific atoms until trade count clears the gate."
+                : "Keep the payoff structure but test simpler candle/volume atoms across more regimes.",
+        });
+      }
+    }
+    return feedback.slice(0, 12);
+  } catch {
+    return [];
+  }
+}
+
+function rotatedExperiments(
+  cycleNumber: number,
+  feedback: BtcusdcAgentOfficeWorkflowFeedback[],
+): BtcusdcAgentOfficeWorkflowExperiment[] {
+  const rotation = cycleNumber % WORKFLOW_EXPERIMENT_TEMPLATES.length;
+  const rotated = [
+    ...WORKFLOW_EXPERIMENT_TEMPLATES.slice(rotation),
+    ...WORKFLOW_EXPERIMENT_TEMPLATES.slice(0, rotation),
+  ];
+  const hasFoldFragility = feedback.some((item) => item.failureMode === "fold_fragility");
+  const hasSampleShortage = feedback.some(
+    (item) => item.failureMode === "sample_shortage" || item.failureMode === "order_frequency_shortage",
+  );
+  const prioritized = rotated.filter((experiment) => {
+    if (hasFoldFragility && experiment.validationFocus.some((item) => item.includes("worstFold"))) return true;
+    if (
+      hasSampleShortage &&
+      experiment.validationFocus.some((item) => item.includes("submittedOrders") || item.includes("filledTrades"))
+    ) {
+      return true;
+    }
+    return false;
+  });
+  const unique = new Map<string, BtcusdcAgentOfficeWorkflowExperiment>();
+  for (const experiment of [...prioritized, ...rotated]) unique.set(experiment.id, experiment);
+  return [...unique.values()].slice(0, 8);
+}
+
+function buildWorkflowResearch(input: {
+  cycleNumber: number;
+  nowIso: string;
+  registryPath: string;
+}): BtcusdcAgentOfficeWorkflowResearch {
+  const feedbackLoops = registryFeedbackLoops(input.registryPath);
+  const experimentQueue = rotatedExperiments(input.cycleNumber, feedbackLoops);
+  const ideaBriefs = [
+    ...feedbackLoops.slice(0, 4).map((item) => `failure feedback ${item.failureMode}: ${item.strategyName} -> ${item.nextMutation}`),
+    ...experimentQueue.map((experiment) => `${experiment.id}: ${experiment.hypothesis} | atoms=${experiment.featureAtoms.join(",")}`),
+  ];
+  return {
+    cycleNumber: input.cycleNumber,
+    generatedAtIso: input.nowIso,
+    objective: "Continuously mutate OHLCV-only ideas toward positive expectancy, payoff, Kelly, and fold stability.",
+    feedbackLoops,
+    experimentQueue,
+    ideaBriefs,
+  };
+}
+
 function extractOpenAiText(payload: unknown): string | null {
   if (!payload || typeof payload !== "object") return null;
   const outputText = (payload as { output_text?: unknown }).output_text;
@@ -247,7 +630,13 @@ export async function runBtcusdcAgentOfficeCycle(
   const roles: BtcusdcAgentOfficeRoleReport[] = [];
   const artifacts: string[] = [];
 
-  const ideaBriefs = localIdeaBriefs();
+  const workflowResearch = buildWorkflowResearch({
+    cycleNumber,
+    nowIso,
+    registryPath: options.registryPath,
+  });
+  const ideaBriefs = [...localIdeaBriefs(), ...workflowResearch.ideaBriefs];
+  artifacts.push("workflow-research-packet");
   if (modelProvider === "openai" && options.openAiApiKey) {
     try {
       const modelBrief = await requestOpenAiBrief({
@@ -266,9 +655,22 @@ export async function runBtcusdcAgentOfficeCycle(
   }
 
   if (!roles.some((item) => item.role === "strategy_research")) {
-    roles.push(role("strategy_research", "completed", `${ideaBriefs.length}개 OHLCV-only 연구 방향 생성`, artifacts));
+    roles.push(
+      role(
+        "strategy_research",
+        "completed",
+        `workflow generated ${workflowResearch.experimentQueue.length} OHLCV experiments and ${workflowResearch.feedbackLoops.length} feedback loops`,
+        artifacts,
+      ),
+    );
   }
-  roles.push(role("approach_research", "completed", "1m 원천과 5m 맥락을 모두 허용하고, 보유시간은 후보별 자유로 열어둠"));
+  roles.push(
+    role(
+      "approach_research",
+      "completed",
+      "failure feedback drives open-ended 1m/5m candle-volume grammar; holding time remains candidate-specific",
+    ),
+  );
 
   const cooldown = loadCooldown(options.coreGateCooldownPath);
   const hasUsableCoreGateCache = Boolean(options.coreGateCacheFile && existsSync(options.coreGateCacheFile));
@@ -361,6 +763,7 @@ export async function runBtcusdcAgentOfficeCycle(
   saveJson(reportPath, {
     ...result,
     localIdeaBriefs: ideaBriefs,
+    workflowResearch,
   });
   pruneReportFiles(options.reportDir, options.maxReportFiles);
   saveJson(options.statePath, {

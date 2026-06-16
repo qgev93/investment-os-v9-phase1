@@ -296,4 +296,82 @@ describe("BTCUSDC local agent office", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("turns prior core-gate failures into a dynamic OHLCV workflow research packet", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-workflow-research-"));
+    try {
+      const registryPath = join(dir, "registry.json");
+      writeFileSync(
+        registryPath,
+        JSON.stringify([
+          {
+            id: "edge-low-sample",
+            name: "edge-low-sample",
+            status: "shadow",
+            candidateType: "edge",
+            candidate: {
+              label: "edge-low-sample",
+              strategyId: "intrabar-early-climax-late-hold-short",
+              zoneId: "rangeRank:high+volumeRank:high",
+              entryMode: "limit-half-pullback",
+              targetR: 3,
+              maxHoldFiveMinuteBars: 9,
+            },
+            coreTest: {
+              lookbackDays: 180,
+              filledTrades: 52,
+              submittedOrders: 120,
+              fillRate: 0.43,
+              expectancyR: 0.72,
+              profitFactor: 2.1,
+              fullKelly: 0.2,
+              totalR: 35,
+              maxDrawdownR: 7,
+              totalRToMaxDrawdown: 5,
+              positiveFoldRate: 0.58,
+              worstFoldExpectancyR: -1,
+              recent30ExpectancyR: 0.4,
+              recent90ExpectancyR: 0.59,
+              bestDayRemovedProfitFactor: 1.8,
+              bestFivePctRemovedExpectancyR: 0.6,
+              passed: false,
+            },
+            notes:
+              "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15",
+          },
+        ]),
+      );
+
+      const result = await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath,
+        nowIso: "2026-06-16T02:40:00.000Z",
+        useModel: false,
+        runCoreGate: false,
+      });
+
+      const report = JSON.parse(readFileSync(result.reportPath, "utf8")) as {
+        workflowResearch?: {
+          feedbackLoops: Array<{ failureMode: string }>;
+          experimentQueue: Array<{
+            hypothesis: string;
+            featureAtoms: string[];
+            candidateDrafts: Array<{ candidateType: string; label: string }>;
+          }>;
+        };
+      };
+
+      expect(report.workflowResearch?.feedbackLoops.map((item) => item.failureMode)).toContain("fold_fragility");
+      expect(report.workflowResearch?.experimentQueue.length).toBeGreaterThanOrEqual(6);
+      expect(report.workflowResearch?.experimentQueue.flatMap((item) => item.featureAtoms).join("|")).toContain(
+        "rangeDerivative",
+      );
+      expect(report.workflowResearch?.experimentQueue.flatMap((item) => item.candidateDrafts).length).toBeGreaterThan(0);
+      expect(result.roles.find((role) => role.role === "strategy_research")?.summary).toContain("workflow");
+      expect(result.roles.find((role) => role.role === "approach_research")?.summary).toContain("failure feedback");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
