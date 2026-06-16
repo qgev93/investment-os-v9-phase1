@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import {
   hasBtcusdcRegistrySemanticChange,
   loadBtcusdcStrategyRegistryOrDefault,
+  repairBtcusdcRegistryActivePairs,
   type BtcusdcStrategyRegistryEntry,
 } from "./btcusdcStrategyRegistry.js";
 
@@ -703,6 +704,18 @@ function registerWorkflowDrafts(input: {
   return { added: additions.length, totalDrafts: draftEntries.length };
 }
 
+function repairRegistryActivePairs(input: { registryPath: string }): { added: number; unpairedBefore: number } {
+  const currentRegistry = loadBtcusdcStrategyRegistryOrDefault(input.registryPath);
+  const repaired = repairBtcusdcRegistryActivePairs(currentRegistry);
+  if (repaired.added > 0 && hasBtcusdcRegistrySemanticChange(currentRegistry, repaired.entries)) {
+    saveJson(input.registryPath, repaired.entries);
+  }
+  return {
+    added: repaired.added,
+    unpairedBefore: repaired.unpairedBefore,
+  };
+}
+
 const AUTONOMOUS_IMPROVEMENT_MAX_DRAFTS_PER_CYCLE = 12;
 const AUTONOMOUS_IMPROVEMENT_REGISTRY_CAP = 160;
 const AUTONOMOUS_IMPROVEMENT_MAX_SOURCE_DEPTH = 2;
@@ -1264,6 +1277,7 @@ function autonomousTeam(
 function buildAutonomousTeamReports(input: {
   workflowResearch: BtcusdcAgentOfficeWorkflowResearch;
   autonomousImprovement: BtcusdcAgentOfficeAutonomousImprovement;
+  registryPairRepair: { added: number; unpairedBefore: number };
   workflowDraftRegistration: { added: number; totalDrafts: number };
   autonomousImprovementDraftRegistration: { added: number; totalDrafts: number };
   roles: BtcusdcAgentOfficeRoleReport[];
@@ -1306,7 +1320,7 @@ function buildAutonomousTeamReports(input: {
       "registry_sync",
       input.allowRegistryWrite ? "completed" : "skipped",
       input.allowRegistryWrite
-        ? `registry write enabled at ${input.registryPath}; workflow ${input.workflowDraftRegistration.added}/${input.workflowDraftRegistration.totalDrafts}, improvement ${input.autonomousImprovementDraftRegistration.added}/${input.autonomousImprovementDraftRegistration.totalDrafts}`
+        ? `registry write enabled at ${input.registryPath}; pair repair ${input.registryPairRepair.added}/${input.registryPairRepair.unpairedBefore}, workflow ${input.workflowDraftRegistration.added}/${input.workflowDraftRegistration.totalDrafts}, improvement ${input.autonomousImprovementDraftRegistration.added}/${input.autonomousImprovementDraftRegistration.totalDrafts}`
         : `registry write disabled at ${input.registryPath}; report-only cycle`,
       ["strategy-registry"],
     ),
@@ -1464,6 +1478,11 @@ export async function runBtcusdcAgentOfficeCycle(
       "failure feedback drives open-ended 1m/5m candle-volume grammar; holding time remains candidate-specific",
     ),
   );
+  const registryPairRepair = options.allowRegistryWrite
+    ? repairRegistryActivePairs({
+        registryPath: options.registryPath,
+      })
+    : { added: 0, unpairedBefore: 0 };
   const workflowDraftRegistration = options.allowRegistryWrite
     ? registerWorkflowDrafts({
         registryPath: options.registryPath,
@@ -1552,7 +1571,7 @@ export async function runBtcusdcAgentOfficeCycle(
       "registry_operations",
       options.allowRegistryWrite ? "completed" : "skipped",
       options.allowRegistryWrite
-        ? `core gate results, workflow drafts, and improvement drafts allowed; workflow drafts added ${workflowDraftRegistration.added}/${workflowDraftRegistration.totalDrafts}; improvement drafts added ${autonomousImprovementDraftRegistration.added}/${autonomousImprovementDraftRegistration.totalDrafts}; improvement agents ${autonomousImprovementAgentSummary}`
+        ? `core gate results, workflow drafts, and improvement drafts allowed; pair repair added ${registryPairRepair.added}/${registryPairRepair.unpairedBefore}; workflow drafts added ${workflowDraftRegistration.added}/${workflowDraftRegistration.totalDrafts}; improvement drafts added ${autonomousImprovementDraftRegistration.added}/${autonomousImprovementDraftRegistration.totalDrafts}; improvement agents ${autonomousImprovementAgentSummary}`
         : "registry 자동 변경 비활성; 보고서만 기록",
     ),
   );
@@ -1562,6 +1581,7 @@ export async function runBtcusdcAgentOfficeCycle(
   const autonomousTeams = buildAutonomousTeamReports({
     workflowResearch,
     autonomousImprovement,
+    registryPairRepair,
     workflowDraftRegistration,
     autonomousImprovementDraftRegistration,
     roles,
@@ -1600,6 +1620,7 @@ export async function runBtcusdcAgentOfficeCycle(
     localIdeaBriefs: ideaBriefs,
     workflowResearch,
     autonomousImprovement,
+    registryPairRepair,
   });
   pruneReportFiles(options.reportDir, options.maxReportFiles);
   saveJson(options.statePath, {

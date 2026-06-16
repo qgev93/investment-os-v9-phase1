@@ -29,7 +29,7 @@
       "recent90ExpectancyR": 0.3627054122403352,
       "bestDayRemovedProfitFactor": 1.309659532992164,
       "bestFivePctRemovedExpectancyR": 0.19731043242975219,
-      "evaluatedAt": "2026-06-16T08:54:45.433Z",
+      "evaluatedAt": "2026-06-16T09:42:06.547Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     },
@@ -65,7 +65,7 @@
       "recent90ExpectancyR": 0.3888888888888889,
       "bestDayRemovedProfitFactor": 2.4,
       "bestFivePctRemovedExpectancyR": 0.9387755102040817,
-      "evaluatedAt": "2026-06-16T07:40:09.184Z",
+      "evaluatedAt": "2026-06-16T09:42:09.642Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     },
@@ -101,7 +101,7 @@
       "recent90ExpectancyR": 0.5907493837181351,
       "bestDayRemovedProfitFactor": 1.854298428961845,
       "bestFivePctRemovedExpectancyR": 0.6039133024295353,
-      "evaluatedAt": "2026-06-16T07:40:11.979Z",
+      "evaluatedAt": "2026-06-16T09:42:12.345Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     },
@@ -222,7 +222,7 @@
       "recent90ExpectancyR": 0,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": 0,
-      "evaluatedAt": "2026-06-16T08:54:49.203Z",
+      "evaluatedAt": "2026-06-16T09:42:15.045Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -258,7 +258,7 @@
       "recent90ExpectancyR": 0,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": 0,
-      "evaluatedAt": "2026-06-16T08:54:51.703Z",
+      "evaluatedAt": "2026-06-16T09:42:17.730Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -294,7 +294,7 @@
       "recent90ExpectancyR": 0,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": 0,
-      "evaluatedAt": "2026-06-16T08:54:54.168Z",
+      "evaluatedAt": "2026-06-16T09:42:20.420Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -330,7 +330,7 @@
       "recent90ExpectancyR": 0,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": 0,
-      "evaluatedAt": "2026-06-16T08:54:56.665Z",
+      "evaluatedAt": "2026-06-16T09:42:23.142Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -366,7 +366,7 @@
       "recent90ExpectancyR": -0.28373793573536193,
       "bestDayRemovedProfitFactor": 1.4856289334104564,
       "bestFivePctRemovedExpectancyR": 0.2555941754791876,
-      "evaluatedAt": "2026-06-16T08:54:59.159Z",
+      "evaluatedAt": "2026-06-16T09:42:26.196Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -402,7 +402,7 @@
       "recent90ExpectancyR": 0.5905699748948586,
       "bestDayRemovedProfitFactor": 0.8044572012343015,
       "bestFivePctRemovedExpectancyR": -0.1320822289686166,
-      "evaluatedAt": "2026-06-16T08:55:01.684Z",
+      "evaluatedAt": "2026-06-16T09:42:28.982Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -438,7 +438,7 @@
       "recent90ExpectancyR": 0,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": 0,
-      "evaluatedAt": "2026-06-16T08:55:04.129Z",
+      "evaluatedAt": "2026-06-16T09:42:32.001Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -474,7 +474,7 @@
       "recent90ExpectancyR": 0,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": 0,
-      "evaluatedAt": "2026-06-16T08:55:06.633Z",
+      "evaluatedAt": "2026-06-16T09:42:34.613Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -510,7 +510,7 @@
       "recent90ExpectancyR": 0,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": 0,
-      "evaluatedAt": "2026-06-16T07:40:36.330Z",
+      "evaluatedAt": "2026-06-16T09:42:37.314Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -546,7 +546,7 @@
       "recent90ExpectancyR": 0,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": 0,
-      "evaluatedAt": "2026-06-16T07:40:38.984Z",
+      "evaluatedAt": "2026-06-16T09:42:40.158Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -582,7 +582,7 @@
       "recent90ExpectancyR": 0,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": 0,
-      "evaluatedAt": "2026-06-16T07:40:41.786Z",
+      "evaluatedAt": "2026-06-16T09:42:42.796Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -618,7 +618,7 @@
       "recent90ExpectancyR": 0,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": 0,
-      "evaluatedAt": "2026-06-16T07:40:44.629Z",
+      "evaluatedAt": "2026-06-16T09:42:45.470Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -654,7 +654,7 @@
       "recent90ExpectancyR": -1,
       "bestDayRemovedProfitFactor": 0.5,
       "bestFivePctRemovedExpectancyR": -0.4444444444444444,
-      "evaluatedAt": "2026-06-16T07:40:47.343Z",
+      "evaluatedAt": "2026-06-16T09:42:48.081Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -690,7 +690,7 @@
       "recent90ExpectancyR": -1,
       "bestDayRemovedProfitFactor": 0.1759330759330271,
       "bestFivePctRemovedExpectancyR": -0.7491517491517935,
-      "evaluatedAt": "2026-06-16T07:40:50.006Z",
+      "evaluatedAt": "2026-06-16T09:42:50.731Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -726,7 +726,7 @@
       "recent90ExpectancyR": 0.3861904622896016,
       "bestDayRemovedProfitFactor": 1.1952336294935422,
       "bestFivePctRemovedExpectancyR": 0.14474106099465814,
-      "evaluatedAt": "2026-06-16T08:55:09.374Z",
+      "evaluatedAt": "2026-06-16T09:42:53.634Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -762,7 +762,7 @@
       "recent90ExpectancyR": -0.20760688278054917,
       "bestDayRemovedProfitFactor": 1.0050949579468347,
       "bestFivePctRemovedExpectancyR": -0.015117222917203575,
-      "evaluatedAt": "2026-06-16T08:55:12.090Z",
+      "evaluatedAt": "2026-06-16T09:42:56.544Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -798,7 +798,7 @@
       "recent90ExpectancyR": 0.18112857259355541,
       "bestDayRemovedProfitFactor": 1.253393037932881,
       "bestFivePctRemovedExpectancyR": 0.15241446119619523,
-      "evaluatedAt": "2026-06-16T07:40:58.808Z",
+      "evaluatedAt": "2026-06-16T09:42:59.685Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -834,7 +834,7 @@
       "recent90ExpectancyR": 0.3158433665987848,
       "bestDayRemovedProfitFactor": 1.2229677067170568,
       "bestFivePctRemovedExpectancyR": 0.13700292484324988,
-      "evaluatedAt": "2026-06-16T07:41:01.857Z",
+      "evaluatedAt": "2026-06-16T09:43:02.608Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -870,7 +870,7 @@
       "recent90ExpectancyR": 0.03992586276072954,
       "bestDayRemovedProfitFactor": 1.0039805090197622,
       "bestFivePctRemovedExpectancyR": -0.04699142947490311,
-      "evaluatedAt": "2026-06-16T08:55:14.628Z",
+      "evaluatedAt": "2026-06-16T09:43:05.502Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -906,7 +906,7 @@
       "recent90ExpectancyR": 0.2762444953149457,
       "bestDayRemovedProfitFactor": 1.3023632383654742,
       "bestFivePctRemovedExpectancyR": 0.15984601156675746,
-      "evaluatedAt": "2026-06-16T07:41:07.540Z",
+      "evaluatedAt": "2026-06-16T09:43:08.364Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -942,7 +942,7 @@
       "recent90ExpectancyR": 0.2553005464480903,
       "bestDayRemovedProfitFactor": 1.4597988760721685,
       "bestFivePctRemovedExpectancyR": 0.333779924852389,
-      "evaluatedAt": "2026-06-16T07:41:10.394Z",
+      "evaluatedAt": "2026-06-16T09:43:11.101Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -978,7 +978,7 @@
       "recent90ExpectancyR": 0.061946902654867256,
       "bestDayRemovedProfitFactor": 1.14,
       "bestFivePctRemovedExpectancyR": 0.09375,
-      "evaluatedAt": "2026-06-16T07:41:13.352Z",
+      "evaluatedAt": "2026-06-16T09:43:13.797Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1014,7 +1014,7 @@
       "recent90ExpectancyR": -0.021708555005205337,
       "bestDayRemovedProfitFactor": 1.8830774486174588,
       "bestFivePctRemovedExpectancyR": 0.5335259585397146,
-      "evaluatedAt": "2026-06-16T07:41:16.157Z",
+      "evaluatedAt": "2026-06-16T09:43:16.475Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1050,7 +1050,7 @@
       "recent90ExpectancyR": 0.5009360952973746,
       "bestDayRemovedProfitFactor": 1.3669573958373213,
       "bestFivePctRemovedExpectancyR": 0.2529188979748891,
-      "evaluatedAt": "2026-06-16T07:41:18.793Z",
+      "evaluatedAt": "2026-06-16T09:43:18.862Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1086,7 +1086,7 @@
       "recent90ExpectancyR": 0.5215863670347379,
       "bestDayRemovedProfitFactor": 1.7970144451241785,
       "bestFivePctRemovedExpectancyR": 0.573068815844352,
-      "evaluatedAt": "2026-06-16T07:41:21.391Z",
+      "evaluatedAt": "2026-06-16T09:43:21.267Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1122,7 +1122,7 @@
       "recent90ExpectancyR": 0.5191197691197694,
       "bestDayRemovedProfitFactor": 1.5456288919808212,
       "bestFivePctRemovedExpectancyR": 0.3811973089899765,
-      "evaluatedAt": "2026-06-16T07:41:24.049Z",
+      "evaluatedAt": "2026-06-16T09:43:23.722Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1158,7 +1158,7 @@
       "recent90ExpectancyR": -0.13690606664279212,
       "bestDayRemovedProfitFactor": 1.1801170279813238,
       "bestFivePctRemovedExpectancyR": 0.11627957323651766,
-      "evaluatedAt": "2026-06-16T08:55:16.959Z",
+      "evaluatedAt": "2026-06-16T09:43:26.169Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1194,7 +1194,7 @@
       "recent90ExpectancyR": -0.03690942810788385,
       "bestDayRemovedProfitFactor": 1.3910810222671832,
       "bestFivePctRemovedExpectancyR": 0.2235609541773899,
-      "evaluatedAt": "2026-06-16T08:55:19.353Z",
+      "evaluatedAt": "2026-06-16T09:43:28.589Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1230,7 +1230,7 @@
       "recent90ExpectancyR": -0.060170550168157734,
       "bestDayRemovedProfitFactor": 0.8544744894143684,
       "bestFivePctRemovedExpectancyR": -0.09096860891576848,
-      "evaluatedAt": "2026-06-16T08:55:21.955Z",
+      "evaluatedAt": "2026-06-16T09:43:30.929Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1266,7 +1266,7 @@
       "recent90ExpectancyR": 0.002304063197145329,
       "bestDayRemovedProfitFactor": 1.5804582782635952,
       "bestFivePctRemovedExpectancyR": 0.2749539212827556,
-      "evaluatedAt": "2026-06-16T08:55:24.474Z",
+      "evaluatedAt": "2026-06-16T09:43:33.365Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1302,7 +1302,7 @@
       "recent90ExpectancyR": 0.12450014381912844,
       "bestDayRemovedProfitFactor": 0.7981184326283691,
       "bestFivePctRemovedExpectancyR": -0.14306603255814393,
-      "evaluatedAt": "2026-06-16T08:55:26.927Z",
+      "evaluatedAt": "2026-06-16T09:43:35.747Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1338,7 +1338,7 @@
       "recent90ExpectancyR": 0.11339898242640105,
       "bestDayRemovedProfitFactor": 0.6620985464232699,
       "bestFivePctRemovedExpectancyR": -0.2498159156986593,
-      "evaluatedAt": "2026-06-16T08:55:29.389Z",
+      "evaluatedAt": "2026-06-16T09:43:38.196Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1374,7 +1374,7 @@
       "recent90ExpectancyR": -0.12280809775778699,
       "bestDayRemovedProfitFactor": 0.8997661103046456,
       "bestFivePctRemovedExpectancyR": -0.08271913894642806,
-      "evaluatedAt": "2026-06-16T08:55:31.857Z",
+      "evaluatedAt": "2026-06-16T09:43:41.009Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1410,7 +1410,7 @@
       "recent90ExpectancyR": 0.007398790075943883,
       "bestDayRemovedProfitFactor": 0.7578194674646528,
       "bestFivePctRemovedExpectancyR": -0.15596723279081492,
-      "evaluatedAt": "2026-06-16T08:55:34.387Z",
+      "evaluatedAt": "2026-06-16T09:43:43.426Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1446,7 +1446,7 @@
       "recent90ExpectancyR": 0.23277834430933433,
       "bestDayRemovedProfitFactor": 1.1600435945599987,
       "bestFivePctRemovedExpectancyR": 0.10509038589207917,
-      "evaluatedAt": "2026-06-16T08:55:37.123Z",
+      "evaluatedAt": "2026-06-16T09:43:45.960Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1482,7 +1482,7 @@
       "recent90ExpectancyR": 0.322518044926177,
       "bestDayRemovedProfitFactor": 1.1528785010636058,
       "bestFivePctRemovedExpectancyR": 0.10252168455233215,
-      "evaluatedAt": "2026-06-16T08:55:40.507Z",
+      "evaluatedAt": "2026-06-16T09:43:48.536Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1518,7 +1518,7 @@
       "recent90ExpectancyR": 0.037972946898796094,
       "bestDayRemovedProfitFactor": 1.042764810835911,
       "bestFivePctRemovedExpectancyR": -0.0368848662225075,
-      "evaluatedAt": "2026-06-16T08:55:43.804Z",
+      "evaluatedAt": "2026-06-16T09:43:51.178Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1554,7 +1554,7 @@
       "recent90ExpectancyR": 0.3627054122403352,
       "bestDayRemovedProfitFactor": 1.309659532992164,
       "bestFivePctRemovedExpectancyR": 0.19731043242975219,
-      "evaluatedAt": "2026-06-16T08:55:46.685Z",
+      "evaluatedAt": "2026-06-16T09:43:53.894Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1590,7 +1590,7 @@
       "recent90ExpectancyR": -0.04452041297091005,
       "bestDayRemovedProfitFactor": 1.049772524630367,
       "bestFivePctRemovedExpectancyR": 0.009899264061294532,
-      "evaluatedAt": "2026-06-16T08:55:49.941Z",
+      "evaluatedAt": "2026-06-16T09:43:56.653Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1626,7 +1626,7 @@
       "recent90ExpectancyR": -0.23080241456087092,
       "bestDayRemovedProfitFactor": 0.9835280094287839,
       "bestFivePctRemovedExpectancyR": -0.04023398577262695,
-      "evaluatedAt": "2026-06-16T08:55:52.903Z",
+      "evaluatedAt": "2026-06-16T09:43:59.199Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1662,7 +1662,7 @@
       "recent90ExpectancyR": -0.07239099954218278,
       "bestDayRemovedProfitFactor": 0.9100668305129541,
       "bestFivePctRemovedExpectancyR": -0.11609688466088426,
-      "evaluatedAt": "2026-06-16T08:55:55.820Z",
+      "evaluatedAt": "2026-06-16T09:44:01.761Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1698,7 +1698,7 @@
       "recent90ExpectancyR": -0.10377543784308643,
       "bestDayRemovedProfitFactor": 1.045302301894072,
       "bestFivePctRemovedExpectancyR": 0.006095799722355694,
-      "evaluatedAt": "2026-06-16T08:55:58.814Z",
+      "evaluatedAt": "2026-06-16T09:44:04.305Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1734,7 +1734,7 @@
       "recent90ExpectancyR": 0.18112857259355541,
       "bestDayRemovedProfitFactor": 1.253393037932881,
       "bestFivePctRemovedExpectancyR": 0.15241446119619523,
-      "evaluatedAt": "2026-06-16T07:42:12.727Z",
+      "evaluatedAt": "2026-06-16T09:44:06.814Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1770,7 +1770,7 @@
       "recent90ExpectancyR": 0.3158433665987848,
       "bestDayRemovedProfitFactor": 1.2229677067170568,
       "bestFivePctRemovedExpectancyR": 0.13700292484324988,
-      "evaluatedAt": "2026-06-16T07:42:15.691Z",
+      "evaluatedAt": "2026-06-16T09:44:09.422Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1806,7 +1806,7 @@
       "recent90ExpectancyR": 0.035543106131341415,
       "bestDayRemovedProfitFactor": 1.0846884507346168,
       "bestFivePctRemovedExpectancyR": 0.04344999205000112,
-      "evaluatedAt": "2026-06-16T08:56:01.868Z",
+      "evaluatedAt": "2026-06-16T09:44:11.958Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1842,7 +1842,7 @@
       "recent90ExpectancyR": -0.17426807073707443,
       "bestDayRemovedProfitFactor": 0.9606733955650384,
       "bestFivePctRemovedExpectancyR": -0.04878200809576054,
-      "evaluatedAt": "2026-06-16T08:56:05.097Z",
+      "evaluatedAt": "2026-06-16T09:44:14.495Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1878,7 +1878,7 @@
       "recent90ExpectancyR": 0.03992586276072954,
       "bestDayRemovedProfitFactor": 1.0039805090197622,
       "bestFivePctRemovedExpectancyR": -0.04699142947490311,
-      "evaluatedAt": "2026-06-16T08:56:08.242Z",
+      "evaluatedAt": "2026-06-16T09:44:16.985Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1914,7 +1914,7 @@
       "recent90ExpectancyR": 0.2762444953149457,
       "bestDayRemovedProfitFactor": 1.3023632383654742,
       "bestFivePctRemovedExpectancyR": 0.15984601156675746,
-      "evaluatedAt": "2026-06-16T07:42:27.182Z",
+      "evaluatedAt": "2026-06-16T09:44:19.502Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1950,7 +1950,7 @@
       "recent90ExpectancyR": -0.025374195247307874,
       "bestDayRemovedProfitFactor": 0.9376826208775061,
       "bestFivePctRemovedExpectancyR": -0.06634804409645356,
-      "evaluatedAt": "2026-06-16T08:56:11.745Z",
+      "evaluatedAt": "2026-06-16T09:44:21.983Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -1986,7 +1986,7 @@
       "recent90ExpectancyR": 0.035543106131341415,
       "bestDayRemovedProfitFactor": 1.0846884507346168,
       "bestFivePctRemovedExpectancyR": 0.04344999205000112,
-      "evaluatedAt": "2026-06-16T08:56:15.354Z",
+      "evaluatedAt": "2026-06-16T09:44:24.509Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2022,7 +2022,7 @@
       "recent90ExpectancyR": 0.0444547022793959,
       "bestDayRemovedProfitFactor": 1.013885132942645,
       "bestFivePctRemovedExpectancyR": -0.04397031857677821,
-      "evaluatedAt": "2026-06-16T07:42:35.766Z",
+      "evaluatedAt": "2026-06-16T09:44:27.015Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2058,7 +2058,7 @@
       "recent90ExpectancyR": 0.1655093374372556,
       "bestDayRemovedProfitFactor": 1.285498481355725,
       "bestFivePctRemovedExpectancyR": 0.1467676672266251,
-      "evaluatedAt": "2026-06-16T07:42:38.585Z",
+      "evaluatedAt": "2026-06-16T09:44:29.472Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2094,7 +2094,7 @@
       "recent90ExpectancyR": -0.012751251758638006,
       "bestDayRemovedProfitFactor": 0.9477754728626469,
       "bestFivePctRemovedExpectancyR": -0.06400172793504093,
-      "evaluatedAt": "2026-06-16T07:42:42.138Z",
+      "evaluatedAt": "2026-06-16T09:44:31.986Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2130,7 +2130,7 @@
       "recent90ExpectancyR": 0.2497691400250242,
       "bestDayRemovedProfitFactor": 1.2419670988476914,
       "bestFivePctRemovedExpectancyR": 0.12321703363819166,
-      "evaluatedAt": "2026-06-16T07:42:47.472Z",
+      "evaluatedAt": "2026-06-16T09:44:34.541Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2148,7 +2148,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Near-pass source auto-sample-baseline-early-climax-short-volumeRank-high-3r is rescued with tighter payoff/hold and fill-aware entry."
+    "notes": "Demoted by the latest six-month core gate: expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 1491,
+      "submittedOrders": 1567,
+      "fillRate": 0.9514996809189534,
+      "expectancyR": -0.028677470360418574,
+      "profitFactor": 0.9443429538491648,
+      "fullKelly": 0,
+      "totalR": -42.75810830738409,
+      "maxDrawdownR": 74.25550944205608,
+      "totalRToMaxDrawdown": -0.5758240516920781,
+      "positiveFoldRate": 0.5833333333333334,
+      "worstFoldExpectancyR": -0.23240485364763883,
+      "recent30ExpectancyR": -0.013606403190249847,
+      "recent90ExpectancyR": -0.016579421992055424,
+      "bestDayRemovedProfitFactor": 0.9277534133858074,
+      "bestFivePctRemovedExpectancyR": -0.07175212897766031,
+      "evaluatedAt": "2026-06-16T09:44:37.243Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-sample-auto-fold-baseline-early-climax-short-2r-h6-rangeRank-high-2r",
@@ -2163,7 +2184,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Widen low-sample source auto-fold-baseline-early-climax-short-2r-h6 by testing single OHLCV atom rangeRank:high."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, worstFoldExpectancyR < -0.15",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 267,
+      "submittedOrders": 1553,
+      "fillRate": 0.17192530585962654,
+      "expectancyR": 0.18841333762602677,
+      "profitFactor": 1.3241608955965127,
+      "fullKelly": 0.10085589529707129,
+      "totalR": 50.30636114614915,
+      "maxDrawdownR": 12,
+      "totalRToMaxDrawdown": 4.192196762179096,
+      "positiveFoldRate": 0.75,
+      "worstFoldExpectancyR": -0.29411764705882354,
+      "recent30ExpectancyR": 0.20064726229001484,
+      "recent90ExpectancyR": 0.1655093374372556,
+      "bestDayRemovedProfitFactor": 1.285498481355725,
+      "bestFivePctRemovedExpectancyR": 0.1467676672266251,
+      "evaluatedAt": "2026-06-16T09:44:39.963Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-sample-auto-fold-baseline-early-climax-short-2r-h6-volumeRank-high-2r",
@@ -2178,7 +2220,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Widen low-sample source auto-fold-baseline-early-climax-short-2r-h6 by testing single OHLCV atom volumeRank:high."
+    "notes": "Demoted by the latest six-month core gate: worstFoldExpectancyR < -0.15",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 306,
+      "submittedOrders": 1377,
+      "fillRate": 0.2222222222222222,
+      "expectancyR": 0.16614997731313502,
+      "profitFactor": 1.2790605296225321,
+      "fullKelly": 0.08698527103780185,
+      "totalR": 50.84189305781931,
+      "maxDrawdownR": 21,
+      "totalRToMaxDrawdown": 2.4210425265628244,
+      "positiveFoldRate": 0.75,
+      "worstFoldExpectancyR": -0.2,
+      "recent30ExpectancyR": 0.21050836664268752,
+      "recent90ExpectancyR": 0.2497691400250242,
+      "bestDayRemovedProfitFactor": 1.2419670988476914,
+      "bestFivePctRemovedExpectancyR": 0.12321703363819166,
+      "evaluatedAt": "2026-06-16T09:44:42.650Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-rotate-auto-fold-baseline-early-climax-short-2r-h6-rangeRank-mid-2r-h6",
@@ -2193,7 +2256,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Rotate low-sample source auto-fold-baseline-early-climax-short-2r-h6 into adjacent OHLCV bucket rangeRank:mid."
+    "notes": "Demoted by the latest six-month core gate: profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 323,
+      "submittedOrders": 1099,
+      "fillRate": 0.29390354868061874,
+      "expectancyR": 0.017660465169894283,
+      "profitFactor": 1.0268729241530283,
+      "fullKelly": 0.008912271051401077,
+      "totalR": 5.704330249875854,
+      "maxDrawdownR": 16.270544783010273,
+      "totalRToMaxDrawdown": 0.35059245562768887,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -0.3684210526315789,
+      "recent30ExpectancyR": -0.1298311568394692,
+      "recent90ExpectancyR": -0.047684116013883296,
+      "bestDayRemovedProfitFactor": 0.9985938603505818,
+      "bestFivePctRemovedExpectancyR": -0.019860156940454714,
+      "evaluatedAt": "2026-06-16T09:44:45.324Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-rotate-auto-fold-baseline-early-climax-short-2r-h6-volumeRank-mid-2r-h6",
@@ -2208,7 +2292,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Rotate low-sample source auto-fold-baseline-early-climax-short-2r-h6 into adjacent OHLCV bucket volumeRank:mid."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 260,
+      "submittedOrders": 1001,
+      "fillRate": 0.2597402597402597,
+      "expectancyR": 0.0055359350815998975,
+      "profitFactor": 1.0084172112351812,
+      "fullKelly": 0.0028572262764655076,
+      "totalR": 1.4393431212159733,
+      "maxDrawdownR": 19.61904761904762,
+      "totalRToMaxDrawdown": 0.07336457656683358,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -0.35714285714285715,
+      "recent30ExpectancyR": -0.05542050376517252,
+      "recent90ExpectancyR": -0.11621229996954753,
+      "bestDayRemovedProfitFactor": 0.9850253983696842,
+      "bestFivePctRemovedExpectancyR": -0.03357120344621187,
+      "evaluatedAt": "2026-06-16T09:44:47.870Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-fill-auto-fold-baseline-early-climax-short-2r-h6-signal-close-2r",
@@ -2241,7 +2346,7 @@
       "recent90ExpectancyR": -0.025374195247307874,
       "bestDayRemovedProfitFactor": 0.9376826208775061,
       "bestFivePctRemovedExpectancyR": -0.06634804409645356,
-      "evaluatedAt": "2026-06-16T08:56:18.542Z",
+      "evaluatedAt": "2026-06-16T09:44:50.372Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2259,7 +2364,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Fold-fragile source auto-fold-baseline-early-climax-short-2r-h6 is retested with simpler payoff/hold geometry."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 213,
+      "submittedOrders": 1149,
+      "fillRate": 0.185378590078329,
+      "expectancyR": 0.20304211458162238,
+      "profitFactor": 1.351068695613856,
+      "fullKelly": 0.1073538793877673,
+      "totalR": 43.24797040588557,
+      "maxDrawdownR": 12,
+      "totalRToMaxDrawdown": 3.6039975338237973,
+      "positiveFoldRate": 0.6666666666666666,
+      "worstFoldExpectancyR": -0.4670391061452663,
+      "recent30ExpectancyR": 0.31576617798306256,
+      "recent90ExpectancyR": 0.2762444953149457,
+      "bestDayRemovedProfitFactor": 1.3023632383654742,
+      "bestFivePctRemovedExpectancyR": 0.15984601156675746,
+      "evaluatedAt": "2026-06-16T09:44:52.931Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-nearpass-auto-fold-baseline-early-climax-short-2r-h6-2r-h6",
@@ -2292,7 +2418,7 @@
       "recent90ExpectancyR": -0.025374195247307874,
       "bestDayRemovedProfitFactor": 0.9376826208775061,
       "bestFivePctRemovedExpectancyR": -0.06634804409645356,
-      "evaluatedAt": "2026-06-16T08:56:21.556Z",
+      "evaluatedAt": "2026-06-16T09:44:55.437Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2328,7 +2454,7 @@
       "recent90ExpectancyR": 0.035543106131341415,
       "bestDayRemovedProfitFactor": 1.0846884507346168,
       "bestFivePctRemovedExpectancyR": 0.04344999205000112,
-      "evaluatedAt": "2026-06-16T08:56:24.317Z",
+      "evaluatedAt": "2026-06-16T09:44:57.982Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2364,7 +2490,7 @@
       "recent90ExpectancyR": -0.17426807073707443,
       "bestDayRemovedProfitFactor": 0.9606733955650384,
       "bestFivePctRemovedExpectancyR": -0.04878200809576054,
-      "evaluatedAt": "2026-06-16T08:56:27.084Z",
+      "evaluatedAt": "2026-06-16T09:45:00.502Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2400,7 +2526,7 @@
       "recent90ExpectancyR": -0.025374195247307874,
       "bestDayRemovedProfitFactor": 0.9376826208775061,
       "bestFivePctRemovedExpectancyR": -0.06634804409645356,
-      "evaluatedAt": "2026-06-16T08:56:29.845Z",
+      "evaluatedAt": "2026-06-16T09:45:02.979Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2436,7 +2562,7 @@
       "recent90ExpectancyR": 0.0625422206140468,
       "bestDayRemovedProfitFactor": 1.1313264506207628,
       "bestFivePctRemovedExpectancyR": 0.08955786756723874,
-      "evaluatedAt": "2026-06-16T08:56:32.427Z",
+      "evaluatedAt": "2026-06-16T09:45:05.516Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2454,7 +2580,28 @@
       "targetR": 4,
       "maxHoldFiveMinuteBars": 12
     },
-    "notes": "Generated by Agent Office autonomous improvement: Low fill rate source auto-sample-wf-early-climax-short-4r-wide-sample-rangeRank-high-4r keeps the same candle/volume edge but changes entry reference."
+    "notes": "Demoted by the latest six-month core gate: profitFactor < 1.20, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 1595,
+      "submittedOrders": 1687,
+      "fillRate": 0.945465323058684,
+      "expectancyR": 0.04267702638590846,
+      "profitFactor": 1.0734625476511328,
+      "fullKelly": 0.0250142194722055,
+      "totalR": 68.06985708552399,
+      "maxDrawdownR": 32.36750840644065,
+      "totalRToMaxDrawdown": 2.10303049066264,
+      "positiveFoldRate": 0.75,
+      "worstFoldExpectancyR": -0.11781775799192468,
+      "recent30ExpectancyR": 0.09663471186829013,
+      "recent90ExpectancyR": 0.05529899651373714,
+      "bestDayRemovedProfitFactor": 1.0542505770730752,
+      "bestFivePctRemovedExpectancyR": -0.033182199945352,
+      "evaluatedAt": "2026-06-16T09:45:08.043Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-fold-auto-sample-wf-early-climax-short-4r-wide-sample-rangeRank-high-4r-3r-h9",
@@ -2469,7 +2616,28 @@
       "targetR": 3,
       "maxHoldFiveMinuteBars": 9
     },
-    "notes": "Generated by Agent Office autonomous improvement: Fold-fragile source auto-sample-wf-early-climax-short-4r-wide-sample-rangeRank-high-4r is retested with simpler payoff/hold geometry."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, worstFoldExpectancyR < -0.15",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 267,
+      "submittedOrders": 1553,
+      "fillRate": 0.17192530585962654,
+      "expectancyR": 0.20574003308390695,
+      "profitFactor": 1.3030426962542836,
+      "fullKelly": 0.07229562325557459,
+      "totalR": 54.93258883340316,
+      "maxDrawdownR": 11,
+      "totalRToMaxDrawdown": 4.99387171212756,
+      "positiveFoldRate": 0.75,
+      "worstFoldExpectancyR": -0.2,
+      "recent30ExpectancyR": 0.11755245817730679,
+      "recent90ExpectancyR": 0.18112857259355541,
+      "bestDayRemovedProfitFactor": 1.253393037932881,
+      "bestFivePctRemovedExpectancyR": 0.15241446119619523,
+      "evaluatedAt": "2026-06-16T09:45:10.736Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-fold-auto-sample-wf-early-climax-short-4r-wide-sample-volumeRank-high-4r-3r-h9",
@@ -2484,7 +2652,28 @@
       "targetR": 3,
       "maxHoldFiveMinuteBars": 9
     },
-    "notes": "Generated by Agent Office autonomous improvement: Fold-fragile source auto-sample-wf-early-climax-short-4r-wide-sample-volumeRank-high-4r is retested with simpler payoff/hold geometry."
+    "notes": "Demoted by the latest six-month core gate: worstFoldExpectancyR < -0.15",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 306,
+      "submittedOrders": 1377,
+      "fillRate": 0.2222222222222222,
+      "expectancyR": 0.1837839228033275,
+      "profitFactor": 1.2654486424492157,
+      "fullKelly": 0.06306703085558496,
+      "totalR": 56.237880377818215,
+      "maxDrawdownR": 22.98120431604586,
+      "totalRToMaxDrawdown": 2.4471250333278656,
+      "positiveFoldRate": 0.75,
+      "worstFoldExpectancyR": -0.22580645161290322,
+      "recent30ExpectancyR": 0.19426475676362578,
+      "recent90ExpectancyR": 0.3158433665987848,
+      "bestDayRemovedProfitFactor": 1.2229677067170568,
+      "bestFivePctRemovedExpectancyR": 0.13700292484324988,
+      "evaluatedAt": "2026-06-16T09:45:13.533Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-rotate-auto-sample-derivative-compression-short-bodyRatio-small-4r-bodyRatio-medium-",
@@ -2517,7 +2706,7 @@
       "recent90ExpectancyR": 0.03480882637842873,
       "bestDayRemovedProfitFactor": 1.0839214259336851,
       "bestFivePctRemovedExpectancyR": 0.04748648050404119,
-      "evaluatedAt": "2026-06-16T08:56:35.153Z",
+      "evaluatedAt": "2026-06-16T09:45:16.179Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2535,7 +2724,28 @@
       "targetR": 3,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Fold-fragile source auto-sample-derivative-compression-short-bodyRatio-small-4r is retested with simpler payoff/hold geometry."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 137,
+      "submittedOrders": 454,
+      "fillRate": 0.30176211453744495,
+      "expectancyR": 0.21674118720424954,
+      "profitFactor": 1.3158887515636402,
+      "fullKelly": 0.07534646393289399,
+      "totalR": 29.693542646982188,
+      "maxDrawdownR": 18,
+      "totalRToMaxDrawdown": 1.6496412581656772,
+      "positiveFoldRate": 0.6666666666666666,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": -0.36,
+      "recent90ExpectancyR": 0.05025052094126385,
+      "bestDayRemovedProfitFactor": 1.2520589643295976,
+      "bestFivePctRemovedExpectancyR": 0.15442942273867302,
+      "evaluatedAt": "2026-06-16T09:45:18.716Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-fold-auto-sample-hvnsa-absorption-long-effortResult-neutral-4r-3r-h6",
@@ -2550,7 +2760,28 @@
       "targetR": 3,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Fold-fragile source auto-sample-hvnsa-absorption-long-effortResult-neutral-4r is retested with simpler payoff/hold geometry."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 53,
+      "submittedOrders": 57,
+      "fillRate": 0.9298245614035088,
+      "expectancyR": 0.404548353933751,
+      "profitFactor": 1.6887075810010397,
+      "fullKelly": 0.1538985530306443,
+      "totalR": 21.4410627584888,
+      "maxDrawdownR": 7,
+      "totalRToMaxDrawdown": 3.0630089654984003,
+      "positiveFoldRate": 0.5833333333333334,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": 0.4517195767195772,
+      "recent90ExpectancyR": 0.45307108350586645,
+      "bestDayRemovedProfitFactor": 1.4959818037132406,
+      "bestFivePctRemovedExpectancyR": 0.3546358222786307,
+      "evaluatedAt": "2026-06-16T09:45:21.082Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-sample-auto-fold-derivative-compression-short-3r-h6-bodyRatio-small-3r",
@@ -2565,7 +2796,28 @@
       "targetR": 3,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Widen low-sample source auto-fold-derivative-compression-short-3r-h6 by testing single OHLCV atom bodyRatio:small."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 137,
+      "submittedOrders": 454,
+      "fillRate": 0.30176211453744495,
+      "expectancyR": 0.21674118720424954,
+      "profitFactor": 1.3158887515636402,
+      "fullKelly": 0.07534646393289399,
+      "totalR": 29.693542646982188,
+      "maxDrawdownR": 18,
+      "totalRToMaxDrawdown": 1.6496412581656772,
+      "positiveFoldRate": 0.6666666666666666,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": -0.36,
+      "recent90ExpectancyR": 0.05025052094126385,
+      "bestDayRemovedProfitFactor": 1.2520589643295976,
+      "bestFivePctRemovedExpectancyR": 0.15442942273867302,
+      "evaluatedAt": "2026-06-16T09:45:23.772Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-sample-auto-fold-derivative-compression-short-3r-h6-rangeDerivative-compressing-3r",
@@ -2598,7 +2850,7 @@
       "recent90ExpectancyR": -0.05512626524841555,
       "bestDayRemovedProfitFactor": 1.0469023103044333,
       "bestFivePctRemovedExpectancyR": 0.014787184419329566,
-      "evaluatedAt": "2026-06-16T08:56:37.848Z",
+      "evaluatedAt": "2026-06-16T09:45:26.299Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2634,7 +2886,7 @@
       "recent90ExpectancyR": 0.04655324687398088,
       "bestDayRemovedProfitFactor": 1.129819965985471,
       "bestFivePctRemovedExpectancyR": 0.08882258651355827,
-      "evaluatedAt": "2026-06-16T08:56:40.791Z",
+      "evaluatedAt": "2026-06-16T09:45:28.833Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2670,7 +2922,7 @@
       "recent90ExpectancyR": 0.10231316418867087,
       "bestDayRemovedProfitFactor": 1.139258967779442,
       "bestFivePctRemovedExpectancyR": 0.0690886043587969,
-      "evaluatedAt": "2026-06-16T08:56:43.573Z",
+      "evaluatedAt": "2026-06-16T09:45:31.381Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2688,7 +2940,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Fold-fragile source auto-fold-derivative-compression-short-3r-h6 is retested with simpler payoff/hold geometry."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 50,
+      "submittedOrders": 122,
+      "fillRate": 0.4098360655737705,
+      "expectancyR": 0.38,
+      "profitFactor": 1.7037037037037037,
+      "fullKelly": 0.19,
+      "totalR": 19,
+      "maxDrawdownR": 5,
+      "totalRToMaxDrawdown": 3.8,
+      "positiveFoldRate": 0.5833333333333334,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": -0.25,
+      "recent90ExpectancyR": -0.16666666666666666,
+      "bestDayRemovedProfitFactor": 1.5555555555555556,
+      "bestFivePctRemovedExpectancyR": 0.3125,
+      "evaluatedAt": "2026-06-16T09:45:33.947Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-sample-auto-fold-hvnsa-absorption-long-3r-h6-closeDerivative-down-3r",
@@ -2703,7 +2976,28 @@
       "targetR": 3,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Widen low-sample source auto-fold-hvnsa-absorption-long-3r-h6 by testing single OHLCV atom closeDerivative:down."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 87,
+      "submittedOrders": 94,
+      "fillRate": 0.925531914893617,
+      "expectancyR": 0.20777553304829963,
+      "profitFactor": 1.3277662351196968,
+      "fullKelly": 0.08228512581261438,
+      "totalR": 18.07647137520207,
+      "maxDrawdownR": 10.012669683257867,
+      "totalRToMaxDrawdown": 1.805359803832103,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": 0.19003527336860704,
+      "recent90ExpectancyR": 0.36854120823173303,
+      "bestDayRemovedProfitFactor": 1.2414838579757135,
+      "bestFivePctRemovedExpectancyR": 0.1420761338259067,
+      "evaluatedAt": "2026-06-16T09:45:36.568Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-sample-auto-fold-hvnsa-absorption-long-3r-h6-effortResult-neutral-3r",
@@ -2718,7 +3012,28 @@
       "targetR": 3,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Widen low-sample source auto-fold-hvnsa-absorption-long-3r-h6 by testing single OHLCV atom effortResult:neutral."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 53,
+      "submittedOrders": 57,
+      "fillRate": 0.9298245614035088,
+      "expectancyR": 0.404548353933751,
+      "profitFactor": 1.6887075810010397,
+      "fullKelly": 0.1538985530306443,
+      "totalR": 21.4410627584888,
+      "maxDrawdownR": 7,
+      "totalRToMaxDrawdown": 3.0630089654984003,
+      "positiveFoldRate": 0.5833333333333334,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": 0.4517195767195772,
+      "recent90ExpectancyR": 0.45307108350586645,
+      "bestDayRemovedProfitFactor": 1.4959818037132406,
+      "bestFivePctRemovedExpectancyR": 0.3546358222786307,
+      "evaluatedAt": "2026-06-16T09:45:39.014Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-rotate-auto-fold-hvnsa-absorption-long-3r-h6-closeDerivative-flat-3r-h6",
@@ -2751,7 +3066,7 @@
       "recent90ExpectancyR": 1,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": -1,
-      "evaluatedAt": "2026-06-16T08:56:46.180Z",
+      "evaluatedAt": "2026-06-16T09:45:41.384Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2769,7 +3084,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Fold-fragile source auto-fold-hvnsa-absorption-long-3r-h6 is retested with simpler payoff/hold geometry."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 52,
+      "submittedOrders": 56,
+      "fillRate": 0.9285714285714286,
+      "expectancyR": 0.4288651454898306,
+      "profitFactor": 1.8538012501559438,
+      "fullKelly": 0.22142684941697532,
+      "totalR": 22.300987565471193,
+      "maxDrawdownR": 7,
+      "totalRToMaxDrawdown": 3.185855366495885,
+      "positiveFoldRate": 0.6666666666666666,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": 0.3683862433862439,
+      "recent90ExpectancyR": 0.42821067821067854,
+      "bestDayRemovedProfitFactor": 1.7006598257863985,
+      "bestFivePctRemovedExpectancyR": 0.36601975130942377,
+      "evaluatedAt": "2026-06-16T09:45:43.711Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-sample-auto-fold-wf-inside-expansion-retest-long-3r-2r-h6-volumeRank-high-2r",
@@ -2802,7 +3138,7 @@
       "recent90ExpectancyR": 0.09349079281854676,
       "bestDayRemovedProfitFactor": 1.213192612249438,
       "bestFivePctRemovedExpectancyR": 0.13247934832788535,
-      "evaluatedAt": "2026-06-16T08:56:49.128Z",
+      "evaluatedAt": "2026-06-16T09:45:46.089Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2820,7 +3156,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Widen low-sample source auto-fold-wf-inside-expansion-retest-long-3r-2r-h6 by testing single OHLCV atom rangeDerivative:expanding."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 31,
+      "submittedOrders": 188,
+      "fillRate": 0.16489361702127658,
+      "expectancyR": 0.20855057078432512,
+      "profitFactor": 1.4102445833044859,
+      "fullKelly": 0.13137561348732235,
+      "totalR": 6.465067694314079,
+      "maxDrawdownR": 4.410123014781507,
+      "totalRToMaxDrawdown": 1.4659608524852863,
+      "positiveFoldRate": 0.36363636363636365,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": -0.6648648648648473,
+      "recent90ExpectancyR": 0.03932513234789952,
+      "bestDayRemovedProfitFactor": 1.1564222861828088,
+      "bestFivePctRemovedExpectancyR": 0.1488355898104693,
+      "evaluatedAt": "2026-06-16T09:45:48.465Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-rotate-auto-fold-wf-inside-expansion-retest-long-3r-2r-h6-volumeRank-mid-2r-h6",
@@ -2835,7 +3192,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Rotate low-sample source auto-fold-wf-inside-expansion-retest-long-3r-2r-h6 into adjacent OHLCV bucket volumeRank:mid."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 28,
+      "submittedOrders": 103,
+      "fillRate": 0.27184466019417475,
+      "expectancyR": 0.028945369117884385,
+      "profitFactor": 1.0471490698762493,
+      "fullKelly": 0.01447268455894224,
+      "totalR": 0.8104703353007627,
+      "maxDrawdownR": 5.430472854640961,
+      "totalRToMaxDrawdown": 0.14924489211066086,
+      "positiveFoldRate": 0.5833333333333334,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": -0.5,
+      "recent90ExpectancyR": 0.23794269442961233,
+      "bestDayRemovedProfitFactor": 0.9307991732233327,
+      "bestFivePctRemovedExpectancyR": -0.044056654248119935,
+      "evaluatedAt": "2026-06-16T09:45:50.836Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-fill-auto-fold-wf-inside-expansion-retest-long-3r-2r-h6-signal-close-2r",
@@ -2850,7 +3228,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Low fill rate source auto-fold-wf-inside-expansion-retest-long-3r-2r-h6 keeps the same candle/volume edge but changes entry reference."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 128,
+      "submittedOrders": 137,
+      "fillRate": 0.9343065693430657,
+      "expectancyR": -0.06293998893783448,
+      "profitFactor": 0.8514147027087239,
+      "fullKelly": 0,
+      "totalR": -8.056318584042813,
+      "maxDrawdownR": 10.63680326999706,
+      "totalRToMaxDrawdown": -0.7574003560606457,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -0.20208732877092137,
+      "recent30ExpectancyR": -0.3857247723678521,
+      "recent90ExpectancyR": -0.10502056188304744,
+      "bestDayRemovedProfitFactor": 0.8022359931696192,
+      "bestFivePctRemovedExpectancyR": -0.11245054867234253,
+      "evaluatedAt": "2026-06-16T09:45:53.194Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-fold-auto-fold-wf-inside-expansion-retest-long-3r-2r-h6-2r-h6",
@@ -2883,7 +3282,7 @@
       "recent90ExpectancyR": 0.002304063197145329,
       "bestDayRemovedProfitFactor": 1.5804582782635952,
       "bestFivePctRemovedExpectancyR": 0.2749539212827556,
-      "evaluatedAt": "2026-06-16T08:56:51.904Z",
+      "evaluatedAt": "2026-06-16T09:45:55.607Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2919,7 +3318,7 @@
       "recent90ExpectancyR": 1.5,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": -1,
-      "evaluatedAt": "2026-06-16T08:56:54.440Z",
+      "evaluatedAt": "2026-06-16T09:45:57.901Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -2937,7 +3336,28 @@
       "targetR": 3,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Fold-fragile source auto-sample-hvnsa-absorption-long-closeDerivative-down-4r is retested with simpler payoff/hold geometry."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 87,
+      "submittedOrders": 94,
+      "fillRate": 0.925531914893617,
+      "expectancyR": 0.20777553304829963,
+      "profitFactor": 1.3277662351196968,
+      "fullKelly": 0.08228512581261438,
+      "totalR": 18.07647137520207,
+      "maxDrawdownR": 10.012669683257867,
+      "totalRToMaxDrawdown": 1.805359803832103,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": 0.19003527336860704,
+      "recent90ExpectancyR": 0.36854120823173303,
+      "bestDayRemovedProfitFactor": 1.2414838579757135,
+      "bestFivePctRemovedExpectancyR": 0.1420761338259067,
+      "evaluatedAt": "2026-06-16T09:46:00.549Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-fill-auto-sample-wf-inside-expansion-retest-long-3r-rangeDerivative-expanding-3r-sig",
@@ -2952,7 +3372,28 @@
       "targetR": 3,
       "maxHoldFiveMinuteBars": 9
     },
-    "notes": "Generated by Agent Office autonomous improvement: Low fill rate source auto-sample-wf-inside-expansion-retest-long-3r-rangeDerivative-expanding-3r keeps the same candle/volume edge but changes entry reference."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 212,
+      "submittedOrders": 227,
+      "fillRate": 0.933920704845815,
+      "expectancyR": 0.028020701151198354,
+      "profitFactor": 1.0577662398576921,
+      "fullKelly": 0.021896135008892703,
+      "totalR": 5.940388644054051,
+      "maxDrawdownR": 15.176097929293478,
+      "totalRToMaxDrawdown": 0.39143056876219073,
+      "positiveFoldRate": 0.75,
+      "worstFoldExpectancyR": -0.33045344714075864,
+      "recent30ExpectancyR": -0.5550006625271298,
+      "recent90ExpectancyR": -0.03487644064103408,
+      "bestDayRemovedProfitFactor": 0.9947137902865617,
+      "bestFivePctRemovedExpectancyR": -0.043766238434521515,
+      "evaluatedAt": "2026-06-16T09:46:03.034Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-fold-auto-sample-wf-inside-expansion-retest-long-3r-rangeDerivative-expanding-3r-2r-",
@@ -2967,7 +3408,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Fold-fragile source auto-sample-wf-inside-expansion-retest-long-3r-rangeDerivative-expanding-3r is retested with simpler payoff/hold geometry."
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 31,
+      "submittedOrders": 188,
+      "fillRate": 0.16489361702127658,
+      "expectancyR": 0.20855057078432512,
+      "profitFactor": 1.4102445833044859,
+      "fullKelly": 0.13137561348732235,
+      "totalR": 6.465067694314079,
+      "maxDrawdownR": 4.410123014781507,
+      "totalRToMaxDrawdown": 1.4659608524852863,
+      "positiveFoldRate": 0.36363636363636365,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": -0.6648648648648473,
+      "recent90ExpectancyR": 0.03932513234789952,
+      "bestDayRemovedProfitFactor": 1.1564222861828088,
+      "bestFivePctRemovedExpectancyR": 0.1488355898104693,
+      "evaluatedAt": "2026-06-16T09:46:05.458Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-rotate-auto-sample-wf-inside-expansion-retest-short-3r-volumeRank-high-3r-volumeRank",
@@ -3000,7 +3462,7 @@
       "recent90ExpectancyR": -1,
       "bestDayRemovedProfitFactor": 0.5294117647058824,
       "bestFivePctRemovedExpectancyR": -0.4,
-      "evaluatedAt": "2026-06-16T08:56:57.120Z",
+      "evaluatedAt": "2026-06-16T09:46:07.840Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3036,7 +3498,7 @@
       "recent90ExpectancyR": 0.06666666666666667,
       "bestDayRemovedProfitFactor": 0.7092379425906996,
       "bestFivePctRemovedExpectancyR": -0.22775780402899512,
-      "evaluatedAt": "2026-06-16T08:57:00.293Z",
+      "evaluatedAt": "2026-06-16T09:46:10.321Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3072,7 +3534,7 @@
       "recent90ExpectancyR": 0.0765057056152841,
       "bestDayRemovedProfitFactor": 0.7026863304634305,
       "bestFivePctRemovedExpectancyR": -0.1321327660590481,
-      "evaluatedAt": "2026-06-16T08:57:02.921Z",
+      "evaluatedAt": "2026-06-16T09:46:12.681Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3108,7 +3570,7 @@
       "recent90ExpectancyR": 0.09349079281854676,
       "bestDayRemovedProfitFactor": 1.213192612249438,
       "bestFivePctRemovedExpectancyR": 0.13247934832788535,
-      "evaluatedAt": "2026-06-16T08:57:05.540Z",
+      "evaluatedAt": "2026-06-16T09:46:15.082Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3144,7 +3606,7 @@
       "recent90ExpectancyR": 0.11265440999537335,
       "bestDayRemovedProfitFactor": 1.0694514075969315,
       "bestFivePctRemovedExpectancyR": 0.021894114117810518,
-      "evaluatedAt": "2026-06-16T08:57:08.386Z",
+      "evaluatedAt": "2026-06-16T09:46:17.593Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3180,7 +3642,7 @@
       "recent90ExpectancyR": -0.1042245858229705,
       "bestDayRemovedProfitFactor": 0.9224377990343454,
       "bestFivePctRemovedExpectancyR": -0.08291925499387623,
-      "evaluatedAt": "2026-06-16T08:57:11.292Z",
+      "evaluatedAt": "2026-06-16T09:46:20.082Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3216,7 +3678,7 @@
       "recent90ExpectancyR": -0.05512626524841555,
       "bestDayRemovedProfitFactor": 1.0469023103044333,
       "bestFivePctRemovedExpectancyR": 0.014787184419329566,
-      "evaluatedAt": "2026-06-16T08:57:14.090Z",
+      "evaluatedAt": "2026-06-16T09:46:22.611Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3252,7 +3714,7 @@
       "recent90ExpectancyR": -0.02097902097902098,
       "bestDayRemovedProfitFactor": 0.860529777438374,
       "bestFivePctRemovedExpectancyR": -0.1108689301272087,
-      "evaluatedAt": "2026-06-16T08:57:16.862Z",
+      "evaluatedAt": "2026-06-16T09:46:25.090Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3288,7 +3750,7 @@
       "recent90ExpectancyR": 0.03992586276072954,
       "bestDayRemovedProfitFactor": 1.0039805090197622,
       "bestFivePctRemovedExpectancyR": -0.04699142947490311,
-      "evaluatedAt": "2026-06-16T08:57:20.243Z",
+      "evaluatedAt": "2026-06-16T09:46:27.579Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3324,7 +3786,7 @@
       "recent90ExpectancyR": -0.07904824719066497,
       "bestDayRemovedProfitFactor": 0.9368373936474439,
       "bestFivePctRemovedExpectancyR": -0.08875531093900624,
-      "evaluatedAt": "2026-06-16T08:57:23.419Z",
+      "evaluatedAt": "2026-06-16T09:46:30.114Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3360,7 +3822,7 @@
       "recent90ExpectancyR": -0.15639112021164533,
       "bestDayRemovedProfitFactor": 1.0139905892273025,
       "bestFivePctRemovedExpectancyR": 0.003159954998785113,
-      "evaluatedAt": "2026-06-16T08:57:26.656Z",
+      "evaluatedAt": "2026-06-16T09:46:32.601Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3396,7 +3858,7 @@
       "recent90ExpectancyR": 0.1993855228694056,
       "bestDayRemovedProfitFactor": 0.8941726352595323,
       "bestFivePctRemovedExpectancyR": -0.08197570151066175,
-      "evaluatedAt": "2026-06-16T08:57:30.113Z",
+      "evaluatedAt": "2026-06-16T09:46:35.109Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3432,7 +3894,7 @@
       "recent90ExpectancyR": -0.025374195247307874,
       "bestDayRemovedProfitFactor": 0.9376826208775061,
       "bestFivePctRemovedExpectancyR": -0.06634804409645356,
-      "evaluatedAt": "2026-06-16T08:57:33.169Z",
+      "evaluatedAt": "2026-06-16T09:46:37.618Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3468,7 +3930,7 @@
       "recent90ExpectancyR": -0.032713569639686586,
       "bestDayRemovedProfitFactor": 0.9906912364754417,
       "bestFivePctRemovedExpectancyR": -0.04446962427042582,
-      "evaluatedAt": "2026-06-16T08:57:36.503Z",
+      "evaluatedAt": "2026-06-16T09:46:40.305Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3504,7 +3966,7 @@
       "recent90ExpectancyR": 0.03480882637842873,
       "bestDayRemovedProfitFactor": 1.0839214259336851,
       "bestFivePctRemovedExpectancyR": 0.04748648050404119,
-      "evaluatedAt": "2026-06-16T08:57:39.594Z",
+      "evaluatedAt": "2026-06-16T09:46:42.789Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3540,7 +4002,7 @@
       "recent90ExpectancyR": -0.07801039202553145,
       "bestDayRemovedProfitFactor": 0.8394476001776778,
       "bestFivePctRemovedExpectancyR": -0.1300922068921152,
-      "evaluatedAt": "2026-06-16T08:57:42.749Z",
+      "evaluatedAt": "2026-06-16T09:46:45.292Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3576,7 +4038,7 @@
       "recent90ExpectancyR": 0.11265440999537335,
       "bestDayRemovedProfitFactor": 1.0694514075969315,
       "bestFivePctRemovedExpectancyR": 0.021894114117810518,
-      "evaluatedAt": "2026-06-16T08:57:45.596Z",
+      "evaluatedAt": "2026-06-16T09:46:47.757Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3612,7 +4074,7 @@
       "recent90ExpectancyR": -0.1042245858229705,
       "bestDayRemovedProfitFactor": 0.9224377990343454,
       "bestFivePctRemovedExpectancyR": -0.08291925499387623,
-      "evaluatedAt": "2026-06-16T08:57:48.369Z",
+      "evaluatedAt": "2026-06-16T09:46:50.231Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3648,7 +4110,7 @@
       "recent90ExpectancyR": 0.0625422206140468,
       "bestDayRemovedProfitFactor": 1.1313264506207628,
       "bestFivePctRemovedExpectancyR": 0.08955786756723874,
-      "evaluatedAt": "2026-06-16T08:57:51.233Z",
+      "evaluatedAt": "2026-06-16T09:46:52.748Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3684,7 +4146,7 @@
       "recent90ExpectancyR": -0.12145462208577355,
       "bestDayRemovedProfitFactor": 0.7869154836401929,
       "bestFivePctRemovedExpectancyR": -0.1766358490877348,
-      "evaluatedAt": "2026-06-16T08:57:53.935Z",
+      "evaluatedAt": "2026-06-16T09:46:55.534Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3720,7 +4182,7 @@
       "recent90ExpectancyR": -0.15639112021164533,
       "bestDayRemovedProfitFactor": 1.0139905892273025,
       "bestFivePctRemovedExpectancyR": 0.003159954998785113,
-      "evaluatedAt": "2026-06-16T08:57:56.645Z",
+      "evaluatedAt": "2026-06-16T09:46:58.246Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3756,7 +4218,7 @@
       "recent90ExpectancyR": 0.1993855228694056,
       "bestDayRemovedProfitFactor": 0.8941726352595323,
       "bestFivePctRemovedExpectancyR": -0.08197570151066175,
-      "evaluatedAt": "2026-06-16T08:57:59.390Z",
+      "evaluatedAt": "2026-06-16T09:47:01.392Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3792,7 +4254,7 @@
       "recent90ExpectancyR": -1,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": -1,
-      "evaluatedAt": "2026-06-16T08:58:02.003Z",
+      "evaluatedAt": "2026-06-16T09:47:03.845Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3828,7 +4290,7 @@
       "recent90ExpectancyR": 1.5,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": -1,
-      "evaluatedAt": "2026-06-16T08:58:04.494Z",
+      "evaluatedAt": "2026-06-16T09:47:06.365Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3864,7 +4326,7 @@
       "recent90ExpectancyR": -1,
       "bestDayRemovedProfitFactor": 0.5294117647058824,
       "bestFivePctRemovedExpectancyR": -0.4,
-      "evaluatedAt": "2026-06-16T08:58:07.551Z",
+      "evaluatedAt": "2026-06-16T09:47:08.827Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3900,7 +4362,7 @@
       "recent90ExpectancyR": 0.06666666666666667,
       "bestDayRemovedProfitFactor": 0.7092379425906996,
       "bestFivePctRemovedExpectancyR": -0.22775780402899512,
-      "evaluatedAt": "2026-06-16T08:58:10.805Z",
+      "evaluatedAt": "2026-06-16T09:47:11.339Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3936,7 +4398,7 @@
       "recent90ExpectancyR": -1,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": -1,
-      "evaluatedAt": "2026-06-16T08:58:13.784Z",
+      "evaluatedAt": "2026-06-16T09:47:13.721Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -3972,7 +4434,7 @@
       "recent90ExpectancyR": 1,
       "bestDayRemovedProfitFactor": 0,
       "bestFivePctRemovedExpectancyR": -1,
-      "evaluatedAt": "2026-06-16T08:58:16.280Z",
+      "evaluatedAt": "2026-06-16T09:47:16.100Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -4008,7 +4470,7 @@
       "recent90ExpectancyR": 0.035543106131341415,
       "bestDayRemovedProfitFactor": 1.0846884507346168,
       "bestFivePctRemovedExpectancyR": 0.04344999205000112,
-      "evaluatedAt": "2026-06-16T08:58:19.014Z",
+      "evaluatedAt": "2026-06-16T09:47:18.705Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -4044,7 +4506,7 @@
       "recent90ExpectancyR": 0.002522431209037822,
       "bestDayRemovedProfitFactor": 0.8953649197798379,
       "bestFivePctRemovedExpectancyR": -0.09036294947623026,
-      "evaluatedAt": "2026-06-16T08:58:22.025Z",
+      "evaluatedAt": "2026-06-16T09:47:21.256Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -4080,7 +4542,7 @@
       "recent90ExpectancyR": 0.04655324687398088,
       "bestDayRemovedProfitFactor": 1.129819965985471,
       "bestFivePctRemovedExpectancyR": 0.08882258651355827,
-      "evaluatedAt": "2026-06-16T08:58:24.890Z",
+      "evaluatedAt": "2026-06-16T09:47:23.758Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -4116,7 +4578,7 @@
       "recent90ExpectancyR": -0.11855781594093989,
       "bestDayRemovedProfitFactor": 0.8383409202264286,
       "bestFivePctRemovedExpectancyR": -0.13552700343395196,
-      "evaluatedAt": "2026-06-16T08:58:27.557Z",
+      "evaluatedAt": "2026-06-16T09:47:26.291Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -4152,7 +4614,7 @@
       "recent90ExpectancyR": 0.10231316418867087,
       "bestDayRemovedProfitFactor": 1.139258967779442,
       "bestFivePctRemovedExpectancyR": 0.0690886043587969,
-      "evaluatedAt": "2026-06-16T08:58:30.738Z",
+      "evaluatedAt": "2026-06-16T09:47:28.846Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -4188,7 +4650,7 @@
       "recent90ExpectancyR": -0.0728048764677684,
       "bestDayRemovedProfitFactor": 0.8915715996844579,
       "bestFivePctRemovedExpectancyR": -0.09793009381336888,
-      "evaluatedAt": "2026-06-16T08:58:33.520Z",
+      "evaluatedAt": "2026-06-16T09:47:31.475Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -4224,7 +4686,7 @@
       "recent90ExpectancyR": -0.17426807073707443,
       "bestDayRemovedProfitFactor": 0.9606733955650384,
       "bestFivePctRemovedExpectancyR": -0.04878200809576054,
-      "evaluatedAt": "2026-06-16T08:58:36.388Z",
+      "evaluatedAt": "2026-06-16T09:47:33.974Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -4260,7 +4722,7 @@
       "recent90ExpectancyR": 0.1404212512145051,
       "bestDayRemovedProfitFactor": 0.8555047134403677,
       "bestFivePctRemovedExpectancyR": -0.11411561071288587,
-      "evaluatedAt": "2026-06-16T08:58:39.371Z",
+      "evaluatedAt": "2026-06-16T09:47:36.845Z",
       "source": "six-month-ohclv-replay",
       "passed": false
     }
@@ -4278,7 +4740,28 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Fold-fragile source auto-rotate-baseline-early-climax-short-rangeRank-mid-3r-h9 is retested with simpler payoff/hold geometry."
+    "notes": "Demoted by the latest six-month core gate: profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 323,
+      "submittedOrders": 1099,
+      "fillRate": 0.29390354868061874,
+      "expectancyR": 0.017660465169894283,
+      "profitFactor": 1.0268729241530283,
+      "fullKelly": 0.008912271051401077,
+      "totalR": 5.704330249875854,
+      "maxDrawdownR": 16.270544783010273,
+      "totalRToMaxDrawdown": 0.35059245562768887,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -0.3684210526315789,
+      "recent30ExpectancyR": -0.1298311568394692,
+      "recent90ExpectancyR": -0.047684116013883296,
+      "bestDayRemovedProfitFactor": 0.9985938603505818,
+      "bestFivePctRemovedExpectancyR": -0.019860156940454714,
+      "evaluatedAt": "2026-06-16T09:47:39.525Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   },
   {
     "id": "auto-shadow-auto2-fold-auto-rotate-baseline-early-climax-long-rangeRank-mid-3r-h9-2r-h6",
@@ -4293,6 +4776,1737 @@
       "targetR": 2,
       "maxHoldFiveMinuteBars": 6
     },
-    "notes": "Generated by Agent Office autonomous improvement: Fold-fragile source auto-rotate-baseline-early-climax-short-rangeRank-mid-3r-h9 is retested with simpler payoff/hold geometry. Mirrored by long-short-only policy from short to long."
+    "notes": "Demoted by the latest six-month core gate: expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 307,
+      "submittedOrders": 1164,
+      "fillRate": 0.26374570446735396,
+      "expectancyR": -0.09207108398961165,
+      "profitFactor": 0.8679167159588281,
+      "fullKelly": 0,
+      "totalR": -28.26582278481078,
+      "maxDrawdownR": 32.26582278481078,
+      "totalRToMaxDrawdown": -0.8760298156139688,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -0.7096774193548387,
+      "recent30ExpectancyR": -0.3709677419354839,
+      "recent90ExpectancyR": -0.06538740627268012,
+      "bestDayRemovedProfitFactor": 0.839879332781258,
+      "bestFivePctRemovedExpectancyR": -0.12670802246626087,
+      "evaluatedAt": "2026-06-16T09:47:42.074Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "core3-2-derivative-compression-long",
+    "name": "derivative-compression-long",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "derivative-compression-long",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "bodyRatio:small+rangeDerivative:compressing",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 63,
+      "submittedOrders": 135,
+      "fillRate": 0.4666666666666667,
+      "expectancyR": -0.12698412698412698,
+      "profitFactor": 0.8461538461538461,
+      "fullKelly": 0,
+      "totalR": -8,
+      "maxDrawdownR": 27,
+      "totalRToMaxDrawdown": -0.2962962962962963,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": 0.15384615384615385,
+      "recent90ExpectancyR": 0.21621621621621623,
+      "bestDayRemovedProfitFactor": 0.6923076923076923,
+      "bestFivePctRemovedExpectancyR": -0.1935483870967742,
+      "evaluatedAt": "2026-06-16T09:47:44.613Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "core3-3-hvnsa-absorption-short",
+    "name": "hvnsa-absorption-short",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "hvnsa-absorption-short",
+      "strategyId": "high-volume-narrow-spread-absorption-short",
+      "zoneId": "closeDerivative:down+effortResult:neutral",
+      "entryMode": "limit-signal-close",
+      "targetR": 4,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 0,
+      "submittedOrders": 0,
+      "fillRate": 0,
+      "expectancyR": 0,
+      "profitFactor": 0,
+      "fullKelly": 0,
+      "totalR": 0,
+      "maxDrawdownR": 0,
+      "totalRToMaxDrawdown": 0,
+      "positiveFoldRate": 0,
+      "worstFoldExpectancyR": 0,
+      "recent30ExpectancyR": 0,
+      "recent90ExpectancyR": 0,
+      "bestDayRemovedProfitFactor": 0,
+      "bestFivePctRemovedExpectancyR": 0,
+      "evaluatedAt": "2026-06-16T09:47:46.965Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "micro-shadow-1-micro-squeeze-break-long",
+    "name": "micro-squeeze-break-long",
+    "status": "shadow",
+    "candidateType": "micro",
+    "candidate": {
+      "label": "micro-squeeze-break-long",
+      "strategyId": "micro-squeeze-break-q35-long",
+      "zoneId": "width:2+quietRangeRank:lte0.35",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "maxHoldBars": 5
+    },
+    "notes": "Mirrored by long/short registry policy from short to long."
+  },
+  {
+    "id": "strategyless-shadow-1-strategyless-bear-flat-long-4r",
+    "name": "strategyless-bear-flat-long-4r",
+    "status": "shadow",
+    "candidateType": "strategyless",
+    "candidate": {
+      "label": "strategyless-bear-flat-long-4r",
+      "conditionId": "bodyDirection:bear+recentDrift:flat",
+      "direction": "long",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "holdMinutes": 60
+    },
+    "notes": "Mirrored by long/short registry policy from short to long."
+  },
+  {
+    "id": "strategyless-shadow-2-strategyless-no-reversal-flat-long-4r",
+    "name": "strategyless-no-reversal-flat-long-4r",
+    "status": "shadow",
+    "candidateType": "strategyless",
+    "candidate": {
+      "label": "strategyless-no-reversal-flat-long-4r",
+      "conditionId": "intrabarReversal:none+recentDrift:flat",
+      "direction": "long",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "holdMinutes": 60
+    },
+    "notes": "Mirrored by long/short registry policy from short to long."
+  },
+  {
+    "id": "strategyless-shadow-3-strategyless-compression-short-4r",
+    "name": "strategyless-compression-short-4r",
+    "status": "shadow",
+    "candidateType": "strategyless",
+    "candidate": {
+      "label": "strategyless-compression-short-4r",
+      "conditionId": "localRangeState:compressing",
+      "direction": "short",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "holdMinutes": 60
+    },
+    "notes": "Mirrored by long/short registry policy from long to short."
+  },
+  {
+    "id": "strategyless-shadow-4-strategyless-ls-no-reversal-compression-short-4r",
+    "name": "strategyless-ls-no-reversal-compression-short-4r",
+    "status": "shadow",
+    "candidateType": "strategyless",
+    "candidate": {
+      "label": "strategyless-ls-no-reversal-compression-short-4r",
+      "conditionId": "intrabarReversal:none+rangeDerivative:compressing",
+      "direction": "short",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "holdMinutes": 60
+    },
+    "notes": "Mirrored by long/short registry policy from long to short."
+  },
+  {
+    "id": "strategyless-shadow-5-strategyless-ls-body-flat-drift-flat-long-4r",
+    "name": "strategyless-ls-body-flat-drift-flat-long-4r",
+    "status": "shadow",
+    "candidateType": "strategyless",
+    "candidate": {
+      "label": "strategyless-ls-body-flat-drift-flat-long-4r",
+      "conditionId": "intrabarBodyMomentum:flat+recentDrift:flat",
+      "direction": "long",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "holdMinutes": 60
+    },
+    "notes": "Mirrored by long/short registry policy from short to long."
+  },
+  {
+    "id": "workflow-shadow-wf-derivative-exhaustion-long-4r-paired",
+    "name": "wf-derivative-exhaustion-long-4r-paired",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "wf-derivative-exhaustion-long-4r-paired",
+      "strategyId": "derivative-exhaustion-reversal-long",
+      "zoneId": "closeAcceleration:deceleratingUp+volumeDerivative:falling",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 0,
+      "submittedOrders": 0,
+      "fillRate": 0,
+      "expectancyR": 0,
+      "profitFactor": 0,
+      "fullKelly": 0,
+      "totalR": 0,
+      "maxDrawdownR": 0,
+      "totalRToMaxDrawdown": 0,
+      "positiveFoldRate": 0,
+      "worstFoldExpectancyR": 0,
+      "recent30ExpectancyR": 0,
+      "recent90ExpectancyR": 0,
+      "bestDayRemovedProfitFactor": 0,
+      "bestFivePctRemovedExpectancyR": 0,
+      "evaluatedAt": "2026-06-16T09:47:49.359Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "workflow-shadow-wf-derivative-exhaustion-short-4r-paired",
+    "name": "wf-derivative-exhaustion-short-4r-paired",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "wf-derivative-exhaustion-short-4r-paired",
+      "strategyId": "derivative-exhaustion-reversal-short",
+      "zoneId": "closeAcceleration:deceleratingDown+volumeDerivative:falling",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 0,
+      "submittedOrders": 0,
+      "fillRate": 0,
+      "expectancyR": 0,
+      "profitFactor": 0,
+      "fullKelly": 0,
+      "totalR": 0,
+      "maxDrawdownR": 0,
+      "totalRToMaxDrawdown": 0,
+      "positiveFoldRate": 0,
+      "worstFoldExpectancyR": 0,
+      "recent30ExpectancyR": 0,
+      "recent90ExpectancyR": 0,
+      "bestDayRemovedProfitFactor": 0,
+      "bestFivePctRemovedExpectancyR": 0,
+      "evaluatedAt": "2026-06-16T09:47:51.691Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "workflow-shadow-wf-wick-stack-absorption-short-3r-paired",
+    "name": "wf-wick-stack-absorption-short-3r-paired",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "wf-wick-stack-absorption-short-3r-paired",
+      "strategyId": "wick-stack-absorption-short",
+      "zoneId": "effortResult:highEffortNoResult+closePosition:upper",
+      "entryMode": "limit-signal-close",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 0,
+      "submittedOrders": 0,
+      "fillRate": 0,
+      "expectancyR": 0,
+      "profitFactor": 0,
+      "fullKelly": 0,
+      "totalR": 0,
+      "maxDrawdownR": 0,
+      "totalRToMaxDrawdown": 0,
+      "positiveFoldRate": 0,
+      "worstFoldExpectancyR": 0,
+      "recent30ExpectancyR": 0,
+      "recent90ExpectancyR": 0,
+      "bestDayRemovedProfitFactor": 0,
+      "bestFivePctRemovedExpectancyR": 0,
+      "evaluatedAt": "2026-06-16T09:47:54.070Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "workflow-shadow-wf-wick-stack-absorption-long-3r-paired",
+    "name": "wf-wick-stack-absorption-long-3r-paired",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "wf-wick-stack-absorption-long-3r-paired",
+      "strategyId": "wick-stack-absorption-long",
+      "zoneId": "effortResult:highEffortNoResult+closePosition:lower",
+      "entryMode": "limit-signal-close",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 0,
+      "submittedOrders": 0,
+      "fillRate": 0,
+      "expectancyR": 0,
+      "profitFactor": 0,
+      "fullKelly": 0,
+      "totalR": 0,
+      "maxDrawdownR": 0,
+      "totalRToMaxDrawdown": 0,
+      "positiveFoldRate": 0,
+      "worstFoldExpectancyR": 0,
+      "recent30ExpectancyR": 0,
+      "recent90ExpectancyR": 0,
+      "bestDayRemovedProfitFactor": 0,
+      "bestFivePctRemovedExpectancyR": 0,
+      "evaluatedAt": "2026-06-16T09:47:56.419Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "workflow-shadow-wf-low-volume-trap-long-4r-paired",
+    "name": "wf-low-volume-trap-long-4r-paired",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "wf-low-volume-trap-long-4r-paired",
+      "strategyId": "low-volume-breakout-trap-long",
+      "zoneId": "volumeRank:low+closePosition:lower",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 0,
+      "submittedOrders": 0,
+      "fillRate": 0,
+      "expectancyR": 0,
+      "profitFactor": 0,
+      "fullKelly": 0,
+      "totalR": 0,
+      "maxDrawdownR": 0,
+      "totalRToMaxDrawdown": 0,
+      "positiveFoldRate": 0,
+      "worstFoldExpectancyR": 0,
+      "recent30ExpectancyR": 0,
+      "recent90ExpectancyR": 0,
+      "bestDayRemovedProfitFactor": 0,
+      "bestFivePctRemovedExpectancyR": 0,
+      "evaluatedAt": "2026-06-16T09:47:58.772Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "workflow-shadow-wf-low-volume-trap-short-4r-paired",
+    "name": "wf-low-volume-trap-short-4r-paired",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "wf-low-volume-trap-short-4r-paired",
+      "strategyId": "low-volume-breakout-trap-short",
+      "zoneId": "volumeRank:low+closePosition:upper",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 0,
+      "submittedOrders": 0,
+      "fillRate": 0,
+      "expectancyR": 0,
+      "profitFactor": 0,
+      "fullKelly": 0,
+      "totalR": 0,
+      "maxDrawdownR": 0,
+      "totalRToMaxDrawdown": 0,
+      "positiveFoldRate": 0,
+      "worstFoldExpectancyR": 0,
+      "recent30ExpectancyR": 0,
+      "recent90ExpectancyR": 0,
+      "bestDayRemovedProfitFactor": 0,
+      "bestFivePctRemovedExpectancyR": 0,
+      "evaluatedAt": "2026-06-16T09:48:01.126Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto-sample-baseline-early-climax-long-rangeRank-high-3r",
+    "name": "auto-sample-baseline-early-climax-long-rangeRank-high-3r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto-sample-baseline-early-climax-long-rangeRank-high-3r",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "rangeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 286,
+      "submittedOrders": 1608,
+      "fillRate": 0.17786069651741293,
+      "expectancyR": 0.047508773506815316,
+      "profitFactor": 1.06689717879475,
+      "fullKelly": 0.01797765556541897,
+      "totalR": 13.58750922294918,
+      "maxDrawdownR": 20.88576449912154,
+      "totalRToMaxDrawdown": 0.6505631729937716,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -0.6190476190476191,
+      "recent30ExpectancyR": -0.035462443824894475,
+      "recent90ExpectancyR": -0.023448877860462874,
+      "bestDayRemovedProfitFactor": 1.0300258207063706,
+      "bestFivePctRemovedExpectancyR": -0.00502665756957586,
+      "evaluatedAt": "2026-06-16T09:48:03.659Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto-sample-baseline-early-climax-long-volumeRank-high-3r",
+    "name": "auto-sample-baseline-early-climax-long-volumeRank-high-3r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto-sample-baseline-early-climax-long-volumeRank-high-3r",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "volumeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 297,
+      "submittedOrders": 1384,
+      "fillRate": 0.21459537572254336,
+      "expectancyR": 0.07162970418172504,
+      "profitFactor": 1.1007720483964523,
+      "fullKelly": 0.0262002339842487,
+      "totalR": 21.27402214197234,
+      "maxDrawdownR": 24.310498518566803,
+      "totalRToMaxDrawdown": 0.8750960876316297,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -0.36,
+      "recent30ExpectancyR": -0.30832911141976616,
+      "recent90ExpectancyR": -0.10326030781695772,
+      "bestDayRemovedProfitFactor": 1.0682607165146352,
+      "bestFivePctRemovedExpectancyR": 0.021486377198535404,
+      "evaluatedAt": "2026-06-16T09:48:06.186Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto-fold-baseline-early-climax-long-2r-h6",
+    "name": "auto-fold-baseline-early-climax-long-2r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto-fold-baseline-early-climax-long-2r-h6",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "rangeRank:high+volumeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 213,
+      "submittedOrders": 1154,
+      "fillRate": 0.18457538994800693,
+      "expectancyR": 0.000630261440843986,
+      "profitFactor": 1.000963867674829,
+      "fullKelly": 0.0003300215285622077,
+      "totalR": 0.134245686899769,
+      "maxDrawdownR": 25.984647592463382,
+      "totalRToMaxDrawdown": 0.00516634625973168,
+      "positiveFoldRate": 0.25,
+      "worstFoldExpectancyR": -0.4375,
+      "recent30ExpectancyR": -0.17637525528690934,
+      "recent90ExpectancyR": -0.13421365146379727,
+      "bestDayRemovedProfitFactor": 0.957884598742403,
+      "bestFivePctRemovedExpectancyR": -0.037635188100958054,
+      "evaluatedAt": "2026-06-16T09:48:08.730Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto-sample-derivative-compression-long-bodyRatio-small-4r",
+    "name": "auto-sample-derivative-compression-long-bodyRatio-small-4r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto-sample-derivative-compression-long-bodyRatio-small-4r",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "bodyRatio:small",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 155,
+      "submittedOrders": 497,
+      "fillRate": 0.3118712273641851,
+      "expectancyR": 0.048836737128139254,
+      "profitFactor": 1.0622548504593774,
+      "fullKelly": 0.012477475136185828,
+      "totalR": 7.569694254861584,
+      "maxDrawdownR": 21,
+      "totalRToMaxDrawdown": 0.36046163118388497,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -0.6875,
+      "recent30ExpectancyR": -0.24242424242424243,
+      "recent90ExpectancyR": 0.28205128205128205,
+      "bestDayRemovedProfitFactor": 0.9964610697719795,
+      "bestFivePctRemovedExpectancyR": -0.0028124558505778796,
+      "evaluatedAt": "2026-06-16T09:48:11.338Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto-sample-derivative-compression-long-rangeDerivative-compressing-4r",
+    "name": "auto-sample-derivative-compression-long-rangeDerivative-compressing-4r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto-sample-derivative-compression-long-rangeDerivative-compressing-4r",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "rangeDerivative:compressing",
+      "entryMode": "limit-half-pullback",
+      "targetR": 4,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 286,
+      "submittedOrders": 700,
+      "fillRate": 0.4085714285714286,
+      "expectancyR": -0.16367012236536108,
+      "profitFactor": 0.802088660797609,
+      "fullKelly": 0,
+      "totalR": -46.809654996493265,
+      "maxDrawdownR": 56.291347429365516,
+      "totalRToMaxDrawdown": -0.8315603931000249,
+      "positiveFoldRate": 0.25,
+      "worstFoldExpectancyR": -0.6875,
+      "recent30ExpectancyR": -0.2857142857142857,
+      "recent90ExpectancyR": -0.055944055944055944,
+      "bestDayRemovedProfitFactor": 0.737559021907984,
+      "bestFivePctRemovedExpectancyR": -0.20780796818548858,
+      "evaluatedAt": "2026-06-16T09:48:13.829Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto-fold-derivative-compression-long-3r-h6",
+    "name": "auto-fold-derivative-compression-long-3r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto-fold-derivative-compression-long-3r-h6",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "bodyRatio:small+rangeDerivative:compressing",
+      "entryMode": "limit-half-pullback",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 63,
+      "submittedOrders": 135,
+      "fillRate": 0.4666666666666667,
+      "expectancyR": -0.047619047619047616,
+      "profitFactor": 0.9375,
+      "fullKelly": 0,
+      "totalR": -3,
+      "maxDrawdownR": 20,
+      "totalRToMaxDrawdown": -0.15,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": 0.23076923076923078,
+      "recent90ExpectancyR": 0.1891891891891892,
+      "bestDayRemovedProfitFactor": 0.8125,
+      "bestFivePctRemovedExpectancyR": -0.0967741935483871,
+      "evaluatedAt": "2026-06-16T09:48:16.327Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto-sample-hvnsa-absorption-short-closeDerivative-down-4r",
+    "name": "auto-sample-hvnsa-absorption-short-closeDerivative-down-4r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto-sample-hvnsa-absorption-short-closeDerivative-down-4r",
+      "strategyId": "high-volume-narrow-spread-absorption-short",
+      "zoneId": "closeDerivative:down",
+      "entryMode": "limit-signal-close",
+      "targetR": 4,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 0,
+      "submittedOrders": 0,
+      "fillRate": 0,
+      "expectancyR": 0,
+      "profitFactor": 0,
+      "fullKelly": 0,
+      "totalR": 0,
+      "maxDrawdownR": 0,
+      "totalRToMaxDrawdown": 0,
+      "positiveFoldRate": 0,
+      "worstFoldExpectancyR": 0,
+      "recent30ExpectancyR": 0,
+      "recent90ExpectancyR": 0,
+      "bestDayRemovedProfitFactor": 0,
+      "bestFivePctRemovedExpectancyR": 0,
+      "evaluatedAt": "2026-06-16T09:48:18.717Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto-sample-hvnsa-absorption-short-effortResult-neutral-4r",
+    "name": "auto-sample-hvnsa-absorption-short-effortResult-neutral-4r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto-sample-hvnsa-absorption-short-effortResult-neutral-4r",
+      "strategyId": "high-volume-narrow-spread-absorption-short",
+      "zoneId": "effortResult:neutral",
+      "entryMode": "limit-signal-close",
+      "targetR": 4,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 36,
+      "submittedOrders": 38,
+      "fillRate": 0.9473684210526315,
+      "expectancyR": -0.2730632227257015,
+      "profitFactor": 0.6536549772264966,
+      "fullKelly": 0,
+      "totalR": -9.830276018125254,
+      "maxDrawdownR": 14.398170040666082,
+      "totalRToMaxDrawdown": -0.6827448203737486,
+      "positiveFoldRate": 0.2727272727272727,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": -0.18106543316633,
+      "recent90ExpectancyR": -0.547272107403478,
+      "bestDayRemovedProfitFactor": 0.5127250492631695,
+      "bestFivePctRemovedExpectancyR": -0.3951507433750072,
+      "evaluatedAt": "2026-06-16T09:48:21.015Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto-fold-hvnsa-absorption-short-3r-h6",
+    "name": "auto-fold-hvnsa-absorption-short-3r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto-fold-hvnsa-absorption-short-3r-h6",
+      "strategyId": "high-volume-narrow-spread-absorption-short",
+      "zoneId": "closeDerivative:down+effortResult:neutral",
+      "entryMode": "limit-signal-close",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 0,
+      "submittedOrders": 0,
+      "fillRate": 0,
+      "expectancyR": 0,
+      "profitFactor": 0,
+      "fullKelly": 0,
+      "totalR": 0,
+      "maxDrawdownR": 0,
+      "totalRToMaxDrawdown": 0,
+      "positiveFoldRate": 0,
+      "worstFoldExpectancyR": 0,
+      "recent30ExpectancyR": 0,
+      "recent90ExpectancyR": 0,
+      "bestDayRemovedProfitFactor": 0,
+      "bestFivePctRemovedExpectancyR": 0,
+      "evaluatedAt": "2026-06-16T09:48:23.427Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-sample-auto-fold-wf-early-climax-long-4r-wide-sample-3r-h9-rangeRank-high-3r",
+    "name": "auto2-sample-auto-fold-wf-early-climax-long-4r-wide-sample-3r-h9-rangeRank-high-3r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-sample-auto-fold-wf-early-climax-long-4r-wide-sample-3r-h9-rangeRank-high-3r",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "rangeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 286,
+      "submittedOrders": 1608,
+      "fillRate": 0.17786069651741293,
+      "expectancyR": 0.047508773506815316,
+      "profitFactor": 1.06689717879475,
+      "fullKelly": 0.01797765556541897,
+      "totalR": 13.58750922294918,
+      "maxDrawdownR": 20.88576449912154,
+      "totalRToMaxDrawdown": 0.6505631729937716,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -0.6190476190476191,
+      "recent30ExpectancyR": -0.035462443824894475,
+      "recent90ExpectancyR": -0.023448877860462874,
+      "bestDayRemovedProfitFactor": 1.0300258207063706,
+      "bestFivePctRemovedExpectancyR": -0.00502665756957586,
+      "evaluatedAt": "2026-06-16T09:48:25.954Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-sample-auto-fold-wf-early-climax-long-4r-wide-sample-3r-h9-volumeRank-high-3r",
+    "name": "auto2-sample-auto-fold-wf-early-climax-long-4r-wide-sample-3r-h9-volumeRank-high-3r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-sample-auto-fold-wf-early-climax-long-4r-wide-sample-3r-h9-volumeRank-high-3r",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "volumeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 297,
+      "submittedOrders": 1384,
+      "fillRate": 0.21459537572254336,
+      "expectancyR": 0.07162970418172504,
+      "profitFactor": 1.1007720483964523,
+      "fullKelly": 0.0262002339842487,
+      "totalR": 21.27402214197234,
+      "maxDrawdownR": 24.310498518566803,
+      "totalRToMaxDrawdown": 0.8750960876316297,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -0.36,
+      "recent30ExpectancyR": -0.30832911141976616,
+      "recent90ExpectancyR": -0.10326030781695772,
+      "bestDayRemovedProfitFactor": 1.0682607165146352,
+      "bestFivePctRemovedExpectancyR": 0.021486377198535404,
+      "evaluatedAt": "2026-06-16T09:48:28.449Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fold-auto-fold-wf-early-climax-long-4r-wide-sample-3r-h9-2r-h6",
+    "name": "auto2-fold-auto-fold-wf-early-climax-long-4r-wide-sample-3r-h9-2r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fold-auto-fold-wf-early-climax-long-4r-wide-sample-3r-h9-2r-h6",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "rangeRank:high+volumeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 213,
+      "submittedOrders": 1154,
+      "fillRate": 0.18457538994800693,
+      "expectancyR": 0.000630261440843986,
+      "profitFactor": 1.000963867674829,
+      "fullKelly": 0.0003300215285622077,
+      "totalR": 0.134245686899769,
+      "maxDrawdownR": 25.984647592463382,
+      "totalRToMaxDrawdown": 0.00516634625973168,
+      "positiveFoldRate": 0.25,
+      "worstFoldExpectancyR": -0.4375,
+      "recent30ExpectancyR": -0.17637525528690934,
+      "recent90ExpectancyR": -0.13421365146379727,
+      "bestDayRemovedProfitFactor": 0.957884598742403,
+      "bestFivePctRemovedExpectancyR": -0.037635188100958054,
+      "evaluatedAt": "2026-06-16T09:48:30.978Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fill-auto-sample-baseline-early-climax-long-rangeRank-high-3r-signal-close-3r",
+    "name": "auto2-fill-auto-sample-baseline-early-climax-long-rangeRank-high-3r-signal-close-3r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fill-auto-sample-baseline-early-climax-long-rangeRank-high-3r-signal-close-3r",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "rangeRank:high",
+      "entryMode": "limit-signal-close",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 1645,
+      "submittedOrders": 1742,
+      "fillRate": 0.9443168771526981,
+      "expectancyR": -0.027085933572597087,
+      "profitFactor": 0.9501798275971531,
+      "fullKelly": 0,
+      "totalR": -44.55636072692221,
+      "maxDrawdownR": 75.4919782993388,
+      "totalRToMaxDrawdown": -0.5902131819919794,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -0.18835555121306433,
+      "recent30ExpectancyR": -0.14069151894988471,
+      "recent90ExpectancyR": -0.05095329448337248,
+      "bestDayRemovedProfitFactor": 0.9375353741935687,
+      "bestFivePctRemovedExpectancyR": -0.08713971526777557,
+      "evaluatedAt": "2026-06-16T09:48:33.507Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fold-auto-sample-baseline-early-climax-long-rangeRank-high-3r-2r-h6",
+    "name": "auto2-fold-auto-sample-baseline-early-climax-long-rangeRank-high-3r-2r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fold-auto-sample-baseline-early-climax-long-rangeRank-high-3r-2r-h6",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "rangeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 286,
+      "submittedOrders": 1608,
+      "fillRate": 0.17786069651741293,
+      "expectancyR": 0.013220083615034555,
+      "profitFactor": 1.0203485071856788,
+      "fullKelly": 0.006903243329320741,
+      "totalR": 3.7809439138998826,
+      "maxDrawdownR": 20,
+      "totalRToMaxDrawdown": 0.18904719569499412,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -0.5263157894736842,
+      "recent30ExpectancyR": -0.04221345925599587,
+      "recent90ExpectancyR": -0.05111022801806692,
+      "bestDayRemovedProfitFactor": 0.985742499533152,
+      "bestFivePctRemovedExpectancyR": -0.022131872192527116,
+      "evaluatedAt": "2026-06-16T09:48:35.999Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-nearpass-auto-sample-baseline-early-climax-long-rangeRank-high-3r-2r-h6",
+    "name": "auto2-nearpass-auto-sample-baseline-early-climax-long-rangeRank-high-3r-2r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-nearpass-auto-sample-baseline-early-climax-long-rangeRank-high-3r-2r-h6",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "rangeRank:high",
+      "entryMode": "limit-signal-close",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 1645,
+      "submittedOrders": 1742,
+      "fillRate": 0.9443168771526981,
+      "expectancyR": 0.0007612147676139419,
+      "profitFactor": 1.0016309011421747,
+      "fullKelly": 0.000727514006908514,
+      "totalR": 1.2521982927249344,
+      "maxDrawdownR": 52.05474375045609,
+      "totalRToMaxDrawdown": 0.024055411716707626,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -0.18247841792545683,
+      "recent30ExpectancyR": -0.1141007994041622,
+      "recent90ExpectancyR": -0.010609145064037996,
+      "bestDayRemovedProfitFactor": 0.9903028627987215,
+      "bestFivePctRemovedExpectancyR": -0.045241170215967096,
+      "evaluatedAt": "2026-06-16T09:48:38.515Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fold-auto-sample-baseline-early-climax-long-volumeRank-high-3r-2r-h6",
+    "name": "auto2-fold-auto-sample-baseline-early-climax-long-volumeRank-high-3r-2r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fold-auto-sample-baseline-early-climax-long-volumeRank-high-3r-2r-h6",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "volumeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 297,
+      "submittedOrders": 1384,
+      "fillRate": 0.21459537572254336,
+      "expectancyR": -0.029851024623233094,
+      "profitFactor": 0.955286272205189,
+      "fullKelly": 0,
+      "totalR": -8.86575431310023,
+      "maxDrawdownR": 34.56878356980049,
+      "totalRToMaxDrawdown": -0.256467060670466,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -0.3181818181818182,
+      "recent30ExpectancyR": -0.3902243805926524,
+      "recent90ExpectancyR": -0.19132596102909386,
+      "bestDayRemovedProfitFactor": 0.9250257487015715,
+      "bestFivePctRemovedExpectancyR": -0.06460874764760353,
+      "evaluatedAt": "2026-06-16T09:48:41.178Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-nearpass-auto-sample-baseline-early-climax-long-volumeRank-high-3r-2r-h6",
+    "name": "auto2-nearpass-auto-sample-baseline-early-climax-long-volumeRank-high-3r-2r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-nearpass-auto-sample-baseline-early-climax-long-volumeRank-high-3r-2r-h6",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "volumeRank:high",
+      "entryMode": "limit-signal-close",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 1487,
+      "submittedOrders": 1573,
+      "fillRate": 0.9453273998728544,
+      "expectancyR": -0.014390802397984808,
+      "profitFactor": 0.9709458384882079,
+      "fullKelly": 0,
+      "totalR": -21.39912316580341,
+      "maxDrawdownR": 58.11151382449185,
+      "totalRToMaxDrawdown": -0.36824239737469155,
+      "positiveFoldRate": 0.5833333333333334,
+      "worstFoldExpectancyR": -0.20053573187064824,
+      "recent30ExpectancyR": -0.15783126080228424,
+      "recent90ExpectancyR": -0.04161564163721755,
+      "bestDayRemovedProfitFactor": 0.9575509734064628,
+      "bestFivePctRemovedExpectancyR": -0.058693555440414706,
+      "evaluatedAt": "2026-06-16T09:48:43.769Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-sample-auto-fold-baseline-early-climax-long-2r-h6-rangeRank-high-2r",
+    "name": "auto2-sample-auto-fold-baseline-early-climax-long-2r-h6-rangeRank-high-2r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-sample-auto-fold-baseline-early-climax-long-2r-h6-rangeRank-high-2r",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "rangeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 286,
+      "submittedOrders": 1608,
+      "fillRate": 0.17786069651741293,
+      "expectancyR": 0.013220083615034555,
+      "profitFactor": 1.0203485071856788,
+      "fullKelly": 0.006903243329320741,
+      "totalR": 3.7809439138998826,
+      "maxDrawdownR": 20,
+      "totalRToMaxDrawdown": 0.18904719569499412,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -0.5263157894736842,
+      "recent30ExpectancyR": -0.04221345925599587,
+      "recent90ExpectancyR": -0.05111022801806692,
+      "bestDayRemovedProfitFactor": 0.985742499533152,
+      "bestFivePctRemovedExpectancyR": -0.022131872192527116,
+      "evaluatedAt": "2026-06-16T09:48:46.299Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-sample-auto-fold-baseline-early-climax-long-2r-h6-volumeRank-high-2r",
+    "name": "auto2-sample-auto-fold-baseline-early-climax-long-2r-h6-volumeRank-high-2r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-sample-auto-fold-baseline-early-climax-long-2r-h6-volumeRank-high-2r",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "volumeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 297,
+      "submittedOrders": 1384,
+      "fillRate": 0.21459537572254336,
+      "expectancyR": -0.029851024623233094,
+      "profitFactor": 0.955286272205189,
+      "fullKelly": 0,
+      "totalR": -8.86575431310023,
+      "maxDrawdownR": 34.56878356980049,
+      "totalRToMaxDrawdown": -0.256467060670466,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -0.3181818181818182,
+      "recent30ExpectancyR": -0.3902243805926524,
+      "recent90ExpectancyR": -0.19132596102909386,
+      "bestDayRemovedProfitFactor": 0.9250257487015715,
+      "bestFivePctRemovedExpectancyR": -0.06460874764760353,
+      "evaluatedAt": "2026-06-16T09:48:48.793Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-rotate-auto-fold-baseline-early-climax-long-2r-h6-volumeRank-mid-2r-h6",
+    "name": "auto2-rotate-auto-fold-baseline-early-climax-long-2r-h6-volumeRank-mid-2r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-rotate-auto-fold-baseline-early-climax-long-2r-h6-volumeRank-mid-2r-h6",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "volumeRank:mid",
+      "entryMode": "limit-half-pullback",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 285,
+      "submittedOrders": 1085,
+      "fillRate": 0.2626728110599078,
+      "expectancyR": -0.08989166511512514,
+      "profitFactor": 0.8703034487474941,
+      "fullKelly": 0,
+      "totalR": -25.619124557810665,
+      "maxDrawdownR": 45,
+      "totalRToMaxDrawdown": -0.5693138790624592,
+      "positiveFoldRate": 0.25,
+      "worstFoldExpectancyR": -0.45454545454545453,
+      "recent30ExpectancyR": 0.11880709230279493,
+      "recent90ExpectancyR": 0.11617642157581089,
+      "bestDayRemovedProfitFactor": 0.8340257788862315,
+      "bestFivePctRemovedExpectancyR": -0.12721115913503808,
+      "evaluatedAt": "2026-06-16T09:48:51.344Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fold-auto-fold-baseline-early-climax-long-2r-h6-2r-h6",
+    "name": "auto2-fold-auto-fold-baseline-early-climax-long-2r-h6-2r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fold-auto-fold-baseline-early-climax-long-2r-h6-2r-h6",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "rangeRank:high+volumeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 213,
+      "submittedOrders": 1154,
+      "fillRate": 0.18457538994800693,
+      "expectancyR": 0.000630261440843986,
+      "profitFactor": 1.000963867674829,
+      "fullKelly": 0.0003300215285622077,
+      "totalR": 0.134245686899769,
+      "maxDrawdownR": 25.984647592463382,
+      "totalRToMaxDrawdown": 0.00516634625973168,
+      "positiveFoldRate": 0.25,
+      "worstFoldExpectancyR": -0.4375,
+      "recent30ExpectancyR": -0.17637525528690934,
+      "recent90ExpectancyR": -0.13421365146379727,
+      "bestDayRemovedProfitFactor": 0.957884598742403,
+      "bestFivePctRemovedExpectancyR": -0.037635188100958054,
+      "evaluatedAt": "2026-06-16T09:48:53.891Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fill-auto-sample-wf-early-climax-long-4r-wide-sample-rangeRank-high-4r-signal-close",
+    "name": "auto2-fill-auto-sample-wf-early-climax-long-4r-wide-sample-rangeRank-high-4r-signal-close-4r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fill-auto-sample-wf-early-climax-long-4r-wide-sample-rangeRank-high-4r-signal-close-4r",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "rangeRank:high",
+      "entryMode": "limit-signal-close",
+      "targetR": 4,
+      "maxHoldFiveMinuteBars": 12
+    },
+    "notes": "Demoted by the latest six-month core gate: expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 1645,
+      "submittedOrders": 1742,
+      "fillRate": 0.9443168771526981,
+      "expectancyR": -0.0431664898396502,
+      "profitFactor": 0.928260870598166,
+      "fullKelly": 0,
+      "totalR": -71.00887578622458,
+      "maxDrawdownR": 114.15492912027618,
+      "totalRToMaxDrawdown": -0.6220395066025405,
+      "positiveFoldRate": 0.3333333333333333,
+      "worstFoldExpectancyR": -0.19326799389409763,
+      "recent30ExpectancyR": -0.06137430346949211,
+      "recent90ExpectancyR": -0.051923178581365234,
+      "bestDayRemovedProfitFactor": 0.9129210661134898,
+      "bestFivePctRemovedExpectancyR": -0.11572331422414898,
+      "evaluatedAt": "2026-06-16T09:48:56.408Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fold-auto-sample-wf-early-climax-long-4r-wide-sample-rangeRank-high-4r-3r-h9",
+    "name": "auto2-fold-auto-sample-wf-early-climax-long-4r-wide-sample-rangeRank-high-4r-3r-h9",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fold-auto-sample-wf-early-climax-long-4r-wide-sample-rangeRank-high-4r-3r-h9",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "rangeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 286,
+      "submittedOrders": 1608,
+      "fillRate": 0.17786069651741293,
+      "expectancyR": 0.047508773506815316,
+      "profitFactor": 1.06689717879475,
+      "fullKelly": 0.01797765556541897,
+      "totalR": 13.58750922294918,
+      "maxDrawdownR": 20.88576449912154,
+      "totalRToMaxDrawdown": 0.6505631729937716,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -0.6190476190476191,
+      "recent30ExpectancyR": -0.035462443824894475,
+      "recent90ExpectancyR": -0.023448877860462874,
+      "bestDayRemovedProfitFactor": 1.0300258207063706,
+      "bestFivePctRemovedExpectancyR": -0.00502665756957586,
+      "evaluatedAt": "2026-06-16T09:48:58.893Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fold-auto-sample-wf-early-climax-long-4r-wide-sample-volumeRank-high-4r-3r-h9",
+    "name": "auto2-fold-auto-sample-wf-early-climax-long-4r-wide-sample-volumeRank-high-4r-3r-h9",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fold-auto-sample-wf-early-climax-long-4r-wide-sample-volumeRank-high-4r-3r-h9",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "volumeRank:high",
+      "entryMode": "limit-half-pullback",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 297,
+      "submittedOrders": 1384,
+      "fillRate": 0.21459537572254336,
+      "expectancyR": 0.07162970418172504,
+      "profitFactor": 1.1007720483964523,
+      "fullKelly": 0.0262002339842487,
+      "totalR": 21.27402214197234,
+      "maxDrawdownR": 24.310498518566803,
+      "totalRToMaxDrawdown": 0.8750960876316297,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -0.36,
+      "recent30ExpectancyR": -0.30832911141976616,
+      "recent90ExpectancyR": -0.10326030781695772,
+      "bestDayRemovedProfitFactor": 1.0682607165146352,
+      "bestFivePctRemovedExpectancyR": 0.021486377198535404,
+      "evaluatedAt": "2026-06-16T09:49:01.437Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fold-auto-sample-derivative-compression-long-bodyRatio-small-4r-3r-h6",
+    "name": "auto2-fold-auto-sample-derivative-compression-long-bodyRatio-small-4r-3r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fold-auto-sample-derivative-compression-long-bodyRatio-small-4r-3r-h6",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "bodyRatio:small",
+      "entryMode": "limit-half-pullback",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 155,
+      "submittedOrders": 497,
+      "fillRate": 0.3118712273641851,
+      "expectancyR": 0.007802107975325199,
+      "profitFactor": 1.0105158846623947,
+      "fullKelly": 0.0026855359012750712,
+      "totalR": 1.2093267361754059,
+      "maxDrawdownR": 21,
+      "totalRToMaxDrawdown": 0.057586987436924086,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -0.75,
+      "recent30ExpectancyR": -0.2727272727272727,
+      "recent90ExpectancyR": 0.1794871794871795,
+      "bestDayRemovedProfitFactor": 0.9583419716189165,
+      "bestFivePctRemovedExpectancyR": -0.03131158995963787,
+      "evaluatedAt": "2026-06-16T09:49:03.970Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fold-auto-sample-hvnsa-absorption-short-effortResult-neutral-4r-3r-h6",
+    "name": "auto2-fold-auto-sample-hvnsa-absorption-short-effortResult-neutral-4r-3r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fold-auto-sample-hvnsa-absorption-short-effortResult-neutral-4r-3r-h6",
+      "strategyId": "high-volume-narrow-spread-absorption-short",
+      "zoneId": "effortResult:neutral",
+      "entryMode": "limit-signal-close",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 36,
+      "submittedOrders": 38,
+      "fillRate": 0.9473684210526315,
+      "expectancyR": -0.32865084967371955,
+      "profitFactor": 0.564517013239638,
+      "fullKelly": 0,
+      "totalR": -11.831430588253903,
+      "maxDrawdownR": 15.608428474278478,
+      "totalRToMaxDrawdown": -0.7580154919344517,
+      "positiveFoldRate": 0.18181818181818182,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": 0.11653158069007923,
+      "recent90ExpectancyR": -0.48735424117649206,
+      "bestDayRemovedProfitFactor": 0.454095120423218,
+      "bestFivePctRemovedExpectancyR": -0.42375515966439714,
+      "evaluatedAt": "2026-06-16T09:49:06.274Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-sample-auto-fold-derivative-compression-long-3r-h6-bodyRatio-small-3r",
+    "name": "auto2-sample-auto-fold-derivative-compression-long-3r-h6-bodyRatio-small-3r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-sample-auto-fold-derivative-compression-long-3r-h6-bodyRatio-small-3r",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "bodyRatio:small",
+      "entryMode": "limit-half-pullback",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, profitFactor < 1.20, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 155,
+      "submittedOrders": 497,
+      "fillRate": 0.3118712273641851,
+      "expectancyR": 0.007802107975325199,
+      "profitFactor": 1.0105158846623947,
+      "fullKelly": 0.0026855359012750712,
+      "totalR": 1.2093267361754059,
+      "maxDrawdownR": 21,
+      "totalRToMaxDrawdown": 0.057586987436924086,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -0.75,
+      "recent30ExpectancyR": -0.2727272727272727,
+      "recent90ExpectancyR": 0.1794871794871795,
+      "bestDayRemovedProfitFactor": 0.9583419716189165,
+      "bestFivePctRemovedExpectancyR": -0.03131158995963787,
+      "evaluatedAt": "2026-06-16T09:49:08.839Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fold-auto-fold-derivative-compression-long-3r-h6-2r-h6",
+    "name": "auto2-fold-auto-fold-derivative-compression-long-3r-h6-2r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fold-auto-fold-derivative-compression-long-3r-h6-2r-h6",
+      "strategyId": "intrabar-early-climax-late-hold-long",
+      "zoneId": "bodyRatio:small+rangeDerivative:compressing",
+      "entryMode": "limit-half-pullback",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 63,
+      "submittedOrders": 135,
+      "fillRate": 0.4666666666666667,
+      "expectancyR": -0.047619047619047616,
+      "profitFactor": 0.9302325581395349,
+      "fullKelly": 0,
+      "totalR": -3,
+      "maxDrawdownR": 19,
+      "totalRToMaxDrawdown": -0.15789473684210525,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": -0.07692307692307693,
+      "recent90ExpectancyR": -0.02702702702702703,
+      "bestDayRemovedProfitFactor": 0.8372093023255814,
+      "bestFivePctRemovedExpectancyR": -0.08064516129032258,
+      "evaluatedAt": "2026-06-16T09:49:11.446Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-sample-auto-fold-hvnsa-absorption-short-3r-h6-closeDerivative-down-3r",
+    "name": "auto2-sample-auto-fold-hvnsa-absorption-short-3r-h6-closeDerivative-down-3r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-sample-auto-fold-hvnsa-absorption-short-3r-h6-closeDerivative-down-3r",
+      "strategyId": "high-volume-narrow-spread-absorption-short",
+      "zoneId": "closeDerivative:down",
+      "entryMode": "limit-signal-close",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 0,
+      "submittedOrders": 0,
+      "fillRate": 0,
+      "expectancyR": 0,
+      "profitFactor": 0,
+      "fullKelly": 0,
+      "totalR": 0,
+      "maxDrawdownR": 0,
+      "totalRToMaxDrawdown": 0,
+      "positiveFoldRate": 0,
+      "worstFoldExpectancyR": 0,
+      "recent30ExpectancyR": 0,
+      "recent90ExpectancyR": 0,
+      "bestDayRemovedProfitFactor": 0,
+      "bestFivePctRemovedExpectancyR": 0,
+      "evaluatedAt": "2026-06-16T09:49:13.822Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-sample-auto-fold-hvnsa-absorption-short-3r-h6-effortResult-neutral-3r",
+    "name": "auto2-sample-auto-fold-hvnsa-absorption-short-3r-h6-effortResult-neutral-3r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-sample-auto-fold-hvnsa-absorption-short-3r-h6-effortResult-neutral-3r",
+      "strategyId": "high-volume-narrow-spread-absorption-short",
+      "zoneId": "effortResult:neutral",
+      "entryMode": "limit-signal-close",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 36,
+      "submittedOrders": 38,
+      "fillRate": 0.9473684210526315,
+      "expectancyR": -0.32865084967371955,
+      "profitFactor": 0.564517013239638,
+      "fullKelly": 0,
+      "totalR": -11.831430588253903,
+      "maxDrawdownR": 15.608428474278478,
+      "totalRToMaxDrawdown": -0.7580154919344517,
+      "positiveFoldRate": 0.18181818181818182,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": 0.11653158069007923,
+      "recent90ExpectancyR": -0.48735424117649206,
+      "bestDayRemovedProfitFactor": 0.454095120423218,
+      "bestFivePctRemovedExpectancyR": -0.42375515966439714,
+      "evaluatedAt": "2026-06-16T09:49:16.146Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fold-auto-fold-hvnsa-absorption-short-3r-h6-2r-h6",
+    "name": "auto2-fold-auto-fold-hvnsa-absorption-short-3r-h6-2r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fold-auto-fold-hvnsa-absorption-short-3r-h6-2r-h6",
+      "strategyId": "high-volume-narrow-spread-absorption-short",
+      "zoneId": "closeDerivative:down+effortResult:neutral",
+      "entryMode": "limit-signal-close",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 0,
+      "submittedOrders": 0,
+      "fillRate": 0,
+      "expectancyR": 0,
+      "profitFactor": 0,
+      "fullKelly": 0,
+      "totalR": 0,
+      "maxDrawdownR": 0,
+      "totalRToMaxDrawdown": 0,
+      "positiveFoldRate": 0,
+      "worstFoldExpectancyR": 0,
+      "recent30ExpectancyR": 0,
+      "recent90ExpectancyR": 0,
+      "bestDayRemovedProfitFactor": 0,
+      "bestFivePctRemovedExpectancyR": 0,
+      "evaluatedAt": "2026-06-16T09:49:18.522Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-sample-auto-fold-wf-inside-expansion-retest-short-3r-2r-h6-rangeDerivative-expanding-",
+    "name": "auto2-sample-auto-fold-wf-inside-expansion-retest-short-3r-2r-h6-rangeDerivative-expanding-2r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-sample-auto-fold-wf-inside-expansion-retest-short-3r-2r-h6-rangeDerivative-expanding-2r",
+      "strategyId": "inside-bar-expansion-retest-short",
+      "zoneId": "rangeDerivative:expanding",
+      "entryMode": "limit-half-pullback",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 26,
+      "submittedOrders": 203,
+      "fillRate": 0.12807881773399016,
+      "expectancyR": -0.21736319067091747,
+      "profitFactor": 0.6851249545570248,
+      "fullKelly": 0,
+      "totalR": -5.651442957443854,
+      "maxDrawdownR": 6.188351838643444,
+      "totalRToMaxDrawdown": -0.913238791975783,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": -0.8328303152246833,
+      "recent90ExpectancyR": -0.2948208469468393,
+      "bestDayRemovedProfitFactor": 0.5736932201083087,
+      "bestFivePctRemovedExpectancyR": -0.3060577182977542,
+      "evaluatedAt": "2026-06-16T09:49:20.947Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-rotate-auto-fold-wf-inside-expansion-retest-short-3r-2r-h6-volumeRank-mid-2r-h6",
+    "name": "auto2-rotate-auto-fold-wf-inside-expansion-retest-short-3r-2r-h6-volumeRank-mid-2r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-rotate-auto-fold-wf-inside-expansion-retest-short-3r-2r-h6-volumeRank-mid-2r-h6",
+      "strategyId": "inside-bar-expansion-retest-short",
+      "zoneId": "volumeRank:mid",
+      "entryMode": "limit-half-pullback",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 21,
+      "submittedOrders": 96,
+      "fillRate": 0.21875,
+      "expectancyR": 0.14285714285714285,
+      "profitFactor": 1.2307692307692308,
+      "fullKelly": 0.0714285714285714,
+      "totalR": 3,
+      "maxDrawdownR": 9,
+      "totalRToMaxDrawdown": 0.3333333333333333,
+      "positiveFoldRate": 0.3333333333333333,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": -1,
+      "recent90ExpectancyR": -1,
+      "bestDayRemovedProfitFactor": 0.9230769230769231,
+      "bestFivePctRemovedExpectancyR": 0.05,
+      "evaluatedAt": "2026-06-16T09:49:23.252Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fill-auto-fold-wf-inside-expansion-retest-short-3r-2r-h6-signal-close-2r",
+    "name": "auto2-fill-auto-fold-wf-inside-expansion-retest-short-3r-2r-h6-signal-close-2r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fill-auto-fold-wf-inside-expansion-retest-short-3r-2r-h6-signal-close-2r",
+      "strategyId": "inside-bar-expansion-retest-short",
+      "zoneId": "volumeRank:high+rangeDerivative:expanding",
+      "entryMode": "limit-signal-close",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 158,
+      "submittedOrders": 165,
+      "fillRate": 0.9575757575757575,
+      "expectancyR": -0.05981129048977259,
+      "profitFactor": 0.8675277099912194,
+      "fullKelly": 0,
+      "totalR": -9.450183897384068,
+      "maxDrawdownR": 16.458269002245075,
+      "totalRToMaxDrawdown": -0.5741906330547257,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -0.46835237964449355,
+      "recent30ExpectancyR": -0.32144370410418954,
+      "recent90ExpectancyR": -0.11618575666832517,
+      "bestDayRemovedProfitFactor": 0.825965828337362,
+      "bestFivePctRemovedExpectancyR": -0.11331288245054592,
+      "evaluatedAt": "2026-06-16T09:49:25.624Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fold-auto-sample-hvnsa-absorption-short-closeDerivative-down-4r-3r-h6",
+    "name": "auto2-fold-auto-sample-hvnsa-absorption-short-closeDerivative-down-4r-3r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fold-auto-sample-hvnsa-absorption-short-closeDerivative-down-4r-3r-h6",
+      "strategyId": "high-volume-narrow-spread-absorption-short",
+      "zoneId": "closeDerivative:down",
+      "entryMode": "limit-signal-close",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 0,
+      "submittedOrders": 0,
+      "fillRate": 0,
+      "expectancyR": 0,
+      "profitFactor": 0,
+      "fullKelly": 0,
+      "totalR": 0,
+      "maxDrawdownR": 0,
+      "totalRToMaxDrawdown": 0,
+      "positiveFoldRate": 0,
+      "worstFoldExpectancyR": 0,
+      "recent30ExpectancyR": 0,
+      "recent90ExpectancyR": 0,
+      "bestDayRemovedProfitFactor": 0,
+      "bestFivePctRemovedExpectancyR": 0,
+      "evaluatedAt": "2026-06-16T09:49:27.986Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fill-auto-sample-wf-inside-expansion-retest-short-3r-rangeDerivative-expanding-3r-sig",
+    "name": "auto2-fill-auto-sample-wf-inside-expansion-retest-short-3r-rangeDerivative-expanding-3r-signal-close-3r",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fill-auto-sample-wf-inside-expansion-retest-short-3r-rangeDerivative-expanding-3r-signal-close-3r",
+      "strategyId": "inside-bar-expansion-retest-short",
+      "zoneId": "rangeDerivative:expanding",
+      "entryMode": "limit-signal-close",
+      "targetR": 3,
+      "maxHoldFiveMinuteBars": 9
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 235,
+      "submittedOrders": 249,
+      "fillRate": 0.9437751004016064,
+      "expectancyR": -0.032434604104072555,
+      "profitFactor": 0.9376625293147806,
+      "fullKelly": 0,
+      "totalR": -7.622131964457051,
+      "maxDrawdownR": 21.396324861174943,
+      "totalRToMaxDrawdown": -0.35623556914149856,
+      "positiveFoldRate": 0.4166666666666667,
+      "worstFoldExpectancyR": -0.2995458957993618,
+      "recent30ExpectancyR": 0.06862073085913371,
+      "recent90ExpectancyR": -0.03441977344698996,
+      "bestDayRemovedProfitFactor": 0.8885916360456221,
+      "bestFivePctRemovedExpectancyR": -0.09835709549763937,
+      "evaluatedAt": "2026-06-16T09:49:30.317Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
+  },
+  {
+    "id": "auto-shadow-auto2-fold-auto-sample-wf-inside-expansion-retest-short-3r-rangeDerivative-expanding-3r-2r-",
+    "name": "auto2-fold-auto-sample-wf-inside-expansion-retest-short-3r-rangeDerivative-expanding-3r-2r-h6",
+    "status": "shadow",
+    "candidateType": "edge",
+    "candidate": {
+      "label": "auto2-fold-auto-sample-wf-inside-expansion-retest-short-3r-rangeDerivative-expanding-3r-2r-h6",
+      "strategyId": "inside-bar-expansion-retest-short",
+      "zoneId": "rangeDerivative:expanding",
+      "entryMode": "limit-half-pullback",
+      "targetR": 2,
+      "maxHoldFiveMinuteBars": 6
+    },
+    "notes": "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, fillRate < 0.15, expectancyR <= 0, profitFactor < 1.20, fullKelly <= 0, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0, recent90ExpectancyR <= 0, bestDayRemovedProfitFactor < 1.05, bestFivePctRemovedExpectancyR < 0",
+    "coreTest": {
+      "lookbackDays": 180,
+      "filledTrades": 26,
+      "submittedOrders": 203,
+      "fillRate": 0.12807881773399016,
+      "expectancyR": -0.21736319067091747,
+      "profitFactor": 0.6851249545570248,
+      "fullKelly": 0,
+      "totalR": -5.651442957443854,
+      "maxDrawdownR": 6.188351838643444,
+      "totalRToMaxDrawdown": -0.913238791975783,
+      "positiveFoldRate": 0.5,
+      "worstFoldExpectancyR": -1,
+      "recent30ExpectancyR": -0.8328303152246833,
+      "recent90ExpectancyR": -0.2948208469468393,
+      "bestDayRemovedProfitFactor": 0.5736932201083087,
+      "bestFivePctRemovedExpectancyR": -0.3060577182977542,
+      "evaluatedAt": "2026-06-16T09:49:32.693Z",
+      "source": "six-month-ohclv-replay",
+      "passed": false
+    }
   }
 ]

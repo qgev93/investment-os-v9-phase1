@@ -145,6 +145,10 @@ function oppositeDirection(direction: BtcusdcDirectionalSide): BtcusdcDirectiona
   return direction === "long" ? "short" : "long";
 }
 
+function replaceDirectionalToken(value: string, from: BtcusdcDirectionalSide, to: BtcusdcDirectionalSide): string {
+  return value.replace(new RegExp(`(^|[^a-zA-Z0-9])${from}($|[^a-zA-Z0-9])`, "gi"), `$1${to}$2`);
+}
+
 function directionalPairMap(entries: BtcusdcStrategyRegistryEntry[]): Map<string, Set<BtcusdcDirectionalSide>> {
   const pairs = new Map<string, Set<BtcusdcDirectionalSide>>();
   for (const entry of entries) {
@@ -166,6 +170,161 @@ function isDirectionallyPaired(
   const pairKey = registryEntryPairKey(entry);
   if (!direction || !pairKey) return false;
   return pairs.get(pairKey)?.has(oppositeDirection(direction)) ?? false;
+}
+
+export function findBtcusdcUnpairedActiveRegistryEntries(
+  entries: BtcusdcStrategyRegistryEntry[],
+): BtcusdcStrategyRegistryEntry[] {
+  const activeEntries = entries.filter((entry) => entry.status !== "disabled");
+  const pairsByStatus = new Map<string, Set<BtcusdcDirectionalSide>>();
+  for (const entry of activeEntries) {
+    const direction = registryEntryDirection(entry);
+    const pairKey = registryEntryPairKey(entry);
+    if (!direction || !pairKey) continue;
+    const statusPairKey = `${entry.status}|${pairKey}`;
+    const directions = pairsByStatus.get(statusPairKey) ?? new Set<BtcusdcDirectionalSide>();
+    directions.add(direction);
+    pairsByStatus.set(statusPairKey, directions);
+  }
+
+  return activeEntries.filter((entry) => {
+    const direction = registryEntryDirection(entry);
+    const pairKey = registryEntryPairKey(entry);
+    if (!direction || !pairKey) return true;
+    return !pairsByStatus.get(`${entry.status}|${pairKey}`)?.has(oppositeDirection(direction));
+  });
+}
+
+export function mirrorBtcusdcRegistryEntry(entry: BtcusdcStrategyRegistryEntry): BtcusdcStrategyRegistryEntry | null {
+  const direction = registryEntryDirection(entry);
+  if (!direction) return null;
+  const opposite = oppositeDirection(direction);
+  const id = replaceDirectionalToken(entry.id, direction, opposite);
+  const name = replaceDirectionalToken(entry.name, direction, opposite);
+  if (id === entry.id && name === entry.name) return null;
+  const status = entry.status === "core" ? "shadow" : entry.status;
+  const notes = `${entry.notes ? `${entry.notes} ` : ""}Mirrored by long/short registry policy from ${direction} to ${opposite}.`;
+
+  if (entry.candidateType === "edge") {
+    const label = replaceDirectionalToken(entry.candidate.label ?? entry.name, direction, opposite);
+    const strategyId = replaceDirectionalToken(entry.candidate.strategyId, direction, opposite);
+    if (label === entry.candidate.label && strategyId === entry.candidate.strategyId) return null;
+    return {
+      id,
+      name,
+      status,
+      candidateType: "edge",
+      candidate: {
+        ...entry.candidate,
+        label,
+        strategyId,
+      },
+      notes,
+    };
+  }
+
+  if (entry.candidateType === "micro") {
+    const label = replaceDirectionalToken(entry.candidate.label ?? entry.name, direction, opposite);
+    const strategyId = replaceDirectionalToken(entry.candidate.strategyId, direction, opposite);
+    if (label === entry.candidate.label && strategyId === entry.candidate.strategyId) return null;
+    return {
+      id,
+      name,
+      status,
+      candidateType: "micro",
+      candidate: {
+        ...entry.candidate,
+        label,
+        strategyId,
+      },
+      notes,
+    };
+  }
+
+  return {
+    id,
+    name,
+    status,
+    candidateType: "strategyless",
+    candidate: {
+      ...entry.candidate,
+      label: replaceDirectionalToken(entry.candidate.label ?? entry.name, direction, opposite),
+      direction: opposite,
+    },
+    notes,
+  };
+}
+
+function registryEntryKeys(entry: BtcusdcStrategyRegistryEntry): string[] {
+  return [entry.id, entry.name, entry.candidate.label ?? entry.name];
+}
+
+function suffixRegistryEntryKeys(entry: BtcusdcStrategyRegistryEntry, suffix: string): BtcusdcStrategyRegistryEntry {
+  if (entry.candidateType === "edge") {
+    return {
+      ...entry,
+      id: `${entry.id}${suffix}`,
+      name: `${entry.name}${suffix}`,
+      candidate: {
+        ...entry.candidate,
+        label: `${entry.candidate.label ?? entry.name}${suffix}`,
+      },
+    };
+  }
+  if (entry.candidateType === "micro") {
+    return {
+      ...entry,
+      id: `${entry.id}${suffix}`,
+      name: `${entry.name}${suffix}`,
+      candidate: {
+        ...entry.candidate,
+        label: `${entry.candidate.label ?? entry.name}${suffix}`,
+      },
+    };
+  }
+  return {
+    ...entry,
+    id: `${entry.id}${suffix}`,
+    name: `${entry.name}${suffix}`,
+    candidate: {
+      ...entry.candidate,
+      label: `${entry.candidate.label ?? entry.name}${suffix}`,
+    },
+  };
+}
+
+function withUniqueRegistryEntryKeys(
+  entry: BtcusdcStrategyRegistryEntry,
+  existingKeys: Set<string>,
+): BtcusdcStrategyRegistryEntry {
+  if (!registryEntryKeys(entry).some((key) => existingKeys.has(key))) return entry;
+  for (let index = 1; index < 100; index += 1) {
+    const suffix = index === 1 ? "-paired" : `-paired-${index}`;
+    const suffixed = suffixRegistryEntryKeys(entry, suffix);
+    if (!registryEntryKeys(suffixed).some((key) => existingKeys.has(key))) return suffixed;
+  }
+  throw new Error(`Unable to allocate a unique BTCUSDC registry mirror for ${entry.name}`);
+}
+
+export function repairBtcusdcRegistryActivePairs(entries: BtcusdcStrategyRegistryEntry[]): {
+  entries: BtcusdcStrategyRegistryEntry[];
+  added: number;
+  unpairedBefore: number;
+} {
+  const existingKeys = new Set(entries.flatMap((entry) => [entry.id, entry.name, entry.candidate.label ?? entry.name]));
+  const additions: BtcusdcStrategyRegistryEntry[] = [];
+  for (const entry of findBtcusdcUnpairedActiveRegistryEntries(entries)) {
+    const mirror = mirrorBtcusdcRegistryEntry(entry);
+    if (!mirror) continue;
+    const uniqueMirror = withUniqueRegistryEntryKeys(mirror, existingKeys);
+    additions.push(uniqueMirror);
+    for (const key of registryEntryKeys(uniqueMirror)) existingKeys.add(key);
+  }
+  return {
+    entries: additions.length > 0 ? [...entries, ...additions] : entries,
+    added: additions.length,
+    unpairedBefore: findBtcusdcUnpairedActiveRegistryEntries(entries).length,
+  };
 }
 
 export function evaluateBtcusdcCoreTestGate(result: BtcusdcCoreTestResult): BtcusdcCoreGateEvaluation {

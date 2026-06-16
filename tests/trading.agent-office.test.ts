@@ -1008,4 +1008,139 @@ describe("BTCUSDC local agent office", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("repairs preexisting active one-sided registry entries with mirror shadow pairs", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-registry-pairs-"));
+    try {
+      const registryPath = join(dir, "registry.json");
+      writeFileSync(
+        registryPath,
+        JSON.stringify([
+          {
+            id: "legacy-shadow-short",
+            name: "legacy-early-climax-short",
+            status: "shadow",
+            candidateType: "edge",
+            candidate: {
+              label: "legacy-early-climax-short",
+              strategyId: "intrabar-early-climax-late-hold-short",
+              zoneId: "rangeRank:high",
+              entryMode: "limit-half-pullback",
+              targetR: 3,
+              maxHoldFiveMinuteBars: 9,
+            },
+            notes: "Legacy one-sided seed.",
+          },
+        ]),
+      );
+
+      await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath,
+        nowIso: "2026-06-16T08:15:00.000Z",
+        useModel: false,
+        runCoreGate: false,
+        allowRegistryWrite: true,
+      });
+
+      const registry = JSON.parse(readFileSync(registryPath, "utf8")) as Array<{
+        name: string;
+        status: string;
+        candidate: { label: string; strategyId: string };
+      }>;
+
+      expect(registry.map((entry) => entry.name)).toContain("legacy-early-climax-short");
+      expect(registry.map((entry) => entry.name)).toContain("legacy-early-climax-long");
+      expect(registry.find((entry) => entry.name === "legacy-early-climax-long")).toMatchObject({
+        status: "shadow",
+        candidate: {
+          label: "legacy-early-climax-long",
+          strategyId: "intrabar-early-climax-late-hold-long",
+        },
+      });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("adds uniquely named registry mirrors when the opposite-side label already belongs to a different zone", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-registry-pair-collision-"));
+    try {
+      const registryPath = join(dir, "registry.json");
+      writeFileSync(
+        registryPath,
+        JSON.stringify([
+          {
+            id: "wf-short",
+            name: "wf-exhaustion-short-4r",
+            status: "shadow",
+            candidateType: "edge",
+            candidate: {
+              label: "wf-exhaustion-short-4r",
+              strategyId: "derivative-exhaustion-reversal-short",
+              zoneId: "closeAcceleration:deceleratingUp+volumeDerivative:falling",
+              entryMode: "limit-half-pullback",
+              targetR: 4,
+              maxHoldFiveMinuteBars: 9,
+            },
+          },
+          {
+            id: "wf-long",
+            name: "wf-exhaustion-long-4r",
+            status: "shadow",
+            candidateType: "edge",
+            candidate: {
+              label: "wf-exhaustion-long-4r",
+              strategyId: "derivative-exhaustion-reversal-long",
+              zoneId: "closeAcceleration:deceleratingDown+volumeDerivative:falling",
+              entryMode: "limit-half-pullback",
+              targetR: 4,
+              maxHoldFiveMinuteBars: 9,
+            },
+          },
+        ]),
+      );
+
+      await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath,
+        nowIso: "2026-06-16T08:20:00.000Z",
+        useModel: false,
+        runCoreGate: false,
+        allowRegistryWrite: true,
+      });
+
+      const registry = JSON.parse(readFileSync(registryPath, "utf8")) as Array<{
+        name: string;
+        candidate: { label: string; strategyId: string; zoneId: string };
+      }>;
+      const sameZoneLongMirror = registry.find(
+        (entry) =>
+          entry.name.includes("wf-exhaustion-long-4r") &&
+          entry.name !== "wf-exhaustion-long-4r" &&
+          entry.candidate.zoneId === "closeAcceleration:deceleratingUp+volumeDerivative:falling",
+      );
+      const sameZoneShortMirror = registry.find(
+        (entry) =>
+          entry.name.includes("wf-exhaustion-short-4r") &&
+          entry.name !== "wf-exhaustion-short-4r" &&
+          entry.candidate.zoneId === "closeAcceleration:deceleratingDown+volumeDerivative:falling",
+      );
+
+      expect(sameZoneLongMirror).toMatchObject({
+        candidate: {
+          strategyId: "derivative-exhaustion-reversal-long",
+        },
+      });
+      expect(sameZoneShortMirror).toMatchObject({
+        candidate: {
+          strategyId: "derivative-exhaustion-reversal-short",
+        },
+      });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
