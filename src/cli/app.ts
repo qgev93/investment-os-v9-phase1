@@ -837,13 +837,13 @@ export async function runPhase1Command(
     const maxCycles = Math.max(1, Number(flagValue(args, "--max-cycles") ?? env.BTCUSDC_AGENT_OFFICE_MAX_CYCLES ?? "1"));
     const intervalMs = Math.max(0, Number(flagValue(args, "--interval-ms") ?? env.BTCUSDC_AGENT_OFFICE_INTERVAL_MS ?? "0"));
     const generatedAtIso = flagValue(args, "--generated-at") ?? new Date().toISOString();
-    const modelName =
+    const explicitModelName =
       flagValue(args, "--model") ??
       env.BTCUSDC_AGENT_MODEL ??
       env.AGENT_MODEL ??
-      env.OPENAI_MODEL ??
-      "local-ohclv-grammar";
-    const useModel = !hasFlag(args, "--no-model");
+      env.OPENAI_MODEL;
+    const modelName = explicitModelName ?? "local-ohclv-grammar";
+    const useModel = !hasFlag(args, "--no-model") && explicitModelName !== undefined;
     const runCoreGate = hasFlag(args, "--run-core-gate");
     const allowRegistryWrite = hasFlag(args, "--allow-registry-write");
     const coreGateDays = Number(flagValue(args, "--days") ?? env.BTCUSDC_CORE_RESEARCH_DAYS ?? "180");
