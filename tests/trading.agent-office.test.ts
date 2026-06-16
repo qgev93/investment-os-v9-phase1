@@ -73,6 +73,63 @@ describe("BTCUSDC local agent office", () => {
     }
   });
 
+  it("reports the no-api chat-token control room policy without claiming GPT API execution", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-chat-token-"));
+    try {
+      const result = await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath: join(dir, "registry.json"),
+        nowIso: "2026-06-16T00:10:00.000Z",
+        useModel: true,
+        modelName: "gpt-5.5",
+        runCoreGate: false,
+      });
+
+      const report = JSON.parse(readFileSync(result.reportPath, "utf8")) as {
+        modelProvider: string;
+        modelName: string;
+        chatControlRoom?: {
+          mode: string;
+          intelligence: {
+            primary: string;
+            runtimeProvider: string;
+            backgroundGptApiAvailable: boolean;
+          };
+          tokenPriorities: Array<{ rank: number; focus: string }>;
+          heartbeatPolicy: { normal: string; notifyOn: string[] };
+          strategyGuardrails: string[];
+        };
+      };
+
+      expect(report).toMatchObject({
+        modelProvider: "local",
+        modelName: "local-ohclv-grammar",
+      });
+      expect(report.chatControlRoom?.mode).toBe("chat_token_maximized");
+      expect(report.chatControlRoom?.intelligence).toMatchObject({
+        primary: "codex-chat-gpt-5.5",
+        runtimeProvider: "local/local-ohclv-grammar",
+        backgroundGptApiAvailable: false,
+      });
+      expect(report.chatControlRoom?.tokenPriorities.map((priority) => priority.focus)).toEqual([
+        "core_zero_analysis",
+        "semantic_registry_pair_check",
+        "fly_github_local_repair",
+        "temporary_gpt55_subagents",
+        "quiet_normal_status",
+      ]);
+      expect(report.chatControlRoom?.heartbeatPolicy.normal).toBe("DONT_NOTIFY");
+      expect(report.chatControlRoom?.heartbeatPolicy.notifyOn).toContain("core_strategy_status_change");
+      expect(report.chatControlRoom?.strategyGuardrails).toContain("long_short_pairs_only");
+      expect(JSON.stringify(report.chatControlRoom)).not.toContain("GPT-5.5 API executed");
+      expect(result.telegramText).toContain("채팅총괄운영실");
+      expect(result.telegramText).toContain("core_zero_analysis");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it("runs the agent office through the CLI without sending Telegram", async () => {
     const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-cli-"));
     try {

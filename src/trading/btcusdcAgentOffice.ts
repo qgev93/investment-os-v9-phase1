@@ -46,6 +46,35 @@ export interface BtcusdcAgentOfficeAutonomousTeamReport {
   artifacts?: string[];
 }
 
+export interface BtcusdcAgentOfficeChatControlRoomPriority {
+  rank: number;
+  focus:
+    | "core_zero_analysis"
+    | "semantic_registry_pair_check"
+    | "fly_github_local_repair"
+    | "temporary_gpt55_subagents"
+    | "quiet_normal_status";
+  action: string;
+}
+
+export interface BtcusdcAgentOfficeChatControlRoom {
+  mode: "chat_token_maximized";
+  nameKo: string;
+  intelligence: {
+    primary: "codex-chat-gpt-5.5";
+    runtimeProvider: string;
+    backgroundGptApiAvailable: boolean;
+    noApiBoundary: string;
+  };
+  tokenPriorities: BtcusdcAgentOfficeChatControlRoomPriority[];
+  heartbeatPolicy: {
+    normal: "DONT_NOTIFY";
+    notifyOn: string[];
+  };
+  temporarySubagentRoles: string[];
+  strategyGuardrails: string[];
+}
+
 export interface BtcusdcAgentOfficeState {
   version: 1;
   objective: string;
@@ -168,6 +197,7 @@ export interface BtcusdcAgentOfficeCycleResult {
   modelName: string;
   roles: BtcusdcAgentOfficeRoleReport[];
   autonomousTeams: BtcusdcAgentOfficeAutonomousTeamReport[];
+  chatControlRoom: BtcusdcAgentOfficeChatControlRoom;
   reportPath: string;
   statePath: string;
   registryPath: string;
@@ -1287,6 +1317,75 @@ function buildAutonomousTeamReports(input: {
   ];
 }
 
+function buildChatControlRoom(input: {
+  modelProvider: "local" | "openai";
+  modelName: string;
+}): BtcusdcAgentOfficeChatControlRoom {
+  return {
+    mode: "chat_token_maximized",
+    nameKo: "채팅총괄운영실",
+    intelligence: {
+      primary: "codex-chat-gpt-5.5",
+      runtimeProvider: `${input.modelProvider}/${input.modelName}`,
+      backgroundGptApiAvailable: input.modelProvider === "openai",
+      noApiBoundary:
+        input.modelProvider === "openai"
+          ? "OPENAI_API_KEY is present, so runtime model briefs may use the configured OpenAI model."
+          : "No OPENAI_API_KEY is available; GPT-5.5 intelligence is only available through this Codex chat and temporary chat subagents.",
+    },
+    tokenPriorities: [
+      {
+        rank: 1,
+        focus: "core_zero_analysis",
+        action: "Spend chat-token reasoning on why no strategy has passed the six-month core gate and what mutation should run next.",
+      },
+      {
+        rank: 2,
+        focus: "semantic_registry_pair_check",
+        action: "Inspect registry changes for semantic value, long/short pairing, and coreTest movement before committing.",
+      },
+      {
+        rank: 3,
+        focus: "fly_github_local_repair",
+        action: "Use chat reasoning to isolate Fly, GitHub Actions, or local loop failures before restarting or redeploying.",
+      },
+      {
+        rank: 4,
+        focus: "temporary_gpt55_subagents",
+        action: "Hire short-lived GPT-5.5 chat subagents only for strategy, bottleneck, operations, or risk questions that need extra reasoning.",
+      },
+      {
+        rank: 5,
+        focus: "quiet_normal_status",
+        action: "When loop, Fly, GitHub, cache, and registry are normal, keep heartbeat responses short with DONT_NOTIFY.",
+      },
+    ],
+    heartbeatPolicy: {
+      normal: "DONT_NOTIFY",
+      notifyOn: [
+        "local_loop_restart",
+        "fly_or_github_failure",
+        "semantic_registry_release",
+        "core_strategy_status_change",
+        "paired_policy_violation",
+      ],
+    },
+    temporarySubagentRoles: [
+      "strategy_research_lead",
+      "bottleneck_analysis_lead",
+      "operations_audit_lead",
+      "risk_validation_lead",
+    ],
+    strategyGuardrails: [
+      "ohlcv_only",
+      "long_short_pairs_only",
+      "six_month_core_gate_before_core_telegram",
+      "shadow_only_when_core_zero",
+      "no_gpt_api_claim_when_model_provider_is_local",
+    ],
+  };
+}
+
 function buildTelegramText(result: Omit<BtcusdcAgentOfficeCycleResult, "telegramText">): string {
   const lines = [
     "BTCUSDC.P Agent Office",
@@ -1303,6 +1402,11 @@ function buildTelegramText(result: Omit<BtcusdcAgentOfficeCycleResult, "telegram
   for (const item of result.autonomousTeams) {
     lines.push(`${item.nameKo}: ${item.status} - ${item.summary}`);
   }
+  lines.push(
+    `${result.chatControlRoom.nameKo}: ${result.chatControlRoom.mode} - runtime ${result.chatControlRoom.intelligence.runtimeProvider}`,
+  );
+  lines.push(`토큰 우선순위: ${result.chatControlRoom.tokenPriorities.map((priority) => priority.focus).join(", ")}`);
+  lines.push(`정상 heartbeat: ${result.chatControlRoom.heartbeatPolicy.normal}`);
   return lines.join("\n");
 }
 
@@ -1468,6 +1572,10 @@ export async function runBtcusdcAgentOfficeCycle(
     reportPath,
     registryPath: options.registryPath,
   });
+  const chatControlRoom = buildChatControlRoom({
+    modelProvider,
+    modelName,
+  });
   const resultWithoutTelegram = {
     mode: "agent_office_cycle" as const,
     cycleId,
@@ -1477,6 +1585,7 @@ export async function runBtcusdcAgentOfficeCycle(
     modelName,
     roles,
     autonomousTeams,
+    chatControlRoom,
     reportPath,
     statePath: options.statePath,
     registryPath: options.registryPath,
