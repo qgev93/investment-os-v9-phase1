@@ -109,6 +109,44 @@ describe("BTCUSDC local agent office", () => {
     }
   });
 
+  it("keeps the CLI on local grammar when a model is configured but the API key is missing", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-missing-key-"));
+    try {
+      globalThis.fetch = async () => {
+        throw new Error("OpenAI should not be called without an API key");
+      };
+      const result = await runPhase1Command(
+        [
+          "trading:agent-office-btcusdc",
+          "--state-path",
+          join(dir, "state.json"),
+          "--report-dir",
+          join(dir, "reports"),
+          "--registry-path",
+          join(dir, "registry.json"),
+          "--model",
+          "gpt-5.5",
+          "--max-cycles",
+          "1",
+          "--no-send",
+        ],
+        {},
+      );
+
+      const data = result.data as {
+        telegramText: string;
+        cycles: Array<{ modelProvider: string; modelName: string }>;
+      };
+      expect(data.telegramText).toContain("모델: local/local-ohclv-grammar");
+      expect(data.cycles[0]).toMatchObject({
+        modelProvider: "local",
+        modelName: "local-ohclv-grammar",
+      });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it("runs core gate through the office without letting nested research send Telegram", async () => {
     const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-core-gate-"));
     try {

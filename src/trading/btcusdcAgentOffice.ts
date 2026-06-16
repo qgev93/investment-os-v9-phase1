@@ -198,8 +198,9 @@ export async function runBtcusdcAgentOfficeCycle(
   const state = loadState(options.statePath);
   const cycleNumber = state.cyclesCompleted + 1;
   const cycleId = cycleIdFrom(nowIso, cycleNumber);
-  const modelName = options.modelName ?? "local-ohclv-grammar";
+  const requestedModelName = options.modelName ?? "local-ohclv-grammar";
   const modelProvider: "local" | "openai" = options.useModel && options.openAiApiKey ? "openai" : "local";
+  const modelName = modelProvider === "openai" ? requestedModelName : "local-ohclv-grammar";
   const roles: BtcusdcAgentOfficeRoleReport[] = [];
   const artifacts: string[] = [];
 
