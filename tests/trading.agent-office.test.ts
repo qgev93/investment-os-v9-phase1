@@ -256,4 +256,44 @@ describe("BTCUSDC local agent office", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("runs core gate from an existing cache even while network cooldown is active", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-cache-during-cooldown-"));
+    try {
+      const calls: string[][] = [];
+      const cooldownPath = join(dir, "cooldown.json");
+      const cachePath = join(dir, "candles.json");
+      writeFileSync(
+        cooldownPath,
+        JSON.stringify({
+          untilIso: "2026-06-16T02:50:47.896Z",
+          reason: "recent Binance 418",
+        }),
+      );
+      writeFileSync(cachePath, "[]");
+
+      const result = await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath: join(dir, "registry.json"),
+        coreGateCacheFile: cachePath,
+        coreGateCooldownPath: cooldownPath,
+        nowIso: "2026-06-16T02:00:00.000Z",
+        useModel: false,
+        runCoreGate: true,
+        allowRegistryWrite: true,
+        commandRunner: async (args) => {
+          calls.push(args);
+        },
+      });
+
+      expect(result.roles.find((role) => role.role === "core_validation")?.status).toBe("completed");
+      expect(result.roles.find((role) => role.role === "core_validation")?.summary).toContain("cached candles");
+      expect(calls).toHaveLength(1);
+      expect(calls[0]).toContain("--cache-file");
+      expect(calls[0]).toContain(cachePath);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });

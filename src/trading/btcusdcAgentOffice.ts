@@ -271,7 +271,9 @@ export async function runBtcusdcAgentOfficeCycle(
   roles.push(role("approach_research", "completed", "1m 원천과 5m 맥락을 모두 허용하고, 보유시간은 후보별 자유로 열어둠"));
 
   const cooldown = loadCooldown(options.coreGateCooldownPath);
-  if (options.runCoreGate && cooldownActive(cooldown, nowIso)) {
+  const hasUsableCoreGateCache = Boolean(options.coreGateCacheFile && existsSync(options.coreGateCacheFile));
+  const shouldSkipCoreGateForCooldown = cooldownActive(cooldown, nowIso) && !hasUsableCoreGateCache;
+  if (options.runCoreGate && shouldSkipCoreGateForCooldown) {
     roles.push(
       role(
         "core_validation",
@@ -304,7 +306,13 @@ export async function runBtcusdcAgentOfficeCycle(
           reason: "last core gate succeeded",
         } satisfies BtcusdcAgentOfficeCooldown);
       }
-      roles.push(role("core_validation", "completed", `6개월 core gate 실행: ${args.join(" ")}`));
+      roles.push(
+        role(
+          "core_validation",
+          "completed",
+          `${hasUsableCoreGateCache && cooldownActive(cooldown, nowIso) ? "cached candles로 cooldown 중 " : ""}6개월 core gate 실행: ${args.join(" ")}`,
+        ),
+      );
     } catch (error) {
       const untilIso = cooldownUntilFromError(error, nowIso, options.coreGateCooldownMs ?? 15 * 60_000);
       if (options.coreGateCooldownPath) {
