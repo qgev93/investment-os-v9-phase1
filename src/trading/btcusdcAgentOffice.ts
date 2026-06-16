@@ -717,7 +717,7 @@ function repairRegistryActivePairs(input: { registryPath: string }): { added: nu
 }
 
 const AUTONOMOUS_IMPROVEMENT_MAX_DRAFTS_PER_CYCLE = 12;
-const AUTONOMOUS_IMPROVEMENT_REGISTRY_CAP = 160;
+const AUTONOMOUS_IMPROVEMENT_REGISTRY_CAP = 320;
 const AUTONOMOUS_IMPROVEMENT_MAX_SOURCE_DEPTH = 2;
 
 function mutationSlug(value: string): string {

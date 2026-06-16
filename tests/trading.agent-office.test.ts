@@ -7,6 +7,7 @@ import {
   BTCUSDC_AGENT_OFFICE_ROLES,
   runBtcusdcAgentOfficeCycle,
 } from "../src/trading/btcusdcAgentOffice.js";
+import type { BtcusdcStrategyRegistryEntry } from "../src/trading/btcusdcStrategyRegistry.js";
 
 describe("BTCUSDC local agent office", () => {
   it("runs a local PC-on research company cycle without model keys", async () => {
@@ -1004,6 +1005,96 @@ describe("BTCUSDC local agent office", () => {
         rejectedUnpairedDrafts: 0,
       });
       expect(report.autonomousImprovement?.candidateDrafts.map((draft) => draft.label)).toContain(longFill?.name);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("keeps registering paired improvement drafts after paired registry growth exceeds the old cap", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-growth-cap-"));
+    try {
+      const registryPath = join(dir, "registry.json");
+      const fillerEntries: BtcusdcStrategyRegistryEntry[] = [];
+      for (let index = 0; index < 84; index += 1) {
+        for (const direction of ["short", "long"] as const) {
+          fillerEntries.push({
+            id: `filler-${index}-${direction}`,
+            name: `filler-${index}-${direction}`,
+            status: "shadow",
+            candidateType: "edge",
+            candidate: {
+              label: `filler-${index}-${direction}`,
+              strategyId: `intrabar-early-climax-late-hold-${direction}`,
+              zoneId: `rangeRank:high+volumeRank:high+filler:${index}`,
+              entryMode: "limit-half-pullback",
+              targetR: 3,
+              maxHoldFiveMinuteBars: 9,
+            },
+          });
+        }
+      }
+      writeFileSync(
+        registryPath,
+        JSON.stringify([
+          ...fillerEntries,
+          {
+            id: "auto-shadow-auto-sample-baseline-early-climax-short-rangeRank-high-3r",
+            name: "auto-sample-baseline-early-climax-short-rangeRank-high-3r",
+            status: "shadow",
+            candidateType: "edge",
+            candidate: {
+              label: "auto-sample-baseline-early-climax-short-rangeRank-high-3r",
+              strategyId: "intrabar-early-climax-late-hold-short",
+              zoneId: "rangeRank:high",
+              entryMode: "limit-half-pullback",
+              targetR: 3,
+              maxHoldFiveMinuteBars: 9,
+            },
+            coreTest: {
+              lookbackDays: 180,
+              filledTrades: 267,
+              submittedOrders: 1553,
+              fillRate: 0.1719,
+              expectancyR: 0.2057,
+              profitFactor: 1.303,
+              fullKelly: 0.072,
+              totalR: 54.93,
+              maxDrawdownR: 11,
+              totalRToMaxDrawdown: 4.99,
+              positiveFoldRate: 0.75,
+              worstFoldExpectancyR: -0.2,
+              recent30ExpectancyR: 0.1175,
+              recent90ExpectancyR: 0.1811,
+              bestDayRemovedProfitFactor: 1.25,
+              bestFivePctRemovedExpectancyR: 0.15,
+              passed: false,
+            },
+          },
+        ]),
+      );
+
+      let labelsAtCoreGate: string[] = [];
+      await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath,
+        nowIso: "2026-06-16T09:05:00.000Z",
+        useModel: false,
+        runCoreGate: true,
+        allowRegistryWrite: true,
+        commandRunner: async () => {
+          const registry = JSON.parse(readFileSync(registryPath, "utf8")) as Array<{ name: string }>;
+          labelsAtCoreGate = registry.map((entry) => entry.name);
+        },
+      });
+
+      expect(labelsAtCoreGate.length).toBeGreaterThan(fillerEntries.length + 2);
+      expect(labelsAtCoreGate).toContain(
+        "auto2-fold-auto-sample-baseline-early-climax-short-rangeRank-high-3r-2r-h6",
+      );
+      expect(labelsAtCoreGate).toContain(
+        "auto2-fold-auto-sample-baseline-early-climax-long-rangeRank-high-3r-2r-h6",
+      );
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
