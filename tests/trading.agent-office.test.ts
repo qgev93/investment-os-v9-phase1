@@ -555,7 +555,8 @@ describe("BTCUSDC local agent office", () => {
       const report = JSON.parse(readFileSync(result.reportPath, "utf8")) as {
         autonomousImprovement?: { candidateDrafts: Array<{ label: string }>; actions: Array<{ failureMode: string }> };
       };
-      expect(labelsAtCoreGate).toContain("auto-sample-wf-promising-low-sample-volumeRank-high-4r");
+      expect(labelsAtCoreGate).toContain("auto-sample-wf-promising-low-sample-volumeRank-high-4r-long");
+      expect(labelsAtCoreGate).toContain("auto-sample-wf-promising-low-sample-volumeRank-high-4r-short");
       expect(report.autonomousImprovement?.actions.map((action) => action.failureMode)).toEqual(
         expect.arrayContaining(["sample_shortage", "low_fill_rate", "fold_fragility"]),
       );
@@ -650,9 +651,16 @@ describe("BTCUSDC local agent office", () => {
         },
       });
 
-      expect(labelsAtCoreGate).toContain("auto-sample-wf-fresh-volumeRank-high-4r");
-      expect(labelsAtCoreGate).toContain("auto-fill-wf-fresh-signal-close-4r");
-      expect(labelsAtCoreGate).toContain("auto-fold-wf-fresh-3r-h9");
+      const newAutoLabels = labelsAtCoreGate.filter(
+        (label) => label.startsWith("auto-") && (/-(long|short)$/.test(label) || /-(long|short)-/.test(label)),
+      );
+      expect(newAutoLabels.length).toBeGreaterThan(0);
+      for (const label of newAutoLabels) {
+        const opposite = label.includes("-long")
+          ? label.replace("-long", "-short")
+          : label.replace("-short", "-long");
+        expect(labelsAtCoreGate).toContain(opposite);
+      }
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -816,6 +824,94 @@ describe("BTCUSDC local agent office", () => {
           }),
         ]),
       );
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("registers autonomous improvement drafts only as long-short paired strategies", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-paired-auto-"));
+    try {
+      const registryPath = join(dir, "registry.json");
+      writeFileSync(
+        registryPath,
+        JSON.stringify([
+          {
+            id: "auto-shadow-auto-sample-baseline-early-climax-short-rangeRank-high-3r",
+            name: "auto-sample-baseline-early-climax-short-rangeRank-high-3r",
+            status: "shadow",
+            candidateType: "edge",
+            candidate: {
+              label: "auto-sample-baseline-early-climax-short-rangeRank-high-3r",
+              strategyId: "intrabar-early-climax-late-hold-short",
+              zoneId: "rangeRank:high",
+              entryMode: "limit-half-pullback",
+              targetR: 3,
+              maxHoldFiveMinuteBars: 9,
+            },
+            coreTest: {
+              lookbackDays: 180,
+              filledTrades: 267,
+              submittedOrders: 1553,
+              fillRate: 0.1719,
+              expectancyR: 0.2057,
+              profitFactor: 1.303,
+              fullKelly: 0.072,
+              totalR: 54.93,
+              maxDrawdownR: 11,
+              totalRToMaxDrawdown: 4.99,
+              positiveFoldRate: 0.75,
+              worstFoldExpectancyR: -0.2,
+              recent30ExpectancyR: 0.1175,
+              recent90ExpectancyR: 0.1811,
+              bestDayRemovedProfitFactor: 1.25,
+              bestFivePctRemovedExpectancyR: 0.15,
+              passed: false,
+            },
+          },
+        ]),
+      );
+
+      let registryAtCoreGate: Array<{ name: string; candidate: { strategyId: string; zoneId: string } }> = [];
+      const result = await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath,
+        nowIso: "2026-06-16T08:05:00.000Z",
+        useModel: false,
+        runCoreGate: true,
+        allowRegistryWrite: true,
+        commandRunner: async () => {
+          registryAtCoreGate = JSON.parse(readFileSync(registryPath, "utf8")) as Array<{
+            name: string;
+            candidate: { strategyId: string; zoneId: string };
+          }>;
+        },
+      });
+
+      const generated = registryAtCoreGate.filter((entry) => entry.name.startsWith("auto2-"));
+      const shortFill = generated.find(
+        (entry) => entry.name === "auto2-fill-auto-sample-baseline-early-climax-short-rangeRank-high-3r-signal-close-3r",
+      );
+      const longFill = generated.find(
+        (entry) => entry.name === "auto2-fill-auto-sample-baseline-early-climax-long-rangeRank-high-3r-signal-close-3r",
+      );
+
+      expect(shortFill?.candidate.strategyId).toBe("intrabar-early-climax-late-hold-short");
+      expect(longFill?.candidate.strategyId).toBe("intrabar-early-climax-late-hold-long");
+      expect(generated.every((entry) => /-(long|short)(-|$)/.test(entry.candidate.strategyId))).toBe(true);
+
+      const report = JSON.parse(readFileSync(result.reportPath, "utf8")) as {
+        autonomousImprovement?: {
+          directionalPolicy?: { mode: string; rejectedUnpairedDrafts: number };
+          candidateDrafts: Array<{ label: string }>;
+        };
+      };
+      expect(report.autonomousImprovement?.directionalPolicy).toMatchObject({
+        mode: "long_short_pairs_only",
+        rejectedUnpairedDrafts: 0,
+      });
+      expect(report.autonomousImprovement?.candidateDrafts.map((draft) => draft.label)).toContain(longFill?.name);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

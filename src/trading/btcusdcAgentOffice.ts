@@ -114,6 +114,10 @@ interface BtcusdcAgentOfficeAutonomousImprovement {
   objective: string;
   actions: BtcusdcAgentOfficeImprovementAction[];
   agentTeams: BtcusdcAgentOfficeImprovementTeamSummary[];
+  directionalPolicy: {
+    mode: "long_short_pairs_only";
+    rejectedUnpairedDrafts: number;
+  };
   candidateDrafts: BtcusdcAgentOfficeCandidateDraft[];
 }
 
@@ -157,6 +161,7 @@ const GUARDRAILS = [
   "OHLCV only: candles and volume-derived transforms.",
   "No external indicators, fundamentals, sentiment, order book, or future leakage.",
   "Every strategy is evaluated as an independent 1000 USDC paper account.",
+  "Directional policy: one-sided strategies are forbidden; active and generated strategies must be long/short paired.",
   "Core promotion requires the existing six-month gate before Telegram paper operation.",
   "Local Agent Office may research and write reports; it cannot place live orders.",
 ];
@@ -593,7 +598,7 @@ function workflowDraftRegistryEntries(
   const entries: BtcusdcStrategyRegistryEntry[] = [];
   const seenLabels = new Set<string>();
   for (const experiment of workflowResearch.experimentQueue) {
-    for (const draft of experiment.candidateDrafts) {
+    for (const draft of pairedDraftsOnly(experiment.candidateDrafts).drafts) {
       if (seenLabels.has(draft.label)) continue;
       seenLabels.add(draft.label);
       entries.push({
@@ -721,6 +726,125 @@ function uniqueDrafts(drafts: BtcusdcAgentOfficeCandidateDraft[]): BtcusdcAgentO
   return unique;
 }
 
+type AgentOfficeDirectionalSide = "long" | "short";
+
+function inferDraftDirection(draft: BtcusdcAgentOfficeCandidateDraft): AgentOfficeDirectionalSide | null {
+  for (const value of [draft.strategyId, draft.label]) {
+    if (/(^|[^a-zA-Z0-9])long($|[^a-zA-Z0-9])/i.test(value)) return "long";
+    if (/(^|[^a-zA-Z0-9])short($|[^a-zA-Z0-9])/i.test(value)) return "short";
+  }
+  return null;
+}
+
+function oppositeDraftDirection(direction: AgentOfficeDirectionalSide): AgentOfficeDirectionalSide {
+  return direction === "long" ? "short" : "long";
+}
+
+function replaceDraftDirectionToken(value: string, from: AgentOfficeDirectionalSide, to: string): string {
+  return value.replace(new RegExp(`(^|[^a-zA-Z0-9])${from}($|[^a-zA-Z0-9])`, "gi"), `$1${to}$2`);
+}
+
+function draftPairKey(draft: BtcusdcAgentOfficeCandidateDraft): string | null {
+  const direction = inferDraftDirection(draft);
+  if (!direction) return null;
+  return [
+    replaceDraftDirectionToken(draft.strategyId, direction, "both"),
+    draft.zoneId,
+    draft.entryMode,
+    draft.targetR,
+    draft.maxHoldFiveMinuteBars,
+  ].join("|");
+}
+
+function mirrorDraft(draft: BtcusdcAgentOfficeCandidateDraft): BtcusdcAgentOfficeCandidateDraft | null {
+  const direction = inferDraftDirection(draft);
+  if (!direction) return null;
+  const opposite = oppositeDraftDirection(direction);
+  const label = replaceDraftDirectionToken(draft.label, direction, opposite);
+  const strategyId = replaceDraftDirectionToken(draft.strategyId, direction, opposite);
+  if (label === draft.label || strategyId === draft.strategyId) return null;
+  return {
+    ...draft,
+    label,
+    strategyId,
+    reason: `${draft.reason} Mirrored by long-short-only policy from ${direction} to ${opposite}.`,
+  };
+}
+
+function draftWithExplicitDirectionLabel(
+  draft: BtcusdcAgentOfficeCandidateDraft,
+): BtcusdcAgentOfficeCandidateDraft | null {
+  const direction = inferDraftDirection(draft);
+  if (!direction) return null;
+  if (inferDirectionalSideFromLabel(draft.label)) return draft;
+  return {
+    ...draft,
+    label: `${draft.label}-${direction}`,
+  };
+}
+
+function inferDirectionalSideFromLabel(label: string): AgentOfficeDirectionalSide | null {
+  if (/(^|[^a-zA-Z0-9])long($|[^a-zA-Z0-9])/i.test(label)) return "long";
+  if (/(^|[^a-zA-Z0-9])short($|[^a-zA-Z0-9])/i.test(label)) return "short";
+  return null;
+}
+
+function pairedDraftsOnly(drafts: BtcusdcAgentOfficeCandidateDraft[]): {
+  drafts: BtcusdcAgentOfficeCandidateDraft[];
+  rejectedUnpairedDrafts: number;
+} {
+  const candidates = uniqueDrafts(
+    drafts.flatMap((draft) => {
+      const explicitDraft = draftWithExplicitDirectionLabel(draft);
+      if (!explicitDraft) return [draft];
+      const mirror = mirrorDraft(explicitDraft);
+      return mirror ? [explicitDraft, mirror] : [explicitDraft];
+    }),
+  );
+  const pairDirections = new Map<string, Set<AgentOfficeDirectionalSide>>();
+  for (const draft of candidates) {
+    const direction = inferDraftDirection(draft);
+    const key = draftPairKey(draft);
+    if (!direction || !key) continue;
+    const directions = pairDirections.get(key) ?? new Set<AgentOfficeDirectionalSide>();
+    directions.add(direction);
+    pairDirections.set(key, directions);
+  }
+
+  const paired = candidates.filter((draft) => {
+    const direction = inferDraftDirection(draft);
+    const key = draftPairKey(draft);
+    if (!direction || !key) return false;
+    return pairDirections.get(key)?.has(oppositeDraftDirection(direction)) ?? false;
+  });
+  return {
+    drafts: paired,
+    rejectedUnpairedDrafts: candidates.length - paired.length,
+  };
+}
+
+function takeCompleteDraftPairs(
+  drafts: BtcusdcAgentOfficeCandidateDraft[],
+  capacity: number,
+): BtcusdcAgentOfficeCandidateDraft[] {
+  if (capacity <= 1) return [];
+  const accepted: BtcusdcAgentOfficeCandidateDraft[] = [];
+  const grouped = new Map<string, BtcusdcAgentOfficeCandidateDraft[]>();
+  for (const draft of drafts) {
+    const key = draftPairKey(draft);
+    if (!key) continue;
+    grouped.set(key, [...(grouped.get(key) ?? []), draft]);
+  }
+  for (const group of grouped.values()) {
+    const longDraft = group.find((draft) => inferDraftDirection(draft) === "long");
+    const shortDraft = group.find((draft) => inferDraftDirection(draft) === "short");
+    if (!longDraft || !shortDraft) continue;
+    if (accepted.length + 2 > capacity) break;
+    accepted.push(shortDraft, longDraft);
+  }
+  return accepted;
+}
+
 function autonomousImprovementRegistryId(label: string): string {
   return `auto-shadow-${mutationSlug(label)}`;
 }
@@ -792,11 +916,14 @@ function buildAutonomousImprovement(input: {
 }): BtcusdcAgentOfficeAutonomousImprovement {
   const actions: BtcusdcAgentOfficeImprovementAction[] = [];
   const candidateDrafts: BtcusdcAgentOfficeCandidateDraft[] = [];
+  let rejectedUnpairedDrafts = 0;
   const registry = loadBtcusdcStrategyRegistryOrDefault(input.registryPath);
   const existingKeys = new Set(registry.flatMap((entry) => [entry.id, entry.name, entry.candidate.label ?? entry.name]));
 
   const pushAction = (action: BtcusdcAgentOfficeImprovementAction): void => {
-    const newDrafts = action.candidateDrafts.filter(
+    const pairedDraftResult = pairedDraftsOnly(action.candidateDrafts);
+    rejectedUnpairedDrafts += pairedDraftResult.rejectedUnpairedDrafts;
+    const newDrafts = pairedDraftResult.drafts.filter(
       (draft) =>
         !existingKeys.has(autonomousImprovementRegistryId(draft.label)) &&
         !existingKeys.has(draft.label) &&
@@ -804,7 +931,7 @@ function buildAutonomousImprovement(input: {
     );
     if (newDrafts.length === 0) return;
     const remainingCapacity = AUTONOMOUS_IMPROVEMENT_MAX_DRAFTS_PER_CYCLE - candidateDrafts.length;
-    const acceptedDrafts = newDrafts.slice(0, Math.max(0, remainingCapacity));
+    const acceptedDrafts = takeCompleteDraftPairs(newDrafts, Math.max(0, remainingCapacity));
     if (acceptedDrafts.length === 0) return;
     actions.push({ ...action, candidateDrafts: acceptedDrafts });
     for (const draft of acceptedDrafts) {
@@ -960,9 +1087,14 @@ function buildAutonomousImprovement(input: {
   const uniqueCandidateDrafts = uniqueDrafts(candidateDrafts).slice(0, AUTONOMOUS_IMPROVEMENT_MAX_DRAFTS_PER_CYCLE);
   return {
     generatedAtIso: input.nowIso,
-    objective: "Convert failed but promising six-month core tests into bounded OHLCV-only mutation candidates without user input.",
+    objective:
+      "Convert failed but promising six-month core tests into bounded OHLCV-only long/short paired mutation candidates without user input.",
     actions,
     agentTeams: summarizeImprovementAgentTeams(actions),
+    directionalPolicy: {
+      mode: "long_short_pairs_only",
+      rejectedUnpairedDrafts,
+    },
     candidateDrafts: uniqueCandidateDrafts,
   };
 }
@@ -1022,7 +1154,7 @@ async function requestOpenAiBrief(input: {
   const prompt = [
     "You are one member of a BTCUSDC.P strategy research office.",
     "Generate concise OHLCV-only research directions.",
-    "Hard constraints: 1m~5m candles/volume only, no indicators, no future leakage, maker-limit paper testing, Kelly risk, six-month core gate.",
+    "Hard constraints: 1m~5m candles/volume only, no indicators, no future leakage, maker-limit paper testing, Kelly risk, six-month core gate, no one-sided strategies.",
     "Prefer creative candle geometry, wick, body, volume slope, first derivative, effort/result, compression/expansion, and long/short symmetry ideas.",
     `Run timestamp: ${input.nowIso}`,
   ].join("\n");

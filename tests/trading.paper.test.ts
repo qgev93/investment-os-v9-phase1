@@ -682,6 +682,16 @@ describe("BTCUSDC.P paper forward trading bot", () => {
   });
 
   it("keeps only six-month-passing core strategies in the Telegram-active candidate set", () => {
+    const coreShortPair = {
+      ...TEST_CANDIDATES[0],
+      label: "inside-volume-short",
+      strategyId: "inside-bar-expansion-retest-short",
+    };
+    const strategylessLongPair: StrategylessOhlcvPortfolioCandidate = {
+      ...TEST_STRATEGYLESS_CANDIDATES[0],
+      label: "strategyless-bear-flat-long",
+      direction: "long",
+    };
     const entries: BtcusdcStrategyRegistryEntry[] = [
       {
         id: "core-pass",
@@ -689,6 +699,14 @@ describe("BTCUSDC.P paper forward trading bot", () => {
         status: "core",
         candidateType: "edge",
         candidate: TEST_CANDIDATES[0],
+        coreTest: passingCoreTestResult(),
+      },
+      {
+        id: "core-pass-short",
+        name: coreShortPair.label,
+        status: "core",
+        candidateType: "edge",
+        candidate: coreShortPair,
         coreTest: passingCoreTestResult(),
       },
       {
@@ -707,6 +725,13 @@ describe("BTCUSDC.P paper forward trading bot", () => {
         candidate: TEST_STRATEGYLESS_CANDIDATES[0],
       },
       {
+        id: "shadow-strategyless-long",
+        name: strategylessLongPair.label ?? "strategyless-bear-flat-long",
+        status: "shadow",
+        candidateType: "strategyless",
+        candidate: strategylessLongPair,
+      },
+      {
         id: "disabled-micro",
         name: TEST_MICRO_CANDIDATE_LABEL,
         status: "disabled",
@@ -719,12 +744,69 @@ describe("BTCUSDC.P paper forward trading bot", () => {
 
     expect(sets.coreCandidates.map((candidate) => candidate.label)).toEqual([
       TEST_CANDIDATE_LABEL,
+      coreShortPair.label,
     ]);
     expect(sets.microShadowCandidates).toEqual([]);
     expect(sets.strategylessShadowCandidates.map((candidate) => candidate.label)).toEqual([
       TEST_STRATEGYLESS_CANDIDATE_LABEL,
+      strategylessLongPair.label,
     ]);
-    expect(sets.coreTelegramCandidateLabels).toEqual(new Set([TEST_CANDIDATE_LABEL]));
+    expect(sets.coreTelegramCandidateLabels).toEqual(new Set([TEST_CANDIDATE_LABEL, coreShortPair.label]));
+  });
+
+  it("excludes directional strategies that do not have an active opposite-side pair", () => {
+    const longCandidate = TEST_CANDIDATES[0];
+    const shortCandidate = {
+      ...longCandidate,
+      label: "inside-volume-short",
+      strategyId: "inside-bar-expansion-retest-short",
+    };
+    const entries: BtcusdcStrategyRegistryEntry[] = [
+      {
+        id: "core-long-single",
+        name: longCandidate.label ?? longCandidate.strategyId,
+        status: "core",
+        candidateType: "edge",
+        candidate: longCandidate,
+        coreTest: passingCoreTestResult(),
+      },
+      {
+        id: "shadow-short-single",
+        name: "shadow-short-single",
+        status: "shadow",
+        candidateType: "edge",
+        candidate: {
+          ...shortCandidate,
+          label: "shadow-short-single",
+          zoneId: "rangeRank:high",
+        },
+      },
+    ];
+
+    const unpaired = buildBtcusdcActivePaperCandidateSets(entries);
+
+    expect(unpaired.coreCandidates).toEqual([]);
+    expect(unpaired.shadowCandidates).toEqual([]);
+    expect(unpaired.runtimeCandidates).toEqual([]);
+    expect(unpaired.coreTelegramCandidateLabels).toEqual(new Set());
+
+    const paired = buildBtcusdcActivePaperCandidateSets([
+      ...entries,
+      {
+        id: "core-short-pair",
+        name: shortCandidate.label ?? shortCandidate.strategyId,
+        status: "core",
+        candidateType: "edge",
+        candidate: shortCandidate,
+        coreTest: passingCoreTestResult(),
+      },
+    ]);
+
+    expect(paired.coreCandidates.map((candidate) => candidate.label)).toEqual([
+      longCandidate.label,
+      shortCandidate.label,
+    ]);
+    expect(paired.coreTelegramCandidateLabels).toEqual(new Set([longCandidate.label, shortCandidate.label]));
   });
 
   it("ignores evaluatedAt-only core registry changes", () => {

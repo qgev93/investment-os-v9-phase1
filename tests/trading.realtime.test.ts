@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -176,7 +176,7 @@ describe("BTCUSDC.P realtime paper worker", () => {
     }
   });
 
-  it("runs the default micro shadow candidate in the realtime paper path", () => {
+  it("blocks the default one-sided micro shadow candidate in the realtime paper path", () => {
     const dir = mkdtempSync(join(tmpdir(), "btcusdc-realtime-micro-"));
     try {
       const candles = buildMicroSqueezeBreakShortCandles();
@@ -217,17 +217,12 @@ describe("BTCUSDC.P realtime paper worker", () => {
 
       expect(result).toMatchObject({
         acceptedCandle: true,
-        events: 3,
-        closedTrades: 1,
-        equity: 10_400,
+        events: 0,
+        closedTrades: 0,
+        equity: 10_000,
       });
       expect(result.telegramEventRows).toEqual([]);
-      const logged = readFileSync(logPath, "utf8").trim().split(/\r?\n/).map((line) => JSON.parse(line));
-      expect(logged.at(-1)).toMatchObject({
-        type: "trade_closed",
-        strategyId: "micro-squeeze-break-q35-short",
-        pnlR: 4,
-      });
+      expect(existsSync(logPath)).toBe(false);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

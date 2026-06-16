@@ -87,6 +87,87 @@ export interface BtcusdcActivePaperCandidateSets {
   strategyStatuses: Map<string, BtcusdcStrategyStatus>;
 }
 
+type BtcusdcDirectionalSide = "long" | "short";
+
+function inferDirectionalSide(...values: Array<string | undefined>): BtcusdcDirectionalSide | null {
+  for (const value of values) {
+    if (!value) continue;
+    if (/(^|[^a-zA-Z0-9])long($|[^a-zA-Z0-9])/i.test(value)) return "long";
+    if (/(^|[^a-zA-Z0-9])short($|[^a-zA-Z0-9])/i.test(value)) return "short";
+  }
+  return null;
+}
+
+function normalizeDirectionalSide(value: string): string {
+  return value
+    .replace(/(^|[^a-zA-Z0-9])long($|[^a-zA-Z0-9])/gi, "$1both$2")
+    .replace(/(^|[^a-zA-Z0-9])short($|[^a-zA-Z0-9])/gi, "$1both$2");
+}
+
+function registryEntryDirection(entry: BtcusdcStrategyRegistryEntry): BtcusdcDirectionalSide | null {
+  if (entry.candidateType === "strategyless") return entry.candidate.direction;
+  return inferDirectionalSide(entry.candidate.strategyId, entry.candidate.label, entry.name, entry.id);
+}
+
+function registryEntryPairKey(entry: BtcusdcStrategyRegistryEntry): string | null {
+  const direction = registryEntryDirection(entry);
+  if (!direction) return null;
+  if (entry.candidateType === "edge") {
+    return [
+      entry.candidateType,
+      normalizeDirectionalSide(entry.candidate.strategyId),
+      entry.candidate.zoneId,
+      entry.candidate.entryMode,
+      entry.candidate.targetR,
+      entry.candidate.maxHoldFiveMinuteBars,
+    ].join("|");
+  }
+  if (entry.candidateType === "micro") {
+    return [
+      entry.candidateType,
+      normalizeDirectionalSide(entry.candidate.strategyId),
+      entry.candidate.zoneId,
+      entry.candidate.entryMode,
+      entry.candidate.targetR,
+      entry.candidate.maxHoldBars,
+    ].join("|");
+  }
+  return [
+    entry.candidateType,
+    entry.candidate.conditionId,
+    entry.candidate.entryMode,
+    entry.candidate.targetR,
+    entry.candidate.holdMinutes,
+  ].join("|");
+}
+
+function oppositeDirection(direction: BtcusdcDirectionalSide): BtcusdcDirectionalSide {
+  return direction === "long" ? "short" : "long";
+}
+
+function directionalPairMap(entries: BtcusdcStrategyRegistryEntry[]): Map<string, Set<BtcusdcDirectionalSide>> {
+  const pairs = new Map<string, Set<BtcusdcDirectionalSide>>();
+  for (const entry of entries) {
+    const direction = registryEntryDirection(entry);
+    const pairKey = registryEntryPairKey(entry);
+    if (!direction || !pairKey) continue;
+    const directions = pairs.get(pairKey) ?? new Set<BtcusdcDirectionalSide>();
+    directions.add(direction);
+    pairs.set(pairKey, directions);
+  }
+  return pairs;
+}
+
+function isDirectionallyPaired(
+  entry: BtcusdcStrategyRegistryEntry,
+  pairs: Map<string, Set<BtcusdcDirectionalSide>>,
+): boolean {
+  const direction = registryEntryDirection(entry);
+  const pairKey = registryEntryPairKey(entry);
+  if (!direction || !pairKey) return false;
+  return pairs.get(pairKey)?.has(oppositeDirection(direction)) ?? false;
+}
+
 export function evaluateBtcusdcCoreTestGate(result: BtcusdcCoreTestResult): BtcusdcCoreGateEvaluation {
   const reasons: string[] = [];
 
@@ -137,6 +218,11 @@ export function buildBtcusdcActivePaperCandidateSets(
     strategyStatuses: new Map<string, BtcusdcStrategyStatus>(),
   };
 
+  const coreEligibleEntries = entries.filter((entry) => entry.status === "core" && isBtcusdcCoreEligible(entry));
+  const shadowEntries = entries.filter((entry) => entry.status === "shadow");
+  const coreDirectionalPairs = directionalPairMap(coreEligibleEntries);
+  const shadowDirectionalPairs = directionalPairMap(shadowEntries);
+
   for (const entry of entries) {
     const label = entry.candidate.label ?? entry.name;
     sets.strategyStatuses.set(label, entry.status);
@@ -144,6 +230,8 @@ export function buildBtcusdcActivePaperCandidateSets(
 
     const coreEligible = isBtcusdcCoreEligible(entry);
     if (entry.status === "core" && !coreEligible) continue;
+    if (entry.status === "core" && !isDirectionallyPaired(entry, coreDirectionalPairs)) continue;
+    if (entry.status === "shadow" && !isDirectionallyPaired(entry, shadowDirectionalPairs)) continue;
 
     if (entry.status === "core") {
       sets.coreTelegramCandidateLabels.add(label);
