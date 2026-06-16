@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -221,6 +221,37 @@ describe("BTCUSDC local agent office", () => {
       expect(calls).toHaveLength(1);
       expect(second.roles.find((role) => role.role === "core_validation")?.status).toBe("skipped");
       expect(second.roles.find((role) => role.role === "core_validation")?.summary).toContain("cooldown");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("reads a BOM-prefixed cooldown file without crashing", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-bom-cooldown-"));
+    try {
+      const cooldownPath = join(dir, "cooldown.json");
+      writeFileSync(
+        cooldownPath,
+        `\uFEFF${JSON.stringify({
+          untilIso: "2026-06-16T01:46:47.098Z",
+          reason: "manual cooldown",
+        })}`,
+      );
+
+      const result = await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath: join(dir, "registry.json"),
+        coreGateCooldownPath: cooldownPath,
+        nowIso: "2026-06-16T01:31:00.000Z",
+        useModel: false,
+        runCoreGate: true,
+        commandRunner: async () => {
+          throw new Error("core gate should be skipped during cooldown");
+        },
+      });
+
+      expect(result.roles.find((role) => role.role === "core_validation")?.status).toBe("skipped");
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

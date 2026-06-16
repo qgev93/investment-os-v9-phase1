@@ -112,7 +112,7 @@ function saveJson(path: string, value: unknown): void {
 
 function loadCooldown(path: string | undefined): BtcusdcAgentOfficeCooldown | null {
   if (!path || !existsSync(path)) return null;
-  return JSON.parse(readFileSync(path, "utf8")) as BtcusdcAgentOfficeCooldown;
+  return JSON.parse(readFileSync(path, "utf8").replace(/^\uFEFF/, "")) as BtcusdcAgentOfficeCooldown;
 }
 
 function cooldownActive(cooldown: BtcusdcAgentOfficeCooldown | null, nowIso: string): boolean {
