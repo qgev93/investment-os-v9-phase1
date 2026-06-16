@@ -26,6 +26,7 @@ import {
   buildBtcusdcActivePaperCandidateSets,
   evaluateBtcusdcCoreTestGate,
   filterBtcusdcCoreTelegramEvents,
+  hasBtcusdcRegistrySemanticChange,
   type BtcusdcCoreTestResult,
   type BtcusdcStrategyRegistryEntry,
 } from "../src/trading/btcusdcStrategyRegistry.js";
@@ -723,6 +724,33 @@ describe("BTCUSDC.P paper forward trading bot", () => {
       TEST_STRATEGYLESS_CANDIDATE_LABEL,
     ]);
     expect(sets.coreTelegramCandidateLabels).toEqual(new Set([TEST_CANDIDATE_LABEL]));
+  });
+
+  it("ignores evaluatedAt-only core registry changes", () => {
+    const baseEntry: BtcusdcStrategyRegistryEntry = {
+      id: "core-pass",
+      name: TEST_CANDIDATE_LABEL,
+      status: "core",
+      candidateType: "edge",
+      candidate: TEST_CANDIDATES[0],
+      coreTest: passingCoreTestResult({ evaluatedAt: "2026-06-16T00:00:00.000Z" }),
+      notes: "Promoted by the latest six-month core gate.",
+    };
+    const timestampOnlyEntry: BtcusdcStrategyRegistryEntry = {
+      ...baseEntry,
+      coreTest: passingCoreTestResult({ evaluatedAt: "2026-06-16T01:00:00.000Z" }),
+    };
+    const metricChangedEntry: BtcusdcStrategyRegistryEntry = {
+      ...timestampOnlyEntry,
+      coreTest: passingCoreTestResult({
+        evaluatedAt: "2026-06-16T01:00:00.000Z",
+        expectancyR: 0.13,
+      }),
+    };
+
+    expect(hasBtcusdcRegistrySemanticChange([baseEntry], [timestampOnlyEntry])).toBe(false);
+    expect(hasBtcusdcRegistrySemanticChange([baseEntry], [{ ...timestampOnlyEntry, status: "shadow" }])).toBe(true);
+    expect(hasBtcusdcRegistrySemanticChange([baseEntry], [metricChangedEntry])).toBe(true);
   });
 
   it("filters live Telegram trade alerts to core strategy events only", () => {

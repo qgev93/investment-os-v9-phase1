@@ -39,6 +39,7 @@ import {
   buildBtcusdcActivePaperCandidateSets,
   defaultBtcusdcStrategyRegistry,
   filterBtcusdcCoreTelegramEvents,
+  hasBtcusdcRegistrySemanticChange,
   loadBtcusdcStrategyRegistryOrDefault,
 } from "../trading/btcusdcStrategyRegistry.js";
 import { runBtcusdcAgentOfficeCycle } from "../trading/btcusdcAgentOffice.js";
@@ -1192,8 +1193,10 @@ export async function runPhase1Command(
             : `Demoted by the latest six-month core gate: ${row.gate.reasons.join(", ")}`,
         };
       });
-      mkdirSync(dirname(registryOut), { recursive: true });
-      writeFileSync(registryOut, JSON.stringify(updatedRegistry, null, 2));
+      if (!existsSync(registryOut) || hasBtcusdcRegistrySemanticChange(registry, updatedRegistry)) {
+        mkdirSync(dirname(registryOut), { recursive: true });
+        writeFileSync(registryOut, JSON.stringify(updatedRegistry, null, 2));
+      }
     }
 
     const summaryLines = [

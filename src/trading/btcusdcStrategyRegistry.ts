@@ -183,6 +183,24 @@ export function filterBtcusdcCoreTelegramEvents(
   return events.filter((event) => coreTelegramCandidateLabels.has(event.candidateLabel));
 }
 
+function registryComparisonValue(entries: BtcusdcStrategyRegistryEntry[]): unknown {
+  return entries.map((entry) => {
+    if (!entry.coreTest) return entry;
+    const { evaluatedAt: _evaluatedAt, ...stableCoreTest } = entry.coreTest;
+    return {
+      ...entry,
+      coreTest: stableCoreTest,
+    };
+  });
+}
+
+export function hasBtcusdcRegistrySemanticChange(
+  current: BtcusdcStrategyRegistryEntry[],
+  next: BtcusdcStrategyRegistryEntry[],
+): boolean {
+  return JSON.stringify(registryComparisonValue(current)) !== JSON.stringify(registryComparisonValue(next));
+}
+
 function seededCoreResult(): BtcusdcCoreTestResult {
   return {
     lookbackDays: 180,
