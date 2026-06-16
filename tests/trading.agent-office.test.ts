@@ -657,4 +657,167 @@ describe("BTCUSDC local agent office", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("uses second-generation bottleneck agents on promising auto candidates", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-auto2-agents-"));
+    try {
+      const registryPath = join(dir, "registry.json");
+      writeFileSync(
+        registryPath,
+        JSON.stringify([
+          {
+            id: "auto-shadow-auto-sample-baseline-early-climax-short-rangeRank-high-3r",
+            name: "auto-sample-baseline-early-climax-short-rangeRank-high-3r",
+            status: "shadow",
+            candidateType: "edge",
+            candidate: {
+              label: "auto-sample-baseline-early-climax-short-rangeRank-high-3r",
+              strategyId: "intrabar-early-climax-late-hold-short",
+              zoneId: "rangeRank:high",
+              entryMode: "limit-half-pullback",
+              targetR: 3,
+              maxHoldFiveMinuteBars: 9,
+            },
+            coreTest: {
+              lookbackDays: 180,
+              filledTrades: 267,
+              submittedOrders: 1553,
+              fillRate: 0.1719,
+              expectancyR: 0.2057,
+              profitFactor: 1.303,
+              fullKelly: 0.072,
+              totalR: 54.93,
+              maxDrawdownR: 11,
+              totalRToMaxDrawdown: 4.99,
+              positiveFoldRate: 0.75,
+              worstFoldExpectancyR: -0.2,
+              recent30ExpectancyR: 0.1175,
+              recent90ExpectancyR: 0.1811,
+              bestDayRemovedProfitFactor: 1.25,
+              bestFivePctRemovedExpectancyR: 0.15,
+              passed: false,
+            },
+            notes: "Second-generation source: near-pass but still below filledTrades and worstFold gates.",
+          },
+        ]),
+      );
+
+      let labelsAtCoreGate: string[] = [];
+      const result = await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath,
+        nowIso: "2026-06-16T07:40:00.000Z",
+        useModel: false,
+        runCoreGate: true,
+        allowRegistryWrite: true,
+        commandRunner: async () => {
+          const registry = JSON.parse(readFileSync(registryPath, "utf8")) as Array<{ name: string }>;
+          labelsAtCoreGate = registry.map((entry) => entry.name);
+        },
+      });
+
+      const report = JSON.parse(readFileSync(result.reportPath, "utf8")) as {
+        autonomousImprovement?: {
+          actions: Array<{ agentTeam: string; failureMode: string; sourceDepth: number }>;
+          agentTeams: Array<{ team: string; drafts: number }>;
+        };
+      };
+      expect(labelsAtCoreGate).toContain(
+        "auto2-fill-auto-sample-baseline-early-climax-short-rangeRank-high-3r-signal-close-3r",
+      );
+      expect(labelsAtCoreGate).toContain(
+        "auto2-fold-auto-sample-baseline-early-climax-short-rangeRank-high-3r-2r-h6",
+      );
+      expect(labelsAtCoreGate).toContain(
+        "auto2-nearpass-auto-sample-baseline-early-climax-short-rangeRank-high-3r-2r-h6",
+      );
+      expect(report.autonomousImprovement?.actions.map((action) => action.agentTeam)).toEqual(
+        expect.arrayContaining(["fill_access", "fold_stability", "near_pass_exploitation"]),
+      );
+      expect(report.autonomousImprovement?.actions.every((action) => action.sourceDepth === 1)).toBe(true);
+      expect(report.autonomousImprovement?.agentTeams.map((team) => team.team)).toEqual(
+        expect.arrayContaining(["fill_access", "fold_stability", "near_pass_exploitation"]),
+      );
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("rotates single OHLCV buckets when sample expansion cannot split the zone further", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-bucket-rotation-"));
+    try {
+      const registryPath = join(dir, "registry.json");
+      writeFileSync(
+        registryPath,
+        JSON.stringify([
+          {
+            id: "auto-shadow-auto-sample-derivative-compression-short-bodyRatio-small-4r",
+            name: "auto-sample-derivative-compression-short-bodyRatio-small-4r",
+            status: "shadow",
+            candidateType: "edge",
+            candidate: {
+              label: "auto-sample-derivative-compression-short-bodyRatio-small-4r",
+              strategyId: "intrabar-early-climax-late-hold-short",
+              zoneId: "bodyRatio:small",
+              entryMode: "limit-half-pullback",
+              targetR: 4,
+              maxHoldFiveMinuteBars: 9,
+            },
+            coreTest: {
+              lookbackDays: 180,
+              filledTrades: 137,
+              submittedOrders: 454,
+              fillRate: 0.302,
+              expectancyR: 0.3873,
+              profitFactor: 1.541,
+              fullKelly: 0.11,
+              totalR: 53.06,
+              maxDrawdownR: 22,
+              totalRToMaxDrawdown: 2.41,
+              positiveFoldRate: 0.833,
+              worstFoldExpectancyR: -1,
+              recent30ExpectancyR: -0.2,
+              recent90ExpectancyR: 0.255,
+              bestDayRemovedProfitFactor: 1.24,
+              bestFivePctRemovedExpectancyR: 0.15,
+              passed: false,
+            },
+          },
+        ]),
+      );
+
+      let labelsAtCoreGate: string[] = [];
+      const result = await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath,
+        nowIso: "2026-06-16T07:45:00.000Z",
+        useModel: false,
+        runCoreGate: true,
+        allowRegistryWrite: true,
+        commandRunner: async () => {
+          const registry = JSON.parse(readFileSync(registryPath, "utf8")) as Array<{ name: string }>;
+          labelsAtCoreGate = registry.map((entry) => entry.name);
+        },
+      });
+
+      const report = JSON.parse(readFileSync(result.reportPath, "utf8")) as {
+        autonomousImprovement?: { actions: Array<{ agentTeam: string; failureMode: string }> };
+      };
+      expect(labelsAtCoreGate).toContain(
+        "auto2-rotate-auto-sample-derivative-compression-short-bodyRatio-small-4r-bodyRatio-medium-4r-h9",
+      );
+      expect(report.autonomousImprovement?.actions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            agentTeam: "sample_expansion",
+            failureMode: "sample_shortage",
+          }),
+        ]),
+      );
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });

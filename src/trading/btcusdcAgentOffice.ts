@@ -56,7 +56,7 @@ interface BtcusdcAgentOfficeCandidateDraft {
   label: string;
   strategyId: string;
   zoneId: string;
-  entryMode: "limit-signal-close" | "limit-half-pullback";
+  entryMode: "limit-signal-close" | "limit-half-pullback" | "limit-quarter-pullback";
   targetR: number;
   maxHoldFiveMinuteBars: number;
   reason: string;
@@ -80,18 +80,40 @@ interface BtcusdcAgentOfficeWorkflowResearch {
   ideaBriefs: string[];
 }
 
+type BtcusdcAgentOfficeImprovementFailureMode =
+  | "sample_shortage"
+  | "low_fill_rate"
+  | "fold_fragility"
+  | "near_pass_sample_fold";
+
+type BtcusdcAgentOfficeImprovementAgentTeam =
+  | "sample_expansion"
+  | "fill_access"
+  | "fold_stability"
+  | "near_pass_exploitation";
+
 interface BtcusdcAgentOfficeImprovementAction {
+  agentTeam: BtcusdcAgentOfficeImprovementAgentTeam;
   sourceName: string;
-  failureMode: "sample_shortage" | "low_fill_rate" | "fold_fragility";
+  sourceDepth: number;
+  failureMode: BtcusdcAgentOfficeImprovementFailureMode;
   evidence: string;
   action: string;
   candidateDrafts: BtcusdcAgentOfficeCandidateDraft[];
+}
+
+interface BtcusdcAgentOfficeImprovementTeamSummary {
+  team: BtcusdcAgentOfficeImprovementAgentTeam;
+  objective: string;
+  actions: number;
+  drafts: number;
 }
 
 interface BtcusdcAgentOfficeAutonomousImprovement {
   generatedAtIso: string;
   objective: string;
   actions: BtcusdcAgentOfficeImprovementAction[];
+  agentTeams: BtcusdcAgentOfficeImprovementTeamSummary[];
   candidateDrafts: BtcusdcAgentOfficeCandidateDraft[];
 }
 
@@ -618,7 +640,8 @@ function registerWorkflowDrafts(input: {
 }
 
 const AUTONOMOUS_IMPROVEMENT_MAX_DRAFTS_PER_CYCLE = 12;
-const AUTONOMOUS_IMPROVEMENT_REGISTRY_CAP = 80;
+const AUTONOMOUS_IMPROVEMENT_REGISTRY_CAP = 160;
+const AUTONOMOUS_IMPROVEMENT_MAX_SOURCE_DEPTH = 2;
 
 function mutationSlug(value: string): string {
   return value.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 90) || "candidate";
@@ -631,8 +654,60 @@ function zoneAtoms(zoneId: string): string[] {
     .filter((atom) => atom.length > 0);
 }
 
+function rotatedOhlcvAtoms(atom: string): string[] {
+  const rotations: Record<string, string[]> = {
+    "rangeRank:high": ["rangeRank:mid"],
+    "volumeRank:high": ["volumeRank:mid"],
+    "bodyRatio:small": ["bodyRatio:medium"],
+    "rangeDerivative:compressing": ["rangeDerivative:flat"],
+    "closeDerivative:down": ["closeDerivative:flat"],
+    "closeDerivative:up": ["closeDerivative:flat"],
+  };
+  return rotations[atom] ?? [];
+}
+
 function isAgentOfficeLimitEntryMode(value: string): value is BtcusdcAgentOfficeCandidateDraft["entryMode"] {
-  return value === "limit-signal-close" || value === "limit-half-pullback";
+  return value === "limit-signal-close" || value === "limit-half-pullback" || value === "limit-quarter-pullback";
+}
+
+function autonomousMutationDepth(label: string): number {
+  if (/^auto2-/i.test(label)) return 2;
+  if (/^auto-/i.test(label)) return 1;
+  return 0;
+}
+
+function autonomousMutationPrefix(sourceDepth: number): string {
+  return sourceDepth <= 0 ? "auto" : `auto${sourceDepth + 1}`;
+}
+
+function isNearPassCoreTest(coreTest: NonNullable<BtcusdcStrategyRegistryEntry["coreTest"]>): boolean {
+  return (
+    coreTest.expectancyR > 0 &&
+    coreTest.profitFactor >= 1.2 &&
+    coreTest.fullKelly > 0 &&
+    coreTest.totalRToMaxDrawdown >= 2 &&
+    coreTest.recent30ExpectancyR > 0 &&
+    coreTest.recent90ExpectancyR > 0 &&
+    (coreTest.filledTrades >= 200 || coreTest.submittedOrders >= 600)
+  );
+}
+
+function autonomousSourcePriority(entry: BtcusdcStrategyRegistryEntry): number {
+  if (entry.candidateType !== "edge" || !entry.coreTest || entry.coreTest.passed !== false) return -1_000_000;
+  const sourceDepth = Math.max(autonomousMutationDepth(entry.name), autonomousMutationDepth(entry.candidate.label ?? entry.name));
+  if (sourceDepth >= AUTONOMOUS_IMPROVEMENT_MAX_SOURCE_DEPTH) return -1_000_000;
+  const coreTest = entry.coreTest;
+  let score = 0;
+  if (isNearPassCoreTest(coreTest)) score += 500;
+  if (sourceDepth === 1) score += 120;
+  if (coreTest.expectancyR > 0) score += 80 + coreTest.expectancyR * 40;
+  if (coreTest.profitFactor >= 1.2) score += 60;
+  if (coreTest.fullKelly > 0) score += 30;
+  if (coreTest.filledTrades >= 200) score += 25;
+  if (coreTest.submittedOrders >= 600) score += 25;
+  if (coreTest.positiveFoldRate >= 0.7) score += 20;
+  if (coreTest.worstFoldExpectancyR < -0.15) score += 15;
+  return score;
 }
 
 function uniqueDrafts(drafts: BtcusdcAgentOfficeCandidateDraft[]): BtcusdcAgentOfficeCandidateDraft[] {
@@ -684,6 +759,33 @@ function improvementEvidence(coreTest: NonNullable<BtcusdcStrategyRegistryEntry[
   ].join(", ");
 }
 
+const IMPROVEMENT_AGENT_TEAM_OBJECTIVES: Record<BtcusdcAgentOfficeImprovementAgentTeam, string> = {
+  sample_expansion: "Increase filled trade count and submitted orders without leaving OHLCV-only candle/volume rules.",
+  fill_access: "Improve maker-limit fill access when the signal is promising but half-pullback misses too often.",
+  fold_stability: "Repair worst fold and positive fold rate through target/hold simplification.",
+  near_pass_exploitation: "Give near-pass candidates one bounded second-generation rescue before abandoning the lineage.",
+};
+
+function summarizeImprovementAgentTeams(
+  actions: BtcusdcAgentOfficeImprovementAction[],
+): BtcusdcAgentOfficeImprovementTeamSummary[] {
+  const summaries = new Map<BtcusdcAgentOfficeImprovementAgentTeam, BtcusdcAgentOfficeImprovementTeamSummary>();
+  for (const action of actions) {
+    const current =
+      summaries.get(action.agentTeam) ??
+      {
+        team: action.agentTeam,
+        objective: IMPROVEMENT_AGENT_TEAM_OBJECTIVES[action.agentTeam],
+        actions: 0,
+        drafts: 0,
+      };
+    current.actions += 1;
+    current.drafts += action.candidateDrafts.length;
+    summaries.set(action.agentTeam, current);
+  }
+  return [...summaries.values()];
+}
+
 function buildAutonomousImprovement(input: {
   nowIso: string;
   registryPath: string;
@@ -701,21 +803,26 @@ function buildAutonomousImprovement(input: {
         !candidateDrafts.some((candidateDraft) => candidateDraft.label === draft.label),
     );
     if (newDrafts.length === 0) return;
-    actions.push({ ...action, candidateDrafts: newDrafts });
-    for (const draft of newDrafts) {
-      if (candidateDrafts.length >= AUTONOMOUS_IMPROVEMENT_MAX_DRAFTS_PER_CYCLE) break;
+    const remainingCapacity = AUTONOMOUS_IMPROVEMENT_MAX_DRAFTS_PER_CYCLE - candidateDrafts.length;
+    const acceptedDrafts = newDrafts.slice(0, Math.max(0, remainingCapacity));
+    if (acceptedDrafts.length === 0) return;
+    actions.push({ ...action, candidateDrafts: acceptedDrafts });
+    for (const draft of acceptedDrafts) {
       candidateDrafts.push(draft);
       existingKeys.add(autonomousImprovementRegistryId(draft.label));
       existingKeys.add(draft.label);
     }
   };
 
-  for (const entry of registry) {
+  const rankedRegistry = [...registry].sort((left, right) => autonomousSourcePriority(right) - autonomousSourcePriority(left));
+  for (const entry of rankedRegistry) {
     if (candidateDrafts.length >= AUTONOMOUS_IMPROVEMENT_MAX_DRAFTS_PER_CYCLE) break;
     if (entry.candidateType !== "edge" || !entry.coreTest || entry.coreTest.passed !== false) continue;
     const sourceName = entry.name || entry.candidate.label || entry.id;
     const sourceLabel = entry.candidate.label ?? sourceName;
-    if (sourceName.startsWith("auto-") || sourceLabel.startsWith("auto-")) continue;
+    const sourceDepth = Math.max(autonomousMutationDepth(sourceName), autonomousMutationDepth(sourceLabel));
+    if (sourceDepth >= AUTONOMOUS_IMPROVEMENT_MAX_SOURCE_DEPTH) continue;
+    const mutationPrefix = autonomousMutationPrefix(sourceDepth);
     const entryMode = entry.candidate.entryMode;
     if (!isAgentOfficeLimitEntryMode(entryMode)) continue;
 
@@ -728,12 +835,12 @@ function buildAutonomousImprovement(input: {
     const atoms = zoneAtoms(entry.candidate.zoneId);
 
     if (coreTest.filledTrades < 300 || coreTest.submittedOrders < 600) {
-      const widenedDrafts = atoms
+      const splitDrafts = atoms
         .filter((atom) => atom !== entry.candidate.zoneId)
         .slice(0, 2)
         .map((atom) => ({
           candidateType: "edge" as const,
-          label: `auto-sample-${baseSlug}-${mutationSlug(atom)}-${entry.candidate.targetR}r`,
+          label: `${mutationPrefix}-sample-${baseSlug}-${mutationSlug(atom)}-${entry.candidate.targetR}r`,
           strategyId: entry.candidate.strategyId,
           zoneId: atom,
           entryMode,
@@ -741,25 +848,42 @@ function buildAutonomousImprovement(input: {
           maxHoldFiveMinuteBars: entry.candidate.maxHoldFiveMinuteBars,
           reason: `Widen low-sample source ${sourceName} by testing single OHLCV atom ${atom}.`,
         }));
+      const rotationDrafts = atoms
+        .flatMap((atom) => rotatedOhlcvAtoms(atom))
+        .slice(0, 2)
+        .map((atom) => ({
+          candidateType: "edge" as const,
+          label: `${mutationPrefix}-rotate-${baseSlug}-${mutationSlug(atom)}-${entry.candidate.targetR}r-h${entry.candidate.maxHoldFiveMinuteBars}`,
+          strategyId: entry.candidate.strategyId,
+          zoneId: atom,
+          entryMode,
+          targetR: entry.candidate.targetR,
+          maxHoldFiveMinuteBars: entry.candidate.maxHoldFiveMinuteBars,
+          reason: `Rotate low-sample source ${sourceName} into adjacent OHLCV bucket ${atom}.`,
+        }));
       pushAction({
+        agentTeam: "sample_expansion",
         sourceName,
+        sourceDepth,
         failureMode: "sample_shortage",
         evidence,
-        action: "Split compound candle/volume zone into single-atom variants to increase submitted orders and fills.",
-        candidateDrafts: widenedDrafts,
+        action: "Split compound zones and rotate single OHLCV buckets to increase submitted orders and fills.",
+        candidateDrafts: [...splitDrafts, ...rotationDrafts],
       });
     }
 
     if (coreTest.fillRate < 0.2 && entryMode !== "limit-signal-close") {
       pushAction({
+        agentTeam: "fill_access",
         sourceName,
+        sourceDepth,
         failureMode: "low_fill_rate",
         evidence,
         action: "Keep the same OHLCV condition but test signal-close maker reference to reduce missed fills.",
         candidateDrafts: [
           {
             candidateType: "edge",
-            label: `auto-fill-${baseSlug}-signal-close-${entry.candidate.targetR}r`,
+            label: `${mutationPrefix}-fill-${baseSlug}-signal-close-${entry.candidate.targetR}r`,
             strategyId: entry.candidate.strategyId,
             zoneId: entry.candidate.zoneId,
             entryMode: "limit-signal-close",
@@ -781,14 +905,16 @@ function buildAutonomousImprovement(input: {
       const nextTargetR = Math.max(2, entry.candidate.targetR - 1);
       const nextHold = Math.max(6, entry.candidate.maxHoldFiveMinuteBars - 3);
       pushAction({
+        agentTeam: "fold_stability",
         sourceName,
+        sourceDepth,
         failureMode: "fold_fragility",
         evidence,
         action: "Lower payoff target and shorten hold to test whether the same edge becomes less fold-fragile.",
         candidateDrafts: [
           {
             candidateType: "edge",
-            label: `auto-fold-${baseSlug}-${nextTargetR}r-h${nextHold}`,
+            label: `${mutationPrefix}-fold-${baseSlug}-${nextTargetR}r-h${nextHold}`,
             strategyId: entry.candidate.strategyId,
             zoneId: entry.candidate.zoneId,
             entryMode,
@@ -799,13 +925,45 @@ function buildAutonomousImprovement(input: {
         ],
       });
     }
+
+    if (
+      isNearPassCoreTest(coreTest) &&
+      (coreTest.filledTrades < 300 || coreTest.worstFoldExpectancyR < -0.15 || coreTest.positiveFoldRate < 0.7)
+    ) {
+      const rescueTargetR = Math.max(2, entry.candidate.targetR - 1);
+      const rescueHold = Math.max(6, entry.candidate.maxHoldFiveMinuteBars - 3);
+      const rescueEntryMode =
+        coreTest.fillRate < 0.25 && entryMode !== "limit-signal-close" ? "limit-signal-close" : entryMode;
+      pushAction({
+        agentTeam: "near_pass_exploitation",
+        sourceName,
+        sourceDepth,
+        failureMode: "near_pass_sample_fold",
+        evidence,
+        action: "Near-pass candidate gets one bounded rescue combining fill access and fold repair before lineage stops.",
+        candidateDrafts: [
+          {
+            candidateType: "edge",
+            label: `${mutationPrefix}-nearpass-${baseSlug}-${rescueTargetR}r-h${rescueHold}`,
+            strategyId: entry.candidate.strategyId,
+            zoneId: entry.candidate.zoneId,
+            entryMode: rescueEntryMode,
+            targetR: rescueTargetR,
+            maxHoldFiveMinuteBars: rescueHold,
+            reason: `Near-pass source ${sourceName} is rescued with tighter payoff/hold and fill-aware entry.`,
+          },
+        ],
+      });
+    }
   }
 
+  const uniqueCandidateDrafts = uniqueDrafts(candidateDrafts).slice(0, AUTONOMOUS_IMPROVEMENT_MAX_DRAFTS_PER_CYCLE);
   return {
     generatedAtIso: input.nowIso,
     objective: "Convert failed but promising six-month core tests into bounded OHLCV-only mutation candidates without user input.",
     actions,
-    candidateDrafts: uniqueDrafts(candidateDrafts).slice(0, AUTONOMOUS_IMPROVEMENT_MAX_DRAFTS_PER_CYCLE),
+    agentTeams: summarizeImprovementAgentTeams(actions),
+    candidateDrafts: uniqueCandidateDrafts,
   };
 }
 
@@ -985,6 +1143,8 @@ export async function runBtcusdcAgentOfficeCycle(
         autonomousImprovement,
       })
     : { added: 0, totalDrafts: autonomousImprovement.candidateDrafts.length };
+  const autonomousImprovementAgentSummary =
+    autonomousImprovement.agentTeams.map((team) => `${team.team}:${team.drafts}`).join(", ") || "none";
 
   const cooldown = loadCooldown(options.coreGateCooldownPath);
   const hasUsableCoreGateCache = Boolean(options.coreGateCacheFile && existsSync(options.coreGateCacheFile));
@@ -1052,7 +1212,7 @@ export async function runBtcusdcAgentOfficeCycle(
       "registry_operations",
       options.allowRegistryWrite ? "completed" : "skipped",
       options.allowRegistryWrite
-        ? `core gate results, workflow drafts, and improvement drafts allowed; workflow drafts added ${workflowDraftRegistration.added}/${workflowDraftRegistration.totalDrafts}; improvement drafts added ${autonomousImprovementDraftRegistration.added}/${autonomousImprovementDraftRegistration.totalDrafts}`
+        ? `core gate results, workflow drafts, and improvement drafts allowed; workflow drafts added ${workflowDraftRegistration.added}/${workflowDraftRegistration.totalDrafts}; improvement drafts added ${autonomousImprovementDraftRegistration.added}/${autonomousImprovementDraftRegistration.totalDrafts}; improvement agents ${autonomousImprovementAgentSummary}`
         : "registry 자동 변경 비활성; 보고서만 기록",
     ),
   );
