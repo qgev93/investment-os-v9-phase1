@@ -30,6 +30,7 @@ import {
   type BtcusdcCoreTestResult,
   type BtcusdcStrategyRegistryEntry,
 } from "../src/trading/btcusdcStrategyRegistry.js";
+import { buildBtcusdcCoreGateBatchArgs } from "../src/trading/btcusdcCoreResearchBatch.js";
 import {
   buildBtcusdtEdgeZonePortfolioOrders,
   buildBtcusdtMicroScalpPortfolioOrders,
@@ -779,6 +780,42 @@ describe("BTCUSDC.P paper forward trading bot", () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+
+  it("splits BTCUSDC core gate candidates into memory-safe batches", () => {
+    const candidates = Array.from({ length: 5 }, (_, index) => ({
+      label: `batch-candidate-${index + 1}`,
+      strategyId: "inside-bar-expansion-retest-long",
+      zoneId: index % 2 === 0 ? "volumeRank:high" : "rangeDerivative:expanding",
+      entryMode: "limit-half-pullback" as const,
+      targetR: 3,
+      maxHoldFiveMinuteBars: 9,
+    }));
+
+    const batches = buildBtcusdcCoreGateBatchArgs({
+      cliPath: "dist/src/cli.js",
+      days: 180,
+      maxCandles: 259_200,
+      registryPath: "/data/btcusdc-strategy-registry.json",
+      cacheFile: "/data/btcusdc-1m-core-cache.json",
+      candidates,
+      batchSize: 2,
+    });
+
+    expect(batches).toHaveLength(3);
+    expect(batches[0]).toEqual(
+      expect.arrayContaining([
+        "dist/src/cli.js",
+        "trading:research-btcusdc-core-gate",
+        "--cache-file",
+        "/data/btcusdc-1m-core-cache.json",
+        "--portfolio-candidates",
+        "batch-candidate-1|inside-bar-expansion-retest-long|volumeRank:high|limit-half-pullback|3|9;batch-candidate-2|inside-bar-expansion-retest-long|rangeDerivative:expanding|limit-half-pullback|3|9",
+      ]),
+    );
+    expect(batches[2].at(-1)).toBe(
+      "batch-candidate-5|inside-bar-expansion-retest-long|volumeRank:high|limit-half-pullback|3|9",
+    );
   });
 
   it("filters live Telegram trade alerts to core strategy events only", () => {

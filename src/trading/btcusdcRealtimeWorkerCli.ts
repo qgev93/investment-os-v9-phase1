@@ -10,6 +10,7 @@ import {
   shouldSendBtcusdcDailyReport,
 } from "./btcusdcDailyReport.js";
 import { buildBtcusdcPaperTelegramMessage, loadBtcusdcPaperTradingState } from "./btcusdcPaperTrading.js";
+import { buildBtcusdcCoreGateBatchArgs } from "./btcusdcCoreResearchBatch.js";
 import { buildBtcusdcActivePaperCandidateSets, loadBtcusdcStrategyRegistryOrDefault } from "./btcusdcStrategyRegistry.js";
 import {
   recordBtcusdcTelegramReportSend,
@@ -198,6 +199,8 @@ async function main(): Promise<void> {
   const coreResearchDays = envNumber("BTCUSDC_CORE_RESEARCH_DAYS", 180);
   const coreResearchMaxCandles = envNumber("BTCUSDC_CORE_RESEARCH_MAX_CANDLES", coreResearchDays * 24 * 60);
   const coreResearchCliPath = process.env.BTCUSDC_CORE_RESEARCH_CLI_PATH ?? "dist/src/cli.js";
+  const coreResearchCacheFile = process.env.BTCUSDC_CORE_RESEARCH_CACHE_FILE ?? "/data/btcusdc-1m-core-cache.json";
+  const coreResearchBatchSize = envNumber("BTCUSDC_CORE_RESEARCH_BATCH_SIZE", 3);
   const chatId = process.env.TRADING_TELEGRAM_CHAT_ID;
   const telegramClient = chatId && process.env.TELEGRAM_BOT_TOKEN ? new TelegramBotClient({ token: requireTelegramToken(process.env) }) : null;
   const WebSocketCtor = (globalThis as unknown as { WebSocket?: WebSocketConstructor }).WebSocket;
@@ -313,44 +316,76 @@ async function main(): Promise<void> {
       lastStderrTail: "",
     };
     saveCoreResearchRuntimeState(coreResearchStatePath, startedState);
-    console.log(JSON.stringify({ event: "core_research_started", week: decision.currentWeek, days: coreResearchDays }));
+    const coreRegistryPath = registryPath ?? "/data/btcusdc-strategy-registry.json";
+    const researchRegistry = loadBtcusdcStrategyRegistryOrDefault(coreRegistryPath);
+    const researchSets = buildBtcusdcActivePaperCandidateSets(researchRegistry);
+    const coreResearchBatchArgs = buildBtcusdcCoreGateBatchArgs({
+      cliPath: coreResearchCliPath,
+      days: coreResearchDays,
+      maxCandles: coreResearchMaxCandles,
+      registryPath: coreRegistryPath,
+      cacheFile: coreResearchCacheFile,
+      candidates: researchSets.runtimeCandidates,
+      batchSize: coreResearchBatchSize,
+    });
+    console.log(
+      JSON.stringify({
+        event: "core_research_started",
+        week: decision.currentWeek,
+        days: coreResearchDays,
+        candidates: researchSets.runtimeCandidates.length,
+        batches: coreResearchBatchArgs.length,
+        batchSize: coreResearchBatchSize,
+      }),
+    );
 
     let stdoutTail = "";
     let stderrTail = "";
-    const child = spawn(
-      process.execPath,
-      [
-        coreResearchCliPath,
-        "trading:research-btcusdc-core-gate",
-        "--days",
-        String(coreResearchDays),
-        "--max-candles",
-        String(coreResearchMaxCandles),
-        "--registry-path",
-        registryPath ?? "/data/btcusdc-strategy-registry.json",
-        "--registry-out",
-        registryPath ?? "/data/btcusdc-strategy-registry.json",
-      ],
-      {
+    let result: { code: number | null; signal: NodeJS.Signals | null } = { code: 0, signal: null };
+    for (const [batchIndex, args] of coreResearchBatchArgs.entries()) {
+      const portfolioFlagIndex = args.indexOf("--portfolio-candidates");
+      const batchCandidates =
+        portfolioFlagIndex >= 0 ? args[portfolioFlagIndex + 1].split(";").filter((value) => value.length > 0).length : 0;
+      console.log(
+        JSON.stringify({
+          event: "core_research_batch_started",
+          week: decision.currentWeek,
+          batch: batchIndex + 1,
+          batches: coreResearchBatchArgs.length,
+          candidates: batchCandidates,
+        }),
+      );
+      const child = spawn(process.execPath, args, {
         env: {
           ...process.env,
           NODE_OPTIONS: process.env.NODE_OPTIONS ?? "--max-old-space-size=384",
         },
         stdio: ["ignore", "pipe", "pipe"],
-      },
-    );
-    child.stdout?.on("data", (chunk) => {
-      stdoutTail = tailText(stdoutTail, chunk);
-    });
-    child.stderr?.on("data", (chunk) => {
-      stderrTail = tailText(stderrTail, chunk);
-    });
-    child.on("error", (error) => {
-      stderrTail = tailText(stderrTail, error instanceof Error ? error.message : String(error));
-    });
-    const result = await new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve) => {
-      child.on("close", (code, signal) => resolve({ code, signal }));
-    });
+      });
+      child.stdout?.on("data", (chunk) => {
+        stdoutTail = tailText(stdoutTail, chunk);
+      });
+      child.stderr?.on("data", (chunk) => {
+        stderrTail = tailText(stderrTail, chunk);
+      });
+      child.on("error", (error) => {
+        stderrTail = tailText(stderrTail, error instanceof Error ? error.message : String(error));
+      });
+      result = await new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve) => {
+        child.on("close", (code, signal) => resolve({ code, signal }));
+      });
+      console.log(
+        JSON.stringify({
+          event: "core_research_batch_finished",
+          week: decision.currentWeek,
+          batch: batchIndex + 1,
+          batches: coreResearchBatchArgs.length,
+          exitCode: result.code,
+          signal: result.signal,
+        }),
+      );
+      if (result.code !== 0 || result.signal) break;
+    }
     const finishedAtIso = new Date().toISOString();
     saveCoreResearchRuntimeState(coreResearchStatePath, {
       ...startedState,
