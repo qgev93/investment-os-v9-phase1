@@ -133,7 +133,8 @@ type BtcusdcAgentOfficeImprovementFailureMode =
   | "sample_shortage"
   | "low_fill_rate"
   | "fold_fragility"
-  | "near_pass_sample_fold";
+  | "near_pass_sample_fold"
+  | "near_pass_fold_guard";
 
 type BtcusdcAgentOfficeImprovementAgentTeam =
   | "sample_expansion"
@@ -719,6 +720,24 @@ function repairRegistryActivePairs(input: { registryPath: string }): { added: nu
 const AUTONOMOUS_IMPROVEMENT_MAX_DRAFTS_PER_CYCLE = 12;
 const AUTONOMOUS_IMPROVEMENT_REGISTRY_CAP = 320;
 const AUTONOMOUS_IMPROVEMENT_MAX_SOURCE_DEPTH = 2;
+const AUTONOMOUS_IMPROVEMENT_MAX_FOLD_GUARD_DEPTH = 4;
+
+const EDGE_ZONE_DIMENSION_ORDER = new Map(
+  [
+    "rangeRank",
+    "volumeRank",
+    "bodyRatio",
+    "closePosition",
+    "recentDrift",
+    "bodyDirection",
+    "closeDerivative",
+    "volumeDerivative",
+    "rangeDerivative",
+    "closeAcceleration",
+    "bodyDerivative",
+    "effortResult",
+  ].map((dimension, index) => [dimension, index]),
+);
 
 function mutationSlug(value: string): string {
   return value.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 90) || "candidate";
@@ -731,6 +750,20 @@ function zoneAtoms(zoneId: string): string[] {
     .filter((atom) => atom.length > 0);
 }
 
+function zoneAtomDimension(atom: string): string {
+  return atom.split(":")[0] ?? atom;
+}
+
+function orderedEdgeZonePair(left: string, right: string): string {
+  return [left, right]
+    .sort((leftAtom, rightAtom) => {
+      const leftOrder = EDGE_ZONE_DIMENSION_ORDER.get(zoneAtomDimension(leftAtom)) ?? 1_000;
+      const rightOrder = EDGE_ZONE_DIMENSION_ORDER.get(zoneAtomDimension(rightAtom)) ?? 1_000;
+      return leftOrder - rightOrder || leftAtom.localeCompare(rightAtom);
+    })
+    .join("+");
+}
+
 function rotatedOhlcvAtoms(atom: string): string[] {
   const rotations: Record<string, string[]> = {
     "rangeRank:high": ["rangeRank:mid"],
@@ -741,6 +774,20 @@ function rotatedOhlcvAtoms(atom: string): string[] {
     "closeDerivative:up": ["closeDerivative:flat"],
   };
   return rotations[atom] ?? [];
+}
+
+function foldGuardZoneIds(zoneId: string): string[] {
+  const atoms = zoneAtoms(zoneId);
+  const anchor =
+    atoms.find((atom) => atom === "volumeRank:high") ??
+    atoms.find((atom) => atom === "rangeRank:high") ??
+    atoms.find((atom) => atom.startsWith("volumeRank:") || atom.startsWith("rangeRank:")) ??
+    atoms[0];
+  if (!anchor) return [];
+  return ["bodyRatio:medium", "rangeDerivative:flat", "closePosition:middle", "volumeDerivative:flat"]
+    .filter((atom) => atom !== anchor && !atoms.includes(atom))
+    .map((atom) => orderedEdgeZonePair(anchor, atom))
+    .slice(0, 2);
 }
 
 function isAgentOfficeLimitEntryMode(value: string): value is BtcusdcAgentOfficeCandidateDraft["entryMode"] {
@@ -772,11 +819,12 @@ function isNearPassCoreTest(coreTest: NonNullable<BtcusdcStrategyRegistryEntry["
 function autonomousSourcePriority(entry: BtcusdcStrategyRegistryEntry): number {
   if (entry.candidateType !== "edge" || !entry.coreTest || entry.coreTest.passed !== false) return -1_000_000;
   const sourceDepth = Math.max(autonomousMutationDepth(entry.name), autonomousMutationDepth(entry.candidate.label ?? entry.name));
-  if (sourceDepth >= AUTONOMOUS_IMPROVEMENT_MAX_SOURCE_DEPTH) return -1_000_000;
+  if (sourceDepth >= AUTONOMOUS_IMPROVEMENT_MAX_FOLD_GUARD_DEPTH) return -1_000_000;
   const coreTest = entry.coreTest;
   let score = 0;
   if (isNearPassCoreTest(coreTest)) score += 500;
   if (sourceDepth === 1) score += 120;
+  if (sourceDepth >= AUTONOMOUS_IMPROVEMENT_MAX_SOURCE_DEPTH && isNearPassCoreTest(coreTest)) score += 90;
   if (coreTest.expectancyR > 0) score += 80 + coreTest.expectancyR * 40;
   if (coreTest.profitFactor >= 1.2) score += 60;
   if (coreTest.fullKelly > 0) score += 30;
@@ -1020,12 +1068,21 @@ function buildAutonomousImprovement(input: {
     const sourceName = entry.name || entry.candidate.label || entry.id;
     const sourceLabel = entry.candidate.label ?? sourceName;
     const sourceDepth = Math.max(autonomousMutationDepth(sourceName), autonomousMutationDepth(sourceLabel));
-    if (sourceDepth >= AUTONOMOUS_IMPROVEMENT_MAX_SOURCE_DEPTH) continue;
     const mutationPrefix = autonomousMutationPrefix(sourceDepth);
     const entryMode = entry.candidate.entryMode;
     if (!isAgentOfficeLimitEntryMode(entryMode)) continue;
 
     const coreTest = entry.coreTest;
+    const isFoldGuardEligible =
+      sourceDepth >= AUTONOMOUS_IMPROVEMENT_MAX_SOURCE_DEPTH &&
+      sourceDepth < AUTONOMOUS_IMPROVEMENT_MAX_FOLD_GUARD_DEPTH &&
+      isNearPassCoreTest(coreTest) &&
+      coreTest.worstFoldExpectancyR < -0.15 &&
+      coreTest.positiveFoldRate >= 0.7 &&
+      coreTest.recent30ExpectancyR > 0 &&
+      coreTest.recent90ExpectancyR > 0;
+    const allowStandardMutation = sourceDepth < AUTONOMOUS_IMPROVEMENT_MAX_SOURCE_DEPTH;
+    if (!allowStandardMutation && !isFoldGuardEligible) continue;
     const promising = coreTest.expectancyR > 0 || coreTest.profitFactor >= 1.05 || coreTest.fullKelly > 0;
     if (!promising) continue;
 
@@ -1033,7 +1090,7 @@ function buildAutonomousImprovement(input: {
     const evidence = improvementEvidence(coreTest);
     const atoms = zoneAtoms(entry.candidate.zoneId);
 
-    if (coreTest.filledTrades < 300 || coreTest.submittedOrders < 600) {
+    if (allowStandardMutation && (coreTest.filledTrades < 300 || coreTest.submittedOrders < 600)) {
       const splitDrafts = atoms
         .filter((atom) => atom !== entry.candidate.zoneId)
         .slice(0, 2)
@@ -1071,7 +1128,7 @@ function buildAutonomousImprovement(input: {
       });
     }
 
-    if (coreTest.fillRate < 0.2 && entryMode !== "limit-signal-close") {
+    if (allowStandardMutation && coreTest.fillRate < 0.2 && entryMode !== "limit-signal-close") {
       pushAction({
         agentTeam: "fill_access",
         sourceName,
@@ -1095,11 +1152,12 @@ function buildAutonomousImprovement(input: {
     }
 
     if (
-      coreTest.positiveFoldRate < 0.7 ||
-      coreTest.worstFoldExpectancyR < -0.15 ||
-      coreTest.totalRToMaxDrawdown < 2 ||
-      coreTest.recent30ExpectancyR <= 0 ||
-      coreTest.recent90ExpectancyR <= 0
+      allowStandardMutation &&
+      (coreTest.positiveFoldRate < 0.7 ||
+        coreTest.worstFoldExpectancyR < -0.15 ||
+        coreTest.totalRToMaxDrawdown < 2 ||
+        coreTest.recent30ExpectancyR <= 0 ||
+        coreTest.recent90ExpectancyR <= 0)
     ) {
       const nextTargetR = Math.max(2, entry.candidate.targetR - 1);
       const nextHold = Math.max(6, entry.candidate.maxHoldFiveMinuteBars - 3);
@@ -1126,6 +1184,7 @@ function buildAutonomousImprovement(input: {
     }
 
     if (
+      allowStandardMutation &&
       isNearPassCoreTest(coreTest) &&
       (coreTest.filledTrades < 300 || coreTest.worstFoldExpectancyR < -0.15 || coreTest.positiveFoldRate < 0.7)
     ) {
@@ -1152,6 +1211,28 @@ function buildAutonomousImprovement(input: {
             reason: `Near-pass source ${sourceName} is rescued with tighter payoff/hold and fill-aware entry.`,
           },
         ],
+      });
+    }
+
+    if (isFoldGuardEligible) {
+      const foldGuardDrafts = foldGuardZoneIds(entry.candidate.zoneId).map((zoneId) => ({
+        candidateType: "edge" as const,
+        label: `${mutationPrefix}-foldguard-${baseSlug}-${mutationSlug(zoneId)}-${entry.candidate.targetR}r-h${entry.candidate.maxHoldFiveMinuteBars}`,
+        strategyId: entry.candidate.strategyId,
+        zoneId,
+        entryMode,
+        targetR: entry.candidate.targetR,
+        maxHoldFiveMinuteBars: entry.candidate.maxHoldFiveMinuteBars,
+        reason: `Near-pass source ${sourceName} preserves its high-rank OHLCV edge but adds a neutral candle-shape fold guard ${zoneId}.`,
+      }));
+      pushAction({
+        agentTeam: "fold_stability",
+        sourceName,
+        sourceDepth,
+        failureMode: "near_pass_fold_guard",
+        evidence,
+        action: "For exhausted near-pass lineages, preserve the high-rank edge and add neutral OHLCV fold guards instead of rotating away from the edge.",
+        candidateDrafts: foldGuardDrafts,
       });
     }
   }

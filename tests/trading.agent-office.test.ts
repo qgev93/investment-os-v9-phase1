@@ -1100,6 +1100,123 @@ describe("BTCUSDC local agent office", () => {
     }
   });
 
+  it("continues bounded paired fold-guard research after second-generation near-pass mutations are exhausted", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-auto3-foldguard-"));
+    try {
+      const registryPath = join(dir, "registry.json");
+      const sourceCoreTest = {
+        lookbackDays: 180,
+        filledTrades: 306,
+        submittedOrders: 1377,
+        fillRate: 0.2222,
+        expectancyR: 0.1661,
+        profitFactor: 1.279,
+        fullKelly: 0.061,
+        totalR: 50.84,
+        maxDrawdownR: 11,
+        totalRToMaxDrawdown: 4.62,
+        positiveFoldRate: 0.75,
+        worstFoldExpectancyR: -0.2,
+        recent30ExpectancyR: 0.2105,
+        recent90ExpectancyR: 0.2497,
+        bestDayRemovedProfitFactor: 1.18,
+        bestFivePctRemovedExpectancyR: 0.11,
+        passed: false,
+      };
+      writeFileSync(
+        registryPath,
+        JSON.stringify([
+          {
+            id: "auto-shadow-auto2-fold-auto-sample-baseline-early-climax-short-volumeRank-high-3r-2r-h6",
+            name: "auto2-fold-auto-sample-baseline-early-climax-short-volumeRank-high-3r-2r-h6",
+            status: "shadow",
+            candidateType: "edge",
+            candidate: {
+              label: "auto2-fold-auto-sample-baseline-early-climax-short-volumeRank-high-3r-2r-h6",
+              strategyId: "intrabar-early-climax-late-hold-short",
+              zoneId: "volumeRank:high",
+              entryMode: "limit-half-pullback",
+              targetR: 2,
+              maxHoldFiveMinuteBars: 6,
+            },
+            coreTest: sourceCoreTest,
+            notes: "Near-pass second-generation source blocked only by worst fold.",
+          },
+          {
+            id: "auto-shadow-auto2-fold-auto-sample-baseline-early-climax-long-volumeRank-high-3r-2r-h6",
+            name: "auto2-fold-auto-sample-baseline-early-climax-long-volumeRank-high-3r-2r-h6",
+            status: "shadow",
+            candidateType: "edge",
+            candidate: {
+              label: "auto2-fold-auto-sample-baseline-early-climax-long-volumeRank-high-3r-2r-h6",
+              strategyId: "intrabar-early-climax-late-hold-long",
+              zoneId: "volumeRank:high",
+              entryMode: "limit-half-pullback",
+              targetR: 2,
+              maxHoldFiveMinuteBars: 6,
+            },
+            coreTest: sourceCoreTest,
+            notes: "Near-pass second-generation source blocked only by worst fold.",
+          },
+        ]),
+      );
+
+      let registryAtCoreGate: Array<{ name: string; candidate: { zoneId: string; strategyId: string } }> = [];
+      const result = await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath,
+        nowIso: "2026-06-16T11:40:00.000Z",
+        useModel: false,
+        runCoreGate: true,
+        allowRegistryWrite: true,
+        commandRunner: async () => {
+          registryAtCoreGate = JSON.parse(readFileSync(registryPath, "utf8")) as Array<{
+            name: string;
+            candidate: { zoneId: string; strategyId: string };
+          }>;
+        },
+      });
+
+      const labelsAtCoreGate = registryAtCoreGate.map((entry) => entry.name);
+      expect(labelsAtCoreGate).toContain(
+        "auto3-foldguard-auto2-fold-auto-sample-baseline-early-climax-short-volumeRank-high-3r-2r-h6-volumeRank-high-bodyRatio-medium-2r-h6",
+      );
+      expect(labelsAtCoreGate).toContain(
+        "auto3-foldguard-auto2-fold-auto-sample-baseline-early-climax-long-volumeRank-high-3r-2r-h6-volumeRank-high-bodyRatio-medium-2r-h6",
+      );
+      const generated = registryAtCoreGate.filter((entry) => entry.name.startsWith("auto3-foldguard-"));
+      expect(generated.map((entry) => entry.candidate.zoneId)).toContain("volumeRank:high+bodyRatio:medium");
+      expect(
+        generated.every((entry) =>
+          ["volumeRank:high+bodyRatio:medium", "volumeRank:high+rangeDerivative:flat"].includes(
+            entry.candidate.zoneId,
+          ),
+        ),
+      ).toBe(true);
+      expect(generated.every((entry) => /-(long|short)(-|$)/.test(entry.candidate.strategyId))).toBe(true);
+
+      const report = JSON.parse(readFileSync(result.reportPath, "utf8")) as {
+        autonomousImprovement?: {
+          actions: Array<{ agentTeam: string; failureMode: string; sourceDepth: number }>;
+          directionalPolicy?: { rejectedUnpairedDrafts: number };
+        };
+      };
+      expect(report.autonomousImprovement?.actions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            agentTeam: "fold_stability",
+            failureMode: "near_pass_fold_guard",
+            sourceDepth: 2,
+          }),
+        ]),
+      );
+      expect(report.autonomousImprovement?.directionalPolicy?.rejectedUnpairedDrafts).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it("repairs preexisting active one-sided registry entries with mirror shadow pairs", async () => {
     const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-registry-pairs-"));
     try {
