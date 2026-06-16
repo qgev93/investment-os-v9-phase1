@@ -456,4 +456,205 @@ describe("BTCUSDC local agent office", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("turns promising failed core tests into autonomous improvement candidates before the core gate", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-auto-improve-"));
+    try {
+      const registryPath = join(dir, "registry.json");
+      writeFileSync(
+        registryPath,
+        JSON.stringify([
+          {
+            id: "workflow-shadow-wf-promising-low-sample",
+            name: "wf-promising-low-sample",
+            status: "shadow",
+            candidateType: "edge",
+            candidate: {
+              label: "wf-promising-low-sample",
+              strategyId: "inside-bar-expansion-retest-long",
+              zoneId: "volumeRank:high+rangeDerivative:expanding",
+              entryMode: "limit-half-pullback",
+              targetR: 4,
+              maxHoldFiveMinuteBars: 12,
+            },
+            coreTest: {
+              lookbackDays: 180,
+              filledTrades: 20,
+              submittedOrders: 119,
+              fillRate: 0.168,
+              expectancyR: 0.3928,
+              profitFactor: 1.7856,
+              fullKelly: 0.12,
+              totalR: 7.8,
+              maxDrawdownR: 6.1,
+              totalRToMaxDrawdown: 1.28,
+              positiveFoldRate: 0.5,
+              worstFoldExpectancyR: -1,
+              recent30ExpectancyR: -0.2,
+              recent90ExpectancyR: 0.1,
+              bestDayRemovedProfitFactor: 1.2,
+              bestFivePctRemovedExpectancyR: 0.04,
+              passed: false,
+            },
+            notes:
+              "Demoted by the latest six-month core gate: filledTrades < 300, submittedOrders < 600, totalRToMaxDrawdown < 2.0, positiveFoldRate < 0.70, worstFoldExpectancyR < -0.15, recent30ExpectancyR <= 0",
+          },
+        ]),
+      );
+
+      let labelsAtCoreGate: string[] = [];
+      const result = await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath,
+        nowIso: "2026-06-16T06:30:00.000Z",
+        useModel: false,
+        runCoreGate: true,
+        allowRegistryWrite: true,
+        commandRunner: async () => {
+          const registry = JSON.parse(readFileSync(registryPath, "utf8")) as Array<{
+            name: string;
+            status: string;
+            candidateType: string;
+            candidate: { zoneId: string; entryMode: string; targetR: number; maxHoldFiveMinuteBars: number };
+          }>;
+          labelsAtCoreGate = registry.map((entry) => entry.name);
+          expect(registry).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                name: "auto-sample-wf-promising-low-sample-volumeRank-high-4r",
+                status: "shadow",
+                candidateType: "edge",
+                candidate: expect.objectContaining({
+                  zoneId: "volumeRank:high",
+                  entryMode: "limit-half-pullback",
+                }),
+              }),
+              expect.objectContaining({
+                name: "auto-fill-wf-promising-low-sample-signal-close-4r",
+                status: "shadow",
+                candidateType: "edge",
+                candidate: expect.objectContaining({
+                  entryMode: "limit-signal-close",
+                }),
+              }),
+              expect.objectContaining({
+                name: "auto-fold-wf-promising-low-sample-3r-h9",
+                status: "shadow",
+                candidateType: "edge",
+                candidate: expect.objectContaining({
+                  targetR: 3,
+                  maxHoldFiveMinuteBars: 9,
+                }),
+              }),
+            ]),
+          );
+        },
+      });
+
+      const report = JSON.parse(readFileSync(result.reportPath, "utf8")) as {
+        autonomousImprovement?: { candidateDrafts: Array<{ label: string }>; actions: Array<{ failureMode: string }> };
+      };
+      expect(labelsAtCoreGate).toContain("auto-sample-wf-promising-low-sample-volumeRank-high-4r");
+      expect(report.autonomousImprovement?.actions.map((action) => action.failureMode)).toEqual(
+        expect.arrayContaining(["sample_shortage", "low_fill_rate", "fold_fragility"]),
+      );
+      expect(report.autonomousImprovement?.candidateDrafts.length).toBeGreaterThanOrEqual(4);
+      expect(result.roles.find((role) => role.role === "registry_operations")?.summary).toContain(
+        "improvement drafts",
+      );
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("skips already-registered improvement mutations so later failed strategies can keep advancing", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-auto-improve-progress-"));
+    try {
+      const registryPath = join(dir, "registry.json");
+      const sourceEntry = (name: string) => ({
+        id: `workflow-shadow-${name}`,
+        name,
+        status: "shadow",
+        candidateType: "edge",
+        candidate: {
+          label: name,
+          strategyId: "inside-bar-expansion-retest-long",
+          zoneId: "volumeRank:high+rangeDerivative:expanding",
+          entryMode: "limit-half-pullback",
+          targetR: 4,
+          maxHoldFiveMinuteBars: 12,
+        },
+        coreTest: {
+          lookbackDays: 180,
+          filledTrades: 20,
+          submittedOrders: 119,
+          fillRate: 0.168,
+          expectancyR: 0.3928,
+          profitFactor: 1.7856,
+          fullKelly: 0.12,
+          totalR: 7.8,
+          maxDrawdownR: 6.1,
+          totalRToMaxDrawdown: 1.28,
+          positiveFoldRate: 0.5,
+          worstFoldExpectancyR: -1,
+          recent30ExpectancyR: -0.2,
+          recent90ExpectancyR: 0.1,
+          bestDayRemovedProfitFactor: 1.2,
+          bestFivePctRemovedExpectancyR: 0.04,
+          passed: false,
+        },
+      });
+      const existingMutation = (name: string, label: string) => ({
+        id: `auto-shadow-${label}`,
+        name: label,
+        status: "shadow",
+        candidateType: "edge",
+        candidate: {
+          label,
+          strategyId: "inside-bar-expansion-retest-long",
+          zoneId: "volumeRank:high",
+          entryMode: "limit-half-pullback",
+          targetR: label.includes("-3r-h9") ? 3 : 4,
+          maxHoldFiveMinuteBars: label.includes("-3r-h9") ? 9 : 12,
+        },
+        notes: `Existing mutation for ${name}`,
+      });
+      const duplicateSources = ["wf-old-1", "wf-old-2", "wf-old-3"];
+      writeFileSync(
+        registryPath,
+        JSON.stringify([
+          ...duplicateSources.map(sourceEntry),
+          sourceEntry("wf-fresh"),
+          ...duplicateSources.flatMap((name) => [
+            existingMutation(name, `auto-sample-${name}-volumeRank-high-4r`),
+            existingMutation(name, `auto-sample-${name}-rangeDerivative-expanding-4r`),
+            existingMutation(name, `auto-fill-${name}-signal-close-4r`),
+            existingMutation(name, `auto-fold-${name}-3r-h9`),
+          ]),
+        ]),
+      );
+
+      let labelsAtCoreGate: string[] = [];
+      await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath,
+        nowIso: "2026-06-16T06:40:00.000Z",
+        useModel: false,
+        runCoreGate: true,
+        allowRegistryWrite: true,
+        commandRunner: async () => {
+          const registry = JSON.parse(readFileSync(registryPath, "utf8")) as Array<{ name: string }>;
+          labelsAtCoreGate = registry.map((entry) => entry.name);
+        },
+      });
+
+      expect(labelsAtCoreGate).toContain("auto-sample-wf-fresh-volumeRank-high-4r");
+      expect(labelsAtCoreGate).toContain("auto-fill-wf-fresh-signal-close-4r");
+      expect(labelsAtCoreGate).toContain("auto-fold-wf-fresh-3r-h9");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
