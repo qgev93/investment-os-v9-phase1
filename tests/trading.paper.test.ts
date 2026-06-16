@@ -13,6 +13,7 @@ import {
   type BtcusdcPaperTradingState,
 } from "../src/trading/btcusdcPaperTrading.js";
 import {
+  buildBtcusdcWorkflowTelegramMessage,
   buildBtcusdcDailyPerformanceTelegramMessage,
   shouldRunBtcusdcWeeklyResearch,
   shouldSendBtcusdcDailyReport,
@@ -459,6 +460,71 @@ describe("BTCUSDC.P paper forward trading bot", () => {
     expect(closedEvents.map((event) => event.dailySeedEquity)).toEqual([10_000, 10_000]);
   });
 
+  it("tracks each strategy as its own 1000 USDC paper account", () => {
+    const first = advanceBtcusdcPaperTradingState(
+      buildInsideVolumeWinCandles(),
+      createInitialBtcusdcPaperTradingState({
+        nowIso: "2026-06-15T00:00:00.000Z",
+        activationOpenTime: 0,
+        initialEquity: 1000,
+      }),
+      {
+        candidates: TEST_CANDIDATES,
+        riskPct: 0.01,
+        nowIso: "2026-06-15T00:01:00.000Z",
+        config: {
+          minTrades: 1,
+          feeRate: 0,
+          tickSize: 0.1,
+          adverseTicks: 0,
+          kellyFraction: 0.25,
+          riskCapPct: 0.005,
+          minRiskPct: 0,
+          entryModes: ["limit-signal-close"],
+        },
+      },
+    );
+    const second = advanceBtcusdcPaperTradingState(buildMicroSqueezeBreakShortCandles(), first.state, {
+      candidates: [],
+      microCandidates: TEST_MICRO_CANDIDATES,
+      riskPct: 0.01,
+      nowIso: "2026-06-15T00:02:00.000Z",
+      config: {
+        minTrades: 1,
+        feeRate: 0,
+        tickSize: 0.1,
+        adverseTicks: 0,
+        kellyFraction: 0.25,
+        riskCapPct: 0.005,
+        minRiskPct: 0,
+        entryModes: ["limit-half-pullback"],
+        entryWaitBars: 3,
+        entryFillBufferTicks: 2,
+      },
+    });
+
+    expect(second.state.strategyAccounts[TEST_CANDIDATE_LABEL]).toMatchObject({
+      initialEquity: 1000,
+      equity: 1010,
+      dailySeedEquity: 1000,
+      closedTrades: 1,
+    });
+    expect(second.state.strategyAccounts[TEST_MICRO_CANDIDATE_LABEL]).toMatchObject({
+      initialEquity: 1000,
+      equity: 1040,
+      dailySeedEquity: 1000,
+      closedTrades: 1,
+    });
+    expect(second.state.equity).toBe(2050);
+    expect(second.events.at(-1)).toMatchObject({
+      candidateLabel: TEST_MICRO_CANDIDATE_LABEL,
+      riskAmount: 10,
+      dailySeedEquity: 1000,
+      strategyEquity: 1040,
+      equity: 2050,
+    });
+  });
+
   it("uses past-only Kelly sizing when no fixed risk override is supplied", () => {
     const candles = buildRepeatedInsideVolumeCandles(["win", "win", "loss", "win"]);
     const orders = buildBtcusdtEdgeZonePortfolioOrders(candles, {
@@ -677,7 +743,7 @@ describe("BTCUSDC.P paper forward trading bot", () => {
     ]);
   });
 
-  it("builds one daily report that includes core and shadow bot performance", () => {
+  it("builds a strategy performance report with each bot on a 1000 USDC seed", () => {
     const events = [
       {
         type: "order_submitted",
@@ -690,6 +756,8 @@ describe("BTCUSDC.P paper forward trading bot", () => {
         direction: "long",
         pnlR: 1.4,
         pnl: 14,
+        riskAmount: 10,
+        strategyEquity: 1014,
         equity: 1014,
       },
       {
@@ -703,6 +771,8 @@ describe("BTCUSDC.P paper forward trading bot", () => {
         direction: "short",
         pnlR: -1,
         pnl: -10,
+        riskAmount: 10,
+        strategyEquity: 990,
         equity: 1004,
       },
     ] as BtcusdcPaperTradingEvent[];
@@ -717,23 +787,34 @@ describe("BTCUSDC.P paper forward trading bot", () => {
         [TEST_CANDIDATE_LABEL, "core"],
         [TEST_STRATEGYLESS_CANDIDATE_LABEL, "shadow"],
       ]),
-      workflowStatus: {
-        realtimeWorker: "실시간 worker 실행중",
-        dailyReport: "일일보고 KST 09:00",
-        weeklyResearch: "주간연구 월 KST 01:20",
-        telegramQuota: "Telegram 하루 최대 2회",
-      },
     });
 
     expect(message).toContain("BTCUSDC.P 페이퍼 일일 보고");
-    expect(message).toContain("워크플로우");
-    expect(message).toContain("실시간 worker 실행중");
-    expect(message).toContain("주간연구 월 KST 01:20");
-    expect(message).toContain("1000 USDC 테스트");
+    expect(message).not.toContain("워크플로우");
+    expect(message).toContain("각 전략 1000 USDC 테스트");
+    expect(message).toContain("전략시드 1,000.00 USDC | 자산 1,014.00");
+    expect(message).toContain("전략시드 1,000.00 USDC | 자산 990.00");
     expect(message).toContain(TEST_CANDIDATE_LABEL);
     expect(message).toContain(TEST_STRATEGYLESS_CANDIDATE_LABEL);
     expect(message).toContain("포트폴리오");
     expect(message.match(/BTCUSDC\.P 페이퍼 일일 보고/g)).toHaveLength(1);
+  });
+
+  it("builds a separate workflow progress report", () => {
+    const message = buildBtcusdcWorkflowTelegramMessage({
+      generatedAtIso: "2026-06-16T00:10:00.000Z",
+      realtimeWorker: "실시간 worker 실행중",
+      dailyReport: "성과보고 KST 09:00",
+      weeklyResearch: "주간연구 월 KST 01:20; 최근 성공",
+      telegramQuota: "Telegram 하루 최대 2회",
+      notes: ["성과 보고와 분리", "각 전략 1000 USDC 계좌 기준"],
+    });
+
+    expect(message).toContain("BTCUSDC.P 워크플로우 진행 보고");
+    expect(message).toContain("실시간 worker 실행중");
+    expect(message).toContain("주간연구 월 KST 01:20; 최근 성공");
+    expect(message).toContain("각 전략 1000 USDC 계좌 기준");
+    expect(message).not.toContain(TEST_CANDIDATE_LABEL);
   });
 
   it("limits all BTCUSDC Telegram reports to two sends per KST day", () => {

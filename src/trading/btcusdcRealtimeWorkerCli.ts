@@ -4,6 +4,7 @@ import { dirname } from "node:path";
 import { TelegramBotClient, requireTelegramToken } from "../telegram/client.js";
 import {
   buildBtcusdcDailyPerformanceTelegramMessage,
+  buildBtcusdcWorkflowTelegramMessage,
   loadBtcusdcPaperTradingEventLog,
   shouldRunBtcusdcWeeklyResearch,
   shouldSendBtcusdcDailyReport,
@@ -189,6 +190,7 @@ async function main(): Promise<void> {
   const dailyReportStatePath = process.env.BTCUSDC_DAILY_REPORT_STATE_PATH ?? "/data/btcusdc-daily-report-state.json";
   const telegramReportQuotaPath = process.env.BTCUSDC_TELEGRAM_REPORT_QUOTA_PATH ?? "/data/btcusdc-telegram-report-quota.json";
   const telegramReportMaxPerDay = envNumber("BTCUSDC_TELEGRAM_REPORT_MAX_PER_DAY", 2);
+  const telegramTradeAlertsEnabled = (process.env.BTCUSDC_TELEGRAM_TRADE_ALERTS_ENABLED ?? "false").toLowerCase() === "true";
   const autoResearchEnabled = (process.env.BTCUSDC_AUTO_RESEARCH_ENABLED ?? "true").toLowerCase() !== "false";
   const coreResearchRunDayOfWeek = envNumber("BTCUSDC_CORE_RESEARCH_DAY_OF_WEEK", 1);
   const coreResearchAtKst = process.env.BTCUSDC_CORE_RESEARCH_AT_KST ?? "01:20";
@@ -248,28 +250,42 @@ async function main(): Promise<void> {
       seedEquity: initialEquity,
       strategyStatuses: registrySets.strategyStatuses,
       generatedAtIso: nowIso,
-      workflowStatus: {
-        realtimeWorker: "실시간 worker 실행중",
-        dailyReport: `일일보고 KST ${dailyReportAtKst}`,
-        weeklyResearch: autoResearchEnabled
-          ? `주간연구 ${kstDayLabel(coreResearchRunDayOfWeek)} KST ${coreResearchAtKst}; ${describeCoreResearchProgress(coreResearchState)}`
-          : "주간연구 꺼짐",
-        telegramQuota: `Telegram 하루 최대 ${telegramReportMaxPerDay}회`,
-      },
     });
-    const sendResult = await sendTelegramReport({ text: message }, nowIso);
+    const workflowMessage = buildBtcusdcWorkflowTelegramMessage({
+      generatedAtIso: nowIso,
+      realtimeWorker: "실시간 worker 실행중",
+      dailyReport: `성과보고 KST ${dailyReportAtKst}`,
+      weeklyResearch: autoResearchEnabled
+        ? `주간연구 ${kstDayLabel(coreResearchRunDayOfWeek)} KST ${coreResearchAtKst}; ${describeCoreResearchProgress(coreResearchState)}`
+        : "주간연구 꺼짐",
+      telegramQuota: `Telegram 하루 최대 ${telegramReportMaxPerDay}회`,
+      notes: [
+        "성과 보고와 분리",
+        `각 전략 ${initialEquity} USDC 계좌 기준`,
+      ],
+    });
+    const performanceSendResult = await sendTelegramReport({ text: message }, nowIso);
+    const workflowSendResult = await sendTelegramReport({ text: workflowMessage }, nowIso);
+    const sentMessageIds = [
+      performanceSendResult.telegramMessageId,
+      workflowSendResult.telegramMessageId,
+    ].filter((messageId): messageId is number => messageId !== null);
+    const skippedReasons = [
+      performanceSendResult.telegramSkippedReason,
+      workflowSendResult.telegramSkippedReason,
+    ].filter((reason): reason is string => reason !== null);
     saveDailyReportRuntimeState(dailyReportStatePath, {
       lastSentDate: decision.currentDate,
       lastSentAtIso: nowIso,
-      lastTelegramMessageId: sendResult.telegramMessageId ?? undefined,
-      lastSkippedReason: sendResult.telegramSkippedReason ?? undefined,
+      lastTelegramMessageId: sentMessageIds.at(-1),
+      lastSkippedReason: skippedReasons.join(",") || undefined,
     });
     console.log(
       JSON.stringify({
-        event: sendResult.telegramSent ? "daily_report_sent" : "daily_report_skipped",
+        event: sentMessageIds.length > 0 ? "daily_report_sent" : "daily_report_skipped",
         date: decision.currentDate,
-        telegramMessageId: sendResult.telegramMessageId,
-        reason: sendResult.telegramSkippedReason,
+        telegramMessageIds: sentMessageIds,
+        reasons: skippedReasons,
       }),
     );
   };
@@ -394,7 +410,7 @@ async function main(): Promise<void> {
                   equity: result.equity,
                 }),
               );
-              if (telegramClient && chatId && result.telegramEventRows.length > 0) {
+              if (telegramTradeAlertsEnabled && telegramClient && chatId && result.telegramEventRows.length > 0) {
                 const sendResult = await sendTelegramReport(buildBtcusdcPaperTelegramMessage(result.telegramEventRows, result), new Date().toISOString());
                 if (!sendResult.telegramSent) {
                   console.log(JSON.stringify({ event: "trade_report_skipped", reason: sendResult.telegramSkippedReason }));

@@ -34,9 +34,10 @@ jobs:
           curl -L https://fly.io/install.sh | sh
           echo "$HOME/.fly/bin" >> "$GITHUB_PATH"
 
-      - name: Send one combined Telegram report from Fly volume logs
+      - name: Send separate Telegram performance and workflow reports from Fly volume logs
         if: ${{ steps.fly-token.outputs.available == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
           flyctl ssh console --app btcusdc-paper-forward -C 'node dist/src/cli.js trading:paper-btcusdc-daily-report --state-path /data/btcusdc-paper-state.json --log-path /data/btcusdc-paper-events.jsonl --registry-path /data/btcusdc-strategy-registry.json'
+          flyctl ssh console --app btcusdc-paper-forward -C 'node dist/src/cli.js trading:paper-btcusdc-workflow-report'

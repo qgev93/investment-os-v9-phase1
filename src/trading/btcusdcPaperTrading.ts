@@ -127,6 +127,20 @@ export interface BtcusdcPaperOrderRiskSnapshot {
   historicalPayoffRatioForKelly: number;
 }
 
+export interface BtcusdcPaperStrategyAccount {
+  label: string;
+  initialEquity: number;
+  equity: number;
+  peakEquity: number;
+  maxDrawdownPct: number;
+  dailySeedEquity: number;
+  dailySeedDate: string;
+  totalPnlR: number;
+  closedTrades: number;
+  wins: number;
+  losses: number;
+}
+
 export type BtcusdcPaperTradingEventType = "order_submitted" | "order_filled" | "order_missed" | "trade_closed";
 
 export interface BtcusdcPaperTradingState {
@@ -157,6 +171,7 @@ export interface BtcusdcPaperTradingState {
   missedOrderIds: string[];
   closedOrderIds: string[];
   openOrderRisks: Record<string, BtcusdcPaperOrderRiskSnapshot>;
+  strategyAccounts: Record<string, BtcusdcPaperStrategyAccount>;
 }
 
 export interface CreateBtcusdcPaperTradingStateOptions {
@@ -203,6 +218,10 @@ export interface BtcusdcPaperTradingEvent {
   historicalTradesForKelly?: number;
   historicalWinRateForKelly?: number;
   historicalPayoffRatioForKelly?: number;
+  strategyInitialEquity?: number;
+  strategyEquity?: number;
+  strategyTotalPnlR?: number;
+  strategyMaxDrawdownPct?: number;
   equity?: number;
   totalPnlR?: number;
 }
@@ -321,6 +340,7 @@ function hydratePaperTradingState(
     dailySeedDate,
     dailySeedTimezoneOffsetMinutes: timezoneOffset,
     openOrderRisks: state.openOrderRisks ?? {},
+    strategyAccounts: pristine ? {} : (state.strategyAccounts ?? {}),
   };
 }
 
@@ -329,6 +349,52 @@ function rollDailySeedToOpenTime(state: BtcusdcPaperTradingState, openTime: numb
   if (date === state.dailySeedDate) return;
   state.dailySeedDate = date;
   state.dailySeedEquity = state.equity;
+}
+
+function createStrategyAccount(state: BtcusdcPaperTradingState, label: string, openTime: number): BtcusdcPaperStrategyAccount {
+  const dailySeedDate = dayKeyFromOpenTime(openTime, state.dailySeedTimezoneOffsetMinutes);
+  return {
+    label,
+    initialEquity: state.initialEquity,
+    equity: state.initialEquity,
+    peakEquity: state.initialEquity,
+    maxDrawdownPct: 0,
+    dailySeedEquity: state.initialEquity,
+    dailySeedDate,
+    totalPnlR: 0,
+    closedTrades: 0,
+    wins: 0,
+    losses: 0,
+  };
+}
+
+function ensureStrategyAccount(
+  state: BtcusdcPaperTradingState,
+  label: string,
+  openTime: number,
+): BtcusdcPaperStrategyAccount {
+  const existing = state.strategyAccounts[label];
+  if (existing) return existing;
+  const account = createStrategyAccount(state, label, openTime);
+  state.strategyAccounts[label] = account;
+  return account;
+}
+
+function rollStrategyDailySeedToOpenTime(
+  state: BtcusdcPaperTradingState,
+  account: BtcusdcPaperStrategyAccount,
+  openTime: number,
+): void {
+  const date = dayKeyFromOpenTime(openTime, state.dailySeedTimezoneOffsetMinutes);
+  if (date === account.dailySeedDate) return;
+  account.dailySeedDate = date;
+  account.dailySeedEquity = account.equity;
+}
+
+function strategyAccountsEquity(state: BtcusdcPaperTradingState): number | null {
+  const accounts = Object.values(state.strategyAccounts);
+  if (accounts.length === 0) return null;
+  return accounts.reduce((sum, account) => sum + account.equity, 0);
 }
 
 function baseEvent(
@@ -483,7 +549,7 @@ function evaluatePaperOrder(
 function buildOrderRiskSnapshot(
   order: EdgeZonePortfolioOrder,
   oneMinuteCandles: Candle[],
-  state: BtcusdcPaperTradingState,
+  account: BtcusdcPaperStrategyAccount,
   options: AdvanceBtcusdcPaperTradingOptions,
   config: ResearchConfig,
 ): BtcusdcPaperOrderRiskSnapshot {
@@ -491,10 +557,10 @@ function buildOrderRiskSnapshot(
     const riskPct = Math.max(0, options.riskPct);
     return {
       riskPct,
-      riskAmount: state.dailySeedEquity * riskPct,
+      riskAmount: account.dailySeedEquity * riskPct,
       riskSource: "fixed_override",
-      dailySeedEquity: state.dailySeedEquity,
-      dailySeedDate: state.dailySeedDate,
+      dailySeedEquity: account.dailySeedEquity,
+      dailySeedDate: account.dailySeedDate,
       historicalTradesForKelly: 0,
       historicalWinRateForKelly: 0,
       historicalPayoffRatioForKelly: 0,
@@ -520,10 +586,10 @@ function buildOrderRiskSnapshot(
 
   return {
     riskPct,
-    riskAmount: state.dailySeedEquity * riskPct,
+    riskAmount: account.dailySeedEquity * riskPct,
     riskSource: hasKellySample ? "historical_kelly" : "fallback_cap",
-    dailySeedEquity: state.dailySeedEquity,
-    dailySeedDate: state.dailySeedDate,
+    dailySeedEquity: account.dailySeedEquity,
+    dailySeedDate: account.dailySeedDate,
     historicalTradesForKelly: stress.trades,
     historicalWinRateForKelly: stress.winRate,
     historicalPayoffRatioForKelly: stress.payoffRatio,
@@ -570,6 +636,7 @@ export function createInitialBtcusdcPaperTradingState(
     missedOrderIds: [],
     closedOrderIds: [],
     openOrderRisks: {},
+    strategyAccounts: {},
   };
 }
 
@@ -596,6 +663,9 @@ export function advanceBtcusdcPaperTradingState(
     missedOrderIds: [...hydrated.missedOrderIds],
     closedOrderIds: [...hydrated.closedOrderIds],
     openOrderRisks: { ...hydrated.openOrderRisks },
+    strategyAccounts: Object.fromEntries(
+      Object.entries(hydrated.strategyAccounts).map(([label, account]) => [label, { ...account }]),
+    ),
   };
   const known = new Set(next.knownOrderIds);
   const filled = new Set(next.filledOrderIds);
@@ -639,13 +709,19 @@ export function advanceBtcusdcPaperTradingState(
     let orderRisk = next.openOrderRisks[order.orderId];
     if ((evaluation.status === "filled_open" || evaluation.status === "closed") && !filled.has(order.orderId)) {
       rollDailySeedToOpenTime(next, evaluation.fillOpenTime);
-      orderRisk = buildOrderRiskSnapshot(order, oneMinuteCandles, next, options, config);
+      const account = ensureStrategyAccount(next, order.candidateLabel, evaluation.fillOpenTime);
+      rollStrategyDailySeedToOpenTime(next, account, evaluation.fillOpenTime);
+      orderRisk = buildOrderRiskSnapshot(order, oneMinuteCandles, account, options, config);
       next.openOrderRisks[order.orderId] = orderRisk;
       filled.add(order.orderId);
       events.push({
         ...baseEvent("order_filled", order, next, nowIso),
         fillOpenTime: evaluation.fillOpenTime,
         ...orderRisk,
+        strategyInitialEquity: account.initialEquity,
+        strategyEquity: account.equity,
+        strategyTotalPnlR: account.totalPnlR,
+        strategyMaxDrawdownPct: account.maxDrawdownPct,
       });
     }
 
@@ -657,9 +733,11 @@ export function advanceBtcusdcPaperTradingState(
 
     if (evaluation.status === "closed" && !closed.has(order.orderId)) {
       orderRisk = orderRisk ?? next.openOrderRisks[order.orderId];
+      const account = ensureStrategyAccount(next, order.candidateLabel, evaluation.fillOpenTime);
       if (!orderRisk) {
         rollDailySeedToOpenTime(next, evaluation.fillOpenTime);
-        orderRisk = buildOrderRiskSnapshot(order, oneMinuteCandles, next, options, config);
+        rollStrategyDailySeedToOpenTime(next, account, evaluation.fillOpenTime);
+        orderRisk = buildOrderRiskSnapshot(order, oneMinuteCandles, account, options, config);
       }
       closed.add(order.orderId);
       next.totalPnlR += evaluation.pnlR;
@@ -667,7 +745,17 @@ export function advanceBtcusdcPaperTradingState(
       if (evaluation.pnlR > 0) next.wins += 1;
       if (evaluation.pnlR < 0) next.losses += 1;
       next.riskPct = orderRisk.riskPct;
-      next.equity = Math.max(0, next.equity + evaluation.pnlR * orderRisk.riskAmount);
+      account.totalPnlR += evaluation.pnlR;
+      account.closedTrades += 1;
+      if (evaluation.pnlR > 0) account.wins += 1;
+      if (evaluation.pnlR < 0) account.losses += 1;
+      account.equity = Math.max(0, account.equity + evaluation.pnlR * orderRisk.riskAmount);
+      account.peakEquity = Math.max(account.peakEquity, account.equity);
+      account.maxDrawdownPct = Math.max(
+        account.maxDrawdownPct,
+        account.peakEquity === 0 ? 0 : (account.peakEquity - account.equity) / account.peakEquity,
+      );
+      next.equity = strategyAccountsEquity(next) ?? Math.max(0, next.equity + evaluation.pnlR * orderRisk.riskAmount);
       next.peakEquity = Math.max(next.peakEquity, next.equity);
       next.maxDrawdownPct = Math.max(
         next.maxDrawdownPct,
@@ -685,6 +773,10 @@ export function advanceBtcusdcPaperTradingState(
         rawPnlR: evaluation.rawPnlR,
         costR: evaluation.costR,
         ...orderRisk,
+        strategyInitialEquity: account.initialEquity,
+        strategyEquity: account.equity,
+        strategyTotalPnlR: account.totalPnlR,
+        strategyMaxDrawdownPct: account.maxDrawdownPct,
         equity: next.equity,
         totalPnlR: next.totalPnlR,
       });

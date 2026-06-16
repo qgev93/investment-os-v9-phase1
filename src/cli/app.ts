@@ -27,6 +27,7 @@ import {
 } from "../trading/btcusdcPaperTrading.js";
 import {
   buildBtcusdcDailyPerformanceTelegramMessage,
+  buildBtcusdcWorkflowTelegramMessage,
   loadBtcusdcPaperTradingEventLog,
 } from "../trading/btcusdcDailyReport.js";
 import {
@@ -746,12 +747,6 @@ export async function runPhase1Command(
       seedEquity: Number(flagValue(args, "--seed-equity") ?? env.BTCUSDC_PAPER_INITIAL_EQUITY ?? "1000"),
       strategyStatuses: registrySets.strategyStatuses,
       generatedAtIso,
-      workflowStatus: {
-        realtimeWorker: "Fly worker 기준",
-        dailyReport: "일일보고 CLI 실행",
-        weeklyResearch: "주간연구 Fly/GitHub Actions 기준",
-        telegramQuota: `Telegram 하루 최대 ${Number(flagValue(args, "--telegram-quota-max-per-day") ?? env.BTCUSDC_TELEGRAM_REPORT_MAX_PER_DAY ?? "2")}회`,
-      },
     });
 
     const chatId = flagValue(args, "--chat-id") ?? env.TRADING_TELEGRAM_CHAT_ID;
@@ -776,6 +771,48 @@ export async function runPhase1Command(
       statePath,
       logPath,
       events: events.length,
+      telegramSent: telegramMessageId !== null,
+      telegramMessageId,
+      telegramSkippedReason,
+      text: message,
+    };
+  };
+
+  const runBtcusdcPaperWorkflowReport = async () => {
+    const generatedAtIso = flagValue(args, "--generated-at") ?? new Date().toISOString();
+    const seedEquity = Number(flagValue(args, "--seed-equity") ?? env.BTCUSDC_PAPER_INITIAL_EQUITY ?? "1000");
+    const maxPerDay = btcusdcTelegramQuotaMax(args, env);
+    const message = buildBtcusdcWorkflowTelegramMessage({
+      generatedAtIso,
+      realtimeWorker: flagValue(args, "--realtime-worker") ?? "Fly worker 기준",
+      dailyReport: flagValue(args, "--daily-report") ?? "성과보고 CLI 실행",
+      weeklyResearch: flagValue(args, "--weekly-research") ?? "주간연구 Fly/GitHub Actions 기준",
+      telegramQuota: `Telegram 하루 최대 ${maxPerDay}회`,
+      notes: [
+        "성과 보고와 분리",
+        `각 전략 ${seedEquity} USDC 계좌 기준`,
+      ],
+    });
+
+    const chatId = flagValue(args, "--chat-id") ?? env.TRADING_TELEGRAM_CHAT_ID;
+    let telegramMessageId: number | null = null;
+    let telegramSkippedReason: string | null = null;
+    if (chatId && !hasFlag(args, "--no-send")) {
+      const telegramResult = await sendBtcusdcTelegramReport({
+        args,
+        env,
+        chatId,
+        payload: { text: message },
+        nowIso: generatedAtIso,
+      });
+      telegramMessageId = telegramResult.telegramMessageId;
+      telegramSkippedReason = telegramResult.telegramSkippedReason;
+    }
+
+    return {
+      mode: "paper_workflow_report",
+      symbol: "BTCUSDC",
+      displaySymbol: "BTCUSDC.P",
       telegramSent: telegramMessageId !== null,
       telegramMessageId,
       telegramSkippedReason,
@@ -1418,6 +1455,12 @@ export async function runPhase1Command(
     return {
       ok: true,
       data: await runBtcusdcPaperDailyReport(),
+    };
+  }
+  if (command === "trading:paper-btcusdc-workflow-report") {
+    return {
+      ok: true,
+      data: await runBtcusdcPaperWorkflowReport(),
     };
   }
 

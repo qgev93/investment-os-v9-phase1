@@ -5,6 +5,10 @@ import type { BtcusdcStrategyStatus } from "./btcusdcStrategyRegistry.js";
 interface StrategyDailyStats {
   label: string;
   status: BtcusdcStrategyStatus | "unknown";
+  seedEquity: number;
+  strategyEquity: number;
+  strategyPeakEquity: number;
+  strategyMaxDrawdownPct: number;
   submittedOrders: number;
   filledOrders: number;
   missedOrders: number;
@@ -18,11 +22,13 @@ interface StrategyDailyStats {
   lastEquity: number | null;
 }
 
-export interface BtcusdcWorkflowReportStatus {
+export interface BtcusdcWorkflowTelegramReportInput {
+  generatedAtIso?: string;
   realtimeWorker: string;
   dailyReport: string;
   weeklyResearch: string;
   telegramQuota: string;
+  notes?: string[];
 }
 
 export interface BtcusdcDailyPerformanceReportOptions {
@@ -30,7 +36,6 @@ export interface BtcusdcDailyPerformanceReportOptions {
   strategyStatuses?: Map<string, BtcusdcStrategyStatus>;
   state?: BtcusdcPaperTradingState | null;
   generatedAtIso?: string;
-  workflowStatus?: BtcusdcWorkflowReportStatus;
 }
 
 export interface BtcusdcDailyReportScheduleDecision {
@@ -131,10 +136,14 @@ export function shouldRunBtcusdcWeeklyResearch(input: {
   };
 }
 
-function createStats(label: string, status: BtcusdcStrategyStatus | "unknown"): StrategyDailyStats {
+function createStats(label: string, status: BtcusdcStrategyStatus | "unknown", seedEquity: number): StrategyDailyStats {
   return {
     label,
     status,
+    seedEquity,
+    strategyEquity: seedEquity,
+    strategyPeakEquity: seedEquity,
+    strategyMaxDrawdownPct: 0,
     submittedOrders: 0,
     filledOrders: 0,
     missedOrders: 0,
@@ -154,6 +163,28 @@ function profitFactor(stats: Pick<StrategyDailyStats, "grossWinR" | "grossLossR"
   return stats.grossWinR > 0 ? Number.POSITIVE_INFINITY : 0;
 }
 
+function eventPnlAmount(event: BtcusdcPaperTradingEvent): number {
+  const explicitPnl = (event as BtcusdcPaperTradingEvent & { pnl?: number }).pnl;
+  if (explicitPnl !== undefined) return explicitPnl;
+  return (event.pnlR ?? 0) * (event.riskAmount ?? 0);
+}
+
+export function buildBtcusdcWorkflowTelegramMessage(input: BtcusdcWorkflowTelegramReportInput): string {
+  const generatedAtIso = input.generatedAtIso ?? new Date().toISOString();
+  const lines = [
+    "BTCUSDC.P 워크플로우 진행 보고",
+    `생성 ${generatedAtIso}`,
+    `실시간: ${input.realtimeWorker}`,
+    `성과보고: ${input.dailyReport}`,
+    `연구: ${input.weeklyResearch}`,
+    `발송제한: ${input.telegramQuota}`,
+  ];
+  for (const note of input.notes ?? []) {
+    lines.push(`메모: ${note}`);
+  }
+  return lines.join("\n");
+}
+
 export function loadBtcusdcPaperTradingEventLog(path: string): BtcusdcPaperTradingEvent[] {
   if (!existsSync(path)) return [];
   const content = readFileSync(path, "utf8").trim();
@@ -171,13 +202,13 @@ export function buildBtcusdcDailyPerformanceTelegramMessage(
   const generatedAtIso = options.generatedAtIso ?? new Date().toISOString();
   const seedEquity = options.seedEquity ?? options.state?.dailySeedEquity ?? options.state?.initialEquity ?? 1_000;
   const byStrategy = new Map<string, StrategyDailyStats>();
-  const portfolio = createStats("Portfolio", "unknown");
+  const portfolio = createStats("Portfolio", "unknown", seedEquity);
 
   for (const event of events) {
     const label = event.candidateLabel ?? "unknown";
     const stats =
       byStrategy.get(label) ??
-      createStats(label, options.strategyStatuses?.get(label) ?? "unknown");
+      createStats(label, options.strategyStatuses?.get(label) ?? "unknown", event.strategyInitialEquity ?? seedEquity);
     byStrategy.set(label, stats);
 
     if (event.type === "order_submitted") {
@@ -191,10 +222,17 @@ export function buildBtcusdcDailyPerformanceTelegramMessage(
       portfolio.missedOrders += 1;
     } else if (event.type === "trade_closed") {
       const pnlR = event.pnlR ?? 0;
-      const pnl = (event as BtcusdcPaperTradingEvent & { pnl?: number }).pnl ?? 0;
+      const pnl = eventPnlAmount(event);
       stats.closedTrades += 1;
       stats.totalPnlR += pnlR;
       stats.totalPnl += pnl;
+      stats.strategyEquity = event.strategyEquity ?? Math.max(0, stats.seedEquity + stats.totalPnl);
+      stats.strategyPeakEquity = Math.max(stats.strategyPeakEquity, stats.strategyEquity);
+      stats.strategyMaxDrawdownPct = Math.max(
+        stats.strategyMaxDrawdownPct,
+        event.strategyMaxDrawdownPct ??
+          (stats.strategyPeakEquity === 0 ? 0 : (stats.strategyPeakEquity - stats.strategyEquity) / stats.strategyPeakEquity),
+      );
       stats.lastEquity = event.equity ?? stats.lastEquity;
       portfolio.closedTrades += 1;
       portfolio.totalPnlR += pnlR;
@@ -221,28 +259,24 @@ export function buildBtcusdcDailyPerformanceTelegramMessage(
     return statusDelta === 0 ? left.label.localeCompare(right.label) : statusDelta;
   });
   const portfolioExpectancy = portfolio.closedTrades > 0 ? portfolio.totalPnlR / portfolio.closedTrades : 0;
+  const strategyEquityTotal = strategyStats.reduce((sum, stats) => sum + stats.strategyEquity, 0);
   const lines = [
     "BTCUSDC.P 페이퍼 일일 보고",
     `생성 ${generatedAtIso} | 기준시드 ${money(seedEquity)} USDC | 봇 ${strategyStats.length}개`,
-    `포트폴리오: 제출 ${portfolio.submittedOrders} | 체결 ${portfolio.filledOrders} | 미체결 ${portfolio.missedOrders} | 종료 ${portfolio.closedTrades} | 승/패 ${portfolio.wins}/${portfolio.losses} | 합계 ${signedR(portfolio.totalPnlR)} | 기대값 ${signedR(portfolioExpectancy)} | PF ${round(profitFactor(portfolio))}`,
+    `각 전략 ${seedLabel(seedEquity)} USDC 테스트: 전략별 독립 시드/켈리 계좌 기준`,
+    `포트폴리오: 제출 ${portfolio.submittedOrders} | 체결 ${portfolio.filledOrders} | 미체결 ${portfolio.missedOrders} | 종료 ${portfolio.closedTrades} | 승/패 ${portfolio.wins}/${portfolio.losses} | 합계 ${signedR(portfolio.totalPnlR)} | 기대값 ${signedR(portfolioExpectancy)} | PF ${round(profitFactor(portfolio))} | 전략합산자산 ${money(strategyEquityTotal)}`,
   ];
-
-  if (options.workflowStatus) {
-    lines.push(
-      `워크플로우: ${options.workflowStatus.realtimeWorker} | ${options.workflowStatus.dailyReport} | ${options.workflowStatus.weeklyResearch} | ${options.workflowStatus.telegramQuota}`,
-    );
-  }
 
   if (options.state) {
     lines.push(
-      `${seedLabel(seedEquity)} USDC 테스트: 자산 ${money(options.state.equity)} | 누적 ${signedR(options.state.totalPnlR)} | 최대DD ${round(options.state.maxDrawdownPct * 100)}% | 일일시드일 ${options.state.dailySeedDate}`,
+      `계좌합산: 자산 ${money(options.state.equity)} | 누적 ${signedR(options.state.totalPnlR)} | 최대DD ${round(options.state.maxDrawdownPct * 100)}% | 일일시드일 ${options.state.dailySeedDate}`,
     );
   }
 
   for (const stats of strategyStats) {
     const expectancy = stats.closedTrades > 0 ? stats.totalPnlR / stats.closedTrades : 0;
     lines.push(
-      `[${stats.status}] ${stats.label}: 제출 ${stats.submittedOrders} | 체결 ${stats.filledOrders} | 미체결 ${stats.missedOrders} | 종료 ${stats.closedTrades} | 승/패 ${stats.wins}/${stats.losses} | 합계 ${signedR(stats.totalPnlR)} | 기대값 ${signedR(expectancy)} | PF ${round(profitFactor(stats))}`,
+      `[${stats.status}] ${stats.label}: 전략시드 ${money(stats.seedEquity)} USDC | 자산 ${money(stats.strategyEquity)} | 최대DD ${round(stats.strategyMaxDrawdownPct * 100)}% | 제출 ${stats.submittedOrders} | 체결 ${stats.filledOrders} | 미체결 ${stats.missedOrders} | 종료 ${stats.closedTrades} | 승/패 ${stats.wins}/${stats.losses} | 합계 ${signedR(stats.totalPnlR)} | 기대값 ${signedR(expectancy)} | PF ${round(profitFactor(stats))}`,
     );
   }
 
