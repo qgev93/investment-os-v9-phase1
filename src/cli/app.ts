@@ -851,6 +851,20 @@ export async function runPhase1Command(
     const coreGateMaxCandles = Number(
       flagValue(args, "--max-candles") ?? env.BTCUSDC_CORE_RESEARCH_MAX_CANDLES ?? String(coreGateDays * 24 * 60),
     );
+    const coreGateCacheFile =
+      flagValue(args, "--cache-file") ??
+      env.BTCUSDC_CORE_RESEARCH_CACHE_FILE ??
+      resolve(".phase1/btcusdc-agent-office/btcusdc-1m-core-cache.json");
+    const coreGateCooldownPath =
+      flagValue(args, "--core-gate-cooldown-path") ??
+      env.BTCUSDC_AGENT_OFFICE_CORE_GATE_COOLDOWN_PATH ??
+      resolve(".phase1/btcusdc-agent-office/core-gate-cooldown.json");
+    const coreGateCooldownMs = Number(
+      flagValue(args, "--core-gate-cooldown-ms") ?? env.BTCUSDC_AGENT_OFFICE_CORE_GATE_COOLDOWN_MS ?? "900000",
+    );
+    const maxReportFiles = Number(
+      flagValue(args, "--max-report-files") ?? env.BTCUSDC_AGENT_OFFICE_MAX_REPORT_FILES ?? "300",
+    );
     const cycles = [];
 
     for (let index = 0; index < maxCycles; index += 1) {
@@ -866,6 +880,10 @@ export async function runPhase1Command(
         allowRegistryWrite,
         coreGateDays,
         coreGateMaxCandles,
+        coreGateCacheFile,
+        coreGateCooldownPath,
+        coreGateCooldownMs,
+        maxReportFiles,
         commandRunner: async (commandArgs) => runPhase1Command(commandArgs, env),
       });
       cycles.push(cycle);
@@ -1143,13 +1161,21 @@ export async function runPhase1Command(
     if (candidates.length === 0) {
       throw new Error("trading:research-btcusdc-core-gate requires at least one edge portfolio candidate");
     }
+    const cacheFile = flagValue(args, "--cache-file") ?? env.BTCUSDC_CORE_RESEARCH_CACHE_FILE;
+    const shouldUseCache = cacheFile && existsSync(cacheFile) && !hasFlag(args, "--refresh-cache");
     const candles = filePath
       ? loadCandlesFromBinanceKlineFile(filePath)
-      : await fetchBinanceBtcusdtOneMinuteCandles({
-          symbol,
-          days,
-          maxCandles: maxCandlesFlag ? Number(maxCandlesFlag) : days * 24 * 60,
-        });
+      : shouldUseCache
+        ? loadCandlesFromBinanceKlineFile(cacheFile)
+        : await fetchBinanceBtcusdtOneMinuteCandles({
+            symbol,
+            days,
+            maxCandles: maxCandlesFlag ? Number(maxCandlesFlag) : days * 24 * 60,
+          });
+    if (!filePath && cacheFile && !shouldUseCache) {
+      mkdirSync(dirname(cacheFile), { recursive: true });
+      writeFileSync(cacheFile, JSON.stringify(candles, null, 2));
+    }
     const config = {
       minTrades,
       feeRate: Number(flagValue(args, "--fee-rate") ?? env.BTCUSDT_FEE_RATE ?? "0"),

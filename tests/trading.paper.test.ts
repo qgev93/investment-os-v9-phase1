@@ -753,6 +753,34 @@ describe("BTCUSDC.P paper forward trading bot", () => {
     expect(hasBtcusdcRegistrySemanticChange([baseEntry], [metricChangedEntry])).toBe(true);
   });
 
+  it("runs six-month core gate from a cache file without fetching Binance", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-core-gate-cache-"));
+    try {
+      const cachePath = join(dir, "candles.json");
+      writeFileSync(cachePath, JSON.stringify(buildInsideVolumeWinCandles().map(klineFromCandle)));
+      globalThis.fetch = async () => {
+        throw new Error("Binance should not be fetched when --cache-file exists");
+      };
+
+      const result = await runPhase1Command(
+        [
+          "trading:research-btcusdc-core-gate",
+          "--cache-file",
+          cachePath,
+          "--portfolio-candidates",
+          "inside-volume|inside-bar-expansion-retest-long|volumeRank:high|limit-signal-close|1|1",
+          "--no-send",
+        ],
+        {},
+      );
+
+      expect(result.ok).toBe(true);
+      expect((result.data as { report: { candles: number } }).report.candles).toBeGreaterThan(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it("filters live Telegram trade alerts to core strategy events only", () => {
     const eventRows = [
       { type: "order_submitted", candidateLabel: TEST_CANDIDATE_LABEL },

@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 export const BTCUSDC_AGENT_OFFICE_ROLES = [
@@ -34,6 +34,11 @@ export interface BtcusdcAgentOfficeState {
   lastRegistryPath?: string;
 }
 
+interface BtcusdcAgentOfficeCooldown {
+  untilIso?: string;
+  reason?: string;
+}
+
 export interface BtcusdcAgentOfficeCycleOptions {
   statePath: string;
   reportDir: string;
@@ -46,6 +51,10 @@ export interface BtcusdcAgentOfficeCycleOptions {
   allowRegistryWrite?: boolean;
   coreGateDays?: number;
   coreGateMaxCandles?: number;
+  coreGateCacheFile?: string;
+  coreGateCooldownPath?: string;
+  coreGateCooldownMs?: number;
+  maxReportFiles?: number;
   commandRunner?: (args: string[]) => Promise<unknown>;
 }
 
@@ -99,6 +108,40 @@ function loadState(path: string): BtcusdcAgentOfficeState {
 function saveJson(path: string, value: unknown): void {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, JSON.stringify(value, null, 2));
+}
+
+function loadCooldown(path: string | undefined): BtcusdcAgentOfficeCooldown | null {
+  if (!path || !existsSync(path)) return null;
+  return JSON.parse(readFileSync(path, "utf8")) as BtcusdcAgentOfficeCooldown;
+}
+
+function cooldownActive(cooldown: BtcusdcAgentOfficeCooldown | null, nowIso: string): boolean {
+  if (!cooldown?.untilIso) return false;
+  return Date.parse(cooldown.untilIso) > Date.parse(nowIso);
+}
+
+function cooldownUntilFromError(error: unknown, nowIso: string, fallbackMs: number): string {
+  const message = error instanceof Error ? error.message : String(error);
+  const banMatch = message.match(/banned until (\d{10,})/i);
+  if (banMatch) {
+    const timestamp = Number(banMatch[1]);
+    if (Number.isFinite(timestamp)) return new Date(timestamp).toISOString();
+  }
+  return new Date(Date.parse(nowIso) + fallbackMs).toISOString();
+}
+
+function pruneReportFiles(reportDir: string, maxReportFiles: number | undefined): void {
+  if (!maxReportFiles || maxReportFiles <= 0 || !existsSync(reportDir)) return;
+  const reports = readdirSync(reportDir)
+    .filter((name) => name.endsWith(".json"))
+    .map((name) => {
+      const path = join(reportDir, name);
+      return { path, mtimeMs: statSync(path).mtimeMs };
+    })
+    .sort((left, right) => right.mtimeMs - left.mtimeMs);
+  for (const report of reports.slice(maxReportFiles)) {
+    unlinkSync(report.path);
+  }
 }
 
 function cycleIdFrom(nowIso: string, cycleNumber: number): string {
@@ -227,7 +270,16 @@ export async function runBtcusdcAgentOfficeCycle(
   }
   roles.push(role("approach_research", "completed", "1m 원천과 5m 맥락을 모두 허용하고, 보유시간은 후보별 자유로 열어둠"));
 
-  if (options.runCoreGate && options.commandRunner) {
+  const cooldown = loadCooldown(options.coreGateCooldownPath);
+  if (options.runCoreGate && cooldownActive(cooldown, nowIso)) {
+    roles.push(
+      role(
+        "core_validation",
+        "skipped",
+        `core gate cooldown until ${cooldown?.untilIso}; reason: ${cooldown?.reason ?? "recent failure"}`,
+      ),
+    );
+  } else if (options.runCoreGate && options.commandRunner) {
     const args = [
       "trading:research-btcusdc-core-gate",
       "--days",
@@ -238,13 +290,29 @@ export async function runBtcusdcAgentOfficeCycle(
       options.registryPath,
       "--no-send",
     ];
+    if (options.coreGateCacheFile) {
+      args.push("--cache-file", options.coreGateCacheFile);
+    }
     if (options.allowRegistryWrite) {
       args.push("--registry-out", options.registryPath);
     }
     try {
       await options.commandRunner(args);
+      if (options.coreGateCooldownPath) {
+        saveJson(options.coreGateCooldownPath, {
+          untilIso: nowIso,
+          reason: "last core gate succeeded",
+        } satisfies BtcusdcAgentOfficeCooldown);
+      }
       roles.push(role("core_validation", "completed", `6개월 core gate 실행: ${args.join(" ")}`));
     } catch (error) {
+      const untilIso = cooldownUntilFromError(error, nowIso, options.coreGateCooldownMs ?? 15 * 60_000);
+      if (options.coreGateCooldownPath) {
+        saveJson(options.coreGateCooldownPath, {
+          untilIso,
+          reason: error instanceof Error ? error.message : String(error),
+        } satisfies BtcusdcAgentOfficeCooldown);
+      }
       roles.push({
         ...role("core_validation", "failed", "6개월 core gate 실행 실패"),
         error: error instanceof Error ? error.message : String(error),
@@ -286,6 +354,7 @@ export async function runBtcusdcAgentOfficeCycle(
     ...result,
     localIdeaBriefs: ideaBriefs,
   });
+  pruneReportFiles(options.reportDir, options.maxReportFiles);
   saveJson(options.statePath, {
     ...state,
     version: 1,

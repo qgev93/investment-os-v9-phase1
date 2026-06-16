@@ -174,4 +174,55 @@ describe("BTCUSDC local agent office", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("puts core gate into cooldown after a Binance rate ban", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-cooldown-"));
+    try {
+      const calls: string[][] = [];
+      const cooldownPath = join(dir, "cooldown.json");
+      const first = await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath: join(dir, "registry.json"),
+        coreGateCacheFile: join(dir, "candles.json"),
+        coreGateCooldownPath: cooldownPath,
+        nowIso: "2026-06-16T01:30:00.000Z",
+        useModel: false,
+        runCoreGate: true,
+        allowRegistryWrite: true,
+        commandRunner: async (args) => {
+          calls.push(args);
+          throw new Error(
+            'Binance klines request failed with 418: {"code":-1003,"msg":"Way too many requests; IP banned until 1781574407098."}',
+          );
+        },
+      });
+
+      expect(first.roles.find((role) => role.role === "core_validation")?.status).toBe("failed");
+      expect(calls).toHaveLength(1);
+      expect(calls[0]).toContain("--cache-file");
+      expect(JSON.parse(readFileSync(cooldownPath, "utf8"))).toMatchObject({
+        untilIso: "2026-06-16T01:46:47.098Z",
+      });
+
+      const second = await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath: join(dir, "registry.json"),
+        coreGateCooldownPath: cooldownPath,
+        nowIso: "2026-06-16T01:31:00.000Z",
+        useModel: false,
+        runCoreGate: true,
+        commandRunner: async (args) => {
+          calls.push(args);
+        },
+      });
+
+      expect(calls).toHaveLength(1);
+      expect(second.roles.find((role) => role.role === "core_validation")?.status).toBe("skipped");
+      expect(second.roles.find((role) => role.role === "core_validation")?.summary).toContain("cooldown");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
