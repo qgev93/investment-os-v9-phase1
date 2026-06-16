@@ -18,6 +18,17 @@ export const BTCUSDC_AGENT_OFFICE_ROLES = [
 export type BtcusdcAgentOfficeRole = (typeof BTCUSDC_AGENT_OFFICE_ROLES)[number];
 export type BtcusdcAgentOfficeRoleStatus = "completed" | "skipped" | "failed";
 
+export const BTCUSDC_AGENT_OFFICE_AUTONOMOUS_TEAMS = [
+  "bottleneck",
+  "operations",
+  "workflow_research",
+  "improvement",
+  "registry_sync",
+  "reporting",
+] as const;
+
+export type BtcusdcAgentOfficeAutonomousTeam = (typeof BTCUSDC_AGENT_OFFICE_AUTONOMOUS_TEAMS)[number];
+
 export interface BtcusdcAgentOfficeRoleReport {
   role: BtcusdcAgentOfficeRole;
   nameKo: string;
@@ -25,6 +36,14 @@ export interface BtcusdcAgentOfficeRoleReport {
   summary: string;
   artifacts?: string[];
   error?: string;
+}
+
+export interface BtcusdcAgentOfficeAutonomousTeamReport {
+  team: BtcusdcAgentOfficeAutonomousTeam;
+  nameKo: string;
+  status: BtcusdcAgentOfficeRoleStatus;
+  summary: string;
+  artifacts?: string[];
 }
 
 export interface BtcusdcAgentOfficeState {
@@ -148,6 +167,7 @@ export interface BtcusdcAgentOfficeCycleResult {
   modelProvider: "local" | "openai";
   modelName: string;
   roles: BtcusdcAgentOfficeRoleReport[];
+  autonomousTeams: BtcusdcAgentOfficeAutonomousTeamReport[];
   reportPath: string;
   statePath: string;
   registryPath: string;
@@ -172,6 +192,15 @@ const ROLE_NAMES: Record<BtcusdcAgentOfficeRole, string> = {
   core_validation: "코어검증팀",
   risk_governance: "리스크팀",
   registry_operations: "등록운영팀",
+  reporting: "보고팀",
+};
+
+const AUTONOMOUS_TEAM_NAMES: Record<BtcusdcAgentOfficeAutonomousTeam, string> = {
+  bottleneck: "병목운영팀",
+  operations: "운영팀",
+  workflow_research: "워크플로우연구팀",
+  improvement: "개선팀",
+  registry_sync: "동기화배포팀",
   reporting: "보고팀",
 };
 
@@ -1187,6 +1216,77 @@ function role(role: BtcusdcAgentOfficeRole, status: BtcusdcAgentOfficeRoleStatus
   };
 }
 
+function autonomousTeam(
+  team: BtcusdcAgentOfficeAutonomousTeam,
+  status: BtcusdcAgentOfficeRoleStatus,
+  summary: string,
+  artifacts?: string[],
+): BtcusdcAgentOfficeAutonomousTeamReport {
+  return {
+    team,
+    nameKo: AUTONOMOUS_TEAM_NAMES[team],
+    status,
+    summary,
+    artifacts,
+  };
+}
+
+function buildAutonomousTeamReports(input: {
+  workflowResearch: BtcusdcAgentOfficeWorkflowResearch;
+  autonomousImprovement: BtcusdcAgentOfficeAutonomousImprovement;
+  workflowDraftRegistration: { added: number; totalDrafts: number };
+  autonomousImprovementDraftRegistration: { added: number; totalDrafts: number };
+  roles: BtcusdcAgentOfficeRoleReport[];
+  modelProvider: "local" | "openai";
+  modelName: string;
+  allowRegistryWrite?: boolean;
+  runCoreGate?: boolean;
+  reportPath: string;
+  registryPath: string;
+}): BtcusdcAgentOfficeAutonomousTeamReport[] {
+  const coreValidation = input.roles.find((item) => item.role === "core_validation");
+  const feedbackModes = new Set(input.workflowResearch.feedbackLoops.map((item) => item.failureMode));
+  const improvementTeams = input.autonomousImprovement.agentTeams.map((team) => `${team.team}:${team.drafts}`).join(", ");
+  return [
+    autonomousTeam(
+      "bottleneck",
+      "completed",
+      `bottleneck map: ${input.workflowResearch.feedbackLoops.length} feedback loops, ${feedbackModes.size} failure modes, core gate ${coreValidation?.status ?? "unknown"}`,
+      ["workflow-feedback", "core-gate-status"],
+    ),
+    autonomousTeam(
+      "operations",
+      "completed",
+      `PC-on operations using ${input.modelProvider}/${input.modelName}; paper research only and no live orders; core gate ${input.runCoreGate ? "requested" : "not requested"}`,
+      ["runtime-state"],
+    ),
+    autonomousTeam(
+      "workflow_research",
+      "completed",
+      `OHLCV workflow generated ${input.workflowResearch.experimentQueue.length} experiments and ${input.workflowResearch.ideaBriefs.length} idea briefs`,
+      ["workflow-research-packet"],
+    ),
+    autonomousTeam(
+      "improvement",
+      input.autonomousImprovement.candidateDrafts.length > 0 ? "completed" : "skipped",
+      `long/short paired improvement policy ${input.autonomousImprovement.directionalPolicy.mode}; agents ${improvementTeams || "none"}; rejected unpaired drafts ${input.autonomousImprovement.directionalPolicy.rejectedUnpairedDrafts}`,
+      ["autonomous-improvement-packet"],
+    ),
+    autonomousTeam(
+      "registry_sync",
+      input.allowRegistryWrite ? "completed" : "skipped",
+      input.allowRegistryWrite
+        ? `registry write enabled at ${input.registryPath}; workflow ${input.workflowDraftRegistration.added}/${input.workflowDraftRegistration.totalDrafts}, improvement ${input.autonomousImprovementDraftRegistration.added}/${input.autonomousImprovementDraftRegistration.totalDrafts}`
+        : `registry write disabled at ${input.registryPath}; report-only cycle`,
+      ["strategy-registry"],
+    ),
+    autonomousTeam("reporting", "completed", `JSON report ready at ${input.reportPath}; Telegram text composed once`, [
+      "json-report",
+      "telegram-text",
+    ]),
+  ];
+}
+
 function buildTelegramText(result: Omit<BtcusdcAgentOfficeCycleResult, "telegramText">): string {
   const lines = [
     "BTCUSDC.P Agent Office",
@@ -1197,6 +1297,10 @@ function buildTelegramText(result: Omit<BtcusdcAgentOfficeCycleResult, "telegram
     `레지스트리: ${result.registryPath}`,
   ];
   for (const item of result.roles) {
+    lines.push(`${item.nameKo}: ${item.status} - ${item.summary}`);
+  }
+  lines.push("자율운영팀");
+  for (const item of result.autonomousTeams) {
     lines.push(`${item.nameKo}: ${item.status} - ${item.summary}`);
   }
   return lines.join("\n");
@@ -1351,6 +1455,19 @@ export async function runBtcusdcAgentOfficeCycle(
   roles.push(role("reporting", "completed", "PC-on agent-office 상태를 Telegram/JSON report용 텍스트로 정리"));
 
   const reportPath = join(options.reportDir, `${cycleId}.json`);
+  const autonomousTeams = buildAutonomousTeamReports({
+    workflowResearch,
+    autonomousImprovement,
+    workflowDraftRegistration,
+    autonomousImprovementDraftRegistration,
+    roles,
+    modelProvider,
+    modelName,
+    allowRegistryWrite: options.allowRegistryWrite,
+    runCoreGate: options.runCoreGate,
+    reportPath,
+    registryPath: options.registryPath,
+  });
   const resultWithoutTelegram = {
     mode: "agent_office_cycle" as const,
     cycleId,
@@ -1359,6 +1476,7 @@ export async function runBtcusdcAgentOfficeCycle(
     modelProvider,
     modelName,
     roles,
+    autonomousTeams,
     reportPath,
     statePath: options.statePath,
     registryPath: options.registryPath,

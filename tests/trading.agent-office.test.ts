@@ -38,6 +38,41 @@ describe("BTCUSDC local agent office", () => {
     }
   });
 
+  it("reports autonomous company teams for bottleneck, workflow, improvement, sync, and reporting work", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-company-teams-"));
+    try {
+      const result = await runBtcusdcAgentOfficeCycle({
+        statePath: join(dir, "state.json"),
+        reportDir: join(dir, "reports"),
+        registryPath: join(dir, "registry.json"),
+        nowIso: "2026-06-16T00:05:00.000Z",
+        useModel: false,
+        runCoreGate: false,
+      });
+
+      const report = JSON.parse(readFileSync(result.reportPath, "utf8")) as {
+        autonomousTeams?: Array<{ team: string; status: string; summary: string }>;
+      };
+
+      expect(report.autonomousTeams?.map((team) => team.team)).toEqual([
+        "bottleneck",
+        "operations",
+        "workflow_research",
+        "improvement",
+        "registry_sync",
+        "reporting",
+      ]);
+      expect(report.autonomousTeams?.find((team) => team.team === "bottleneck")?.summary).toContain("bottleneck");
+      expect(report.autonomousTeams?.find((team) => team.team === "workflow_research")?.summary).toContain("OHLCV");
+      expect(report.autonomousTeams?.find((team) => team.team === "improvement")?.summary).toContain("long/short");
+      expect(report.autonomousTeams?.find((team) => team.team === "registry_sync")?.summary).toContain("registry");
+      expect(result.telegramText).toContain("병목운영팀");
+      expect(result.telegramText).toContain("동기화배포팀");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it("runs the agent office through the CLI without sending Telegram", async () => {
     const dir = mkdtempSync(join(tmpdir(), "btcusdc-agent-office-cli-"));
     try {
